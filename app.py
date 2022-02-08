@@ -11,6 +11,7 @@ def glow_esp():
         try:
             for i in range(1, 1024):
                 entity_list = mem.game_handle.read_uint(ent.glow_object() + 0x38 * (i - 1) + 0x4)
+                
                 if entity_list <= 0:
                     continue
                 if ent.class_id(entity_list) == None:
@@ -100,7 +101,7 @@ def fov_changer(key_add: int, key_subtract: int, key_normalize: int):
             pass
         time.sleep(0.1)
 
-def hit_marker(filename: str):
+def hit_sound(filename: str):
     oldDmg = 0
     while True:
         try:
@@ -117,13 +118,13 @@ def hit_marker(filename: str):
             pass
         time.sleep(0.1)
 
-def player_info():
+def spectator_list():
     spectators = []
     while True:
         spectators.clear()
         try: 
             if ent.get_health(lp.local_player()) <= 0:
-                time.sleep(1)
+                continue
 
             for i in range(0, 64):
                 if ent.get_entity(i) <= 0:
@@ -132,20 +133,23 @@ def player_info():
                 player_name = ent.get_name(i)
                 if player_name == None or player_name == 'GOTV':
                     continue
-                
+
                 if ent.get_team(ent.get_entity(i)) == ent.get_team(lp.local_player()):
                     observed_target_handle = mem.game_handle.read_uint(ent.get_entity(i) + offsets.m_hObserverTarget) & 0xFFF
                     spectected = mem.game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
-                
+                    
                     if spectected == lp.local_player():
                         spectators.append(ent.get_name(i))
+    
+            if len(spectators) > 0:
+                format = '\n'.join(spectators)
+                print(format)
 
-            
-            print(spectators)
         except Exception as err:
             pass
         time.sleep(1)
         os.system('cls')
+        print('> Spectators <')
 
 def exit(key: int):
     while True:
@@ -163,8 +167,8 @@ def start_threads():
         threading.Thread(target=bunny_hop, args=[0x20], name='bunny_hop').start()
         threading.Thread(target=radar_hack, name='radar_hack').start()
         threading.Thread(target=fov_changer, args=[0x68, 0x62, 0x65], name='fov_changer').start()
-        threading.Thread(target=hit_marker, args=['hitsound.wav'], name='hit_marker').start()
-        # threading.Thread(target=player_info, name='player_info').start()
+        threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound').start()
+        threading.Thread(target=spectator_list, name='spectator_list').start()
         threading.Thread(target=exit, args=[0x2E], name='exit').start()
 
     except Exception as err:
