@@ -13,3 +13,6 @@ External CS:GO cheat based on PyMem library and threading system.
 
 ## In game:
 ![This is an image](https://i2.paste.pics/93f95b4511332a3c8b48d14e522774e1.png)
+
+## TO:DO:
+##### Make overlay to display spectators on screen instead of printing them in console!
