@@ -1,82 +1,88 @@
 __author__ = "MaGicSuR / https://github.com/MaGicSuR"
 
-from asyncio.exceptions import CancelledError
 from memory import *
 from entity import *
 from local import *
 import helper as h
-import winsound
-from asyncio import Task, tasks, sleep, gather, run
-import ctypes
-import time
-import os
+import threading, winsound, ctypes, time, os
 
-async def glow_esp():
+def glow_esp():
     while True:
         try:
-            for i in range(1, 2222):
-                entityList = mem.game_handle.read_uint(ent.glow_object() + 0x38 * (i - 1) + 0x4)
-                if entityList <= 0:
+            for i in range(1, 1024):
+                entity_list = mem.game_handle.read_uint(ent.glow_object() + 0x38 * (i - 1) + 0x4)
+                if entity_list <= 0:
                     continue
-                if ent.class_id(entityList) == None:
+                if ent.class_id(entity_list) == None:
                     continue
-                if ent.get_dormant(entityList) == True:
+                if ent.get_dormant(entity_list) == True:
                     continue
-                if ent.class_id(entityList) == 40:
-                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x8), 1.0)
-                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0xC), 1.0)
-                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x10), 1.0)
-                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x14), 0.55)
+
+                if ent.class_id(entity_list) == 40:
+                    if ent.get_team(entity_list) != ent.get_team(lp.local_player()):
+                        mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x8), 0.47)
+                        mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0xC), 0.24)
+                        mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x10), 1.0)
+                        mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x14), 0.6)
+                        mem.game_handle.write_bool(ent.glow_object() + ((0x38 * (i - 1)) + 0x28), True)
+                        mem.game_handle.write_bool(ent.glow_object() + ((0x38 * (i - 1)) + 0x29), False)
+
+                elif h.class_id_c4(ent.class_id(entity_list)) or h.class_id_gun(ent.class_id(entity_list)):
+                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x8), 0.95)
+                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0xC), 0.12)
+                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x10), 0.54)
+                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x14), 0.6)
                     mem.game_handle.write_bool(ent.glow_object() + ((0x38 * (i - 1)) + 0x28), True)
                     mem.game_handle.write_bool(ent.glow_object() + ((0x38 * (i - 1)) + 0x29), False)
-                elif ent.class_id(entityList) == 34 or ent.class_id(entityList) == 129:
+
+                elif h.class_id_grenade(ent.class_id(entity_list)):
                     mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x8), 1.0)
                     mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0xC), 1.0)
                     mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x10), 1.0)
-                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x14), 0.55)
+                    mem.game_handle.write_float(ent.glow_object() + ((0x38 * (i - 1)) + 0x14), 0.6)
                     mem.game_handle.write_bool(ent.glow_object() + ((0x38 * (i - 1)) + 0x28), True)
                     mem.game_handle.write_bool(ent.glow_object() + ((0x38 * (i - 1)) + 0x29), False)
 
         except Exception as err:
             pass
-        await sleep(0)
+        time.sleep(0.001)
 
-async def auto_pistol(key: int, delay: float):
+def auto_pistol(key: int, delay: float):
     while True:
         try:
             if ctypes.windll.user32.GetAsyncKeyState(key) and h.weapon_pistol(ent.active_weapon()):
                 lp.force_attack(6)
-                await sleep(delay)
-        except Exception:
+                time.sleep(delay)
+        except Exception as err:
             pass
-        await sleep(0)
+        time.sleep(0.01)
 
-async def bunny_hop(key: int):
+def bunny_hop(key: int):
     while True:
         try:
             if lp.get_current_state() == 5:
                 while ctypes.windll.user32.GetAsyncKeyState(key):
                     if ent.get_flag(lp.local_player()) == 257:
                         lp.force_jump(5)
-                        await sleep(0)
+                        time.sleep(0.01)
                     else:
                         lp.force_jump(4)
-                        await sleep(0)
-        except Exception:
+                        time.sleep(0.01)
+        except Exception as err:
             pass
-        await sleep(0)
+        time.sleep(0.001)
 
-async def radar_hack():
+def radar_hack():
     while True:
         try:
             if ent.in_game():
                 for i in ent.entity_list:
                     ent.set_is_visible(i, True)
-        except Exception:
+        except Exception as err:
             pass
-        await sleep(1)
+        time.sleep(1)
 
-async def fov_changer(key_add: int, key_subtract: int, key_normalize: int):
+def fov_changer(key_add: int, key_subtract: int, key_normalize: int):
     while True:
         try:
             v1 = lp.get_fov()
@@ -90,11 +96,11 @@ async def fov_changer(key_add: int, key_subtract: int, key_normalize: int):
                     lp.set_fov(v2)
                 elif ctypes.windll.user32.GetAsyncKeyState(key_normalize):
                     lp.set_fov(90)
-        except Exception:
+        except Exception as err:
             pass
-        await sleep(0.1)
+        time.sleep(0.1)
 
-async def hit_marker(filename: str):
+def hit_marker(filename: str):
     oldDmg = 0
     while True:
         try:
@@ -107,52 +113,61 @@ async def hit_marker(filename: str):
                 if 0 < oldDmg >= 255:
                     continue
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
-        except Exception:
+        except Exception as err:
             pass
-        await sleep(0.1)
+        time.sleep(0.1)
 
-async def money_reveal(key: int):
-    # Thanks Daniel for that. Modified script for my needs.
-    # https://github.com/danielkrupinski/OneByteMoney
-
-    clientModule = mem.game_handle.read_bytes(mem.client_dll, mem.client_dll_size)
-    address = mem.client_dll + re.search(rb'.\x0C\x5B\x5F\xB8\xFB\xFF\xFF\xFF',
-                                clientModule).start()
+def player_info():
+    spectators = []
     while True:
-        try:
-            if ent.in_game():
-                if ctypes.windll.user32.GetAsyncKeyState(key):
-                    await sleep(0.12)
-                    mem.game_handle.write_uchar(address, 0xEB if mem.game_handle.read_uchar(address) == 0x75 else 0x75)
-        except Exception:
-            pass
-        await sleep(0.1)
+        spectators.clear()
+        try: 
+            if ent.get_health(lp.local_player()) <= 0:
+                time.sleep(1)
 
-async def exit(key: int):
+            for i in range(0, 64):
+                if ent.get_entity(i) <= 0:
+                    continue
+
+                player_name = ent.get_name(i)
+                if player_name == None or player_name == 'GOTV':
+                    continue
+                
+                if ent.get_team(ent.get_entity(i)) == ent.get_team(lp.local_player()):
+                    observed_target_handle = mem.game_handle.read_uint(ent.get_entity(i) + offsets.m_hObserverTarget) & 0xFFF
+                    spectected = mem.game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
+                
+                    if spectected == lp.local_player():
+                        spectators.append(ent.get_name(i))
+
+            
+            print(spectators)
+        except Exception as err:
+            pass
+        time.sleep(1)
+        os.system('cls')
+
+def exit(key: int):
     while True:
         if ctypes.windll.user32.GetAsyncKeyState(key):
             print('Exiting...')
-            for i in tasks.all_tasks():
-                Task.cancel(i)
-
             lp.set_fov(90)
             mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
             os._exit(0)
-        await sleep(0.1)
+        time.sleep(0.2)
 
-async def start_threads():
+def start_threads():
     try:
-        await gather(
-            glow_esp(),
-            auto_pistol(0x05, 0.07),
-            bunny_hop(0x20),
-            radar_hack(),
-            fov_changer(0x68, 0x62, 0x65),
-            #hit_marker('hitsound.wav'),
-            money_reveal(0x67),
-            exit(0x2E),
-        )
-    except (Exception, CancelledError) as err:
+        threading.Thread(target=glow_esp, name='glow_esp').start()
+        threading.Thread(target=auto_pistol, args=[0x05, 0.02], name='auto_pistol').start()
+        threading.Thread(target=bunny_hop, args=[0x20], name='bunny_hop').start()
+        threading.Thread(target=radar_hack, name='radar_hack').start()
+        threading.Thread(target=fov_changer, args=[0x68, 0x62, 0x65], name='fov_changer').start()
+        threading.Thread(target=hit_marker, args=['hitsound.wav'], name='hit_marker').start()
+        # threading.Thread(target=player_info, name='player_info').start()
+        threading.Thread(target=exit, args=[0x2E], name='exit').start()
+
+    except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
         os._exit(0)
 
@@ -163,11 +178,11 @@ if __name__ == '__main__':
         ent = Entity(mem)
         lp = LocalPlayer(mem)
         ent.entity_loop()
-        ent.glow_objects_loop()
         stop_timer = time.perf_counter()
+        start_threads()
         print(f'Initialization took {round((stop_timer - start_timer), 5)} seconds.')
     except (Exception, KeyboardInterrupt) as err:
         print(f'Failed to initialize!\nReason: {err}\nExiting...')
         os._exit(0)
+
     
-    run(start_threads())
