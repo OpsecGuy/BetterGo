@@ -34,9 +34,12 @@ class Entity(LocalPlayer):
     def get_entity(self, entity):
         return self.mem.game_handle.read_uint((self.mem.client_dll + offsets.dwEntityList) + entity * 0x10)
 
+    def get_life_state(self, entity):
+        return self.mem.game_handle.read_int(entity + offsets.m_lifeState)
+
     def get_health(self, entity):
         return self.mem.game_handle.read_int(entity + offsets.m_iHealth)
-    
+
     def get_team(self, entity):
         return self.mem.game_handle.read_int(entity + offsets.m_iTeamNum)
 
@@ -62,7 +65,12 @@ class Entity(LocalPlayer):
         return self.mem.game_handle.read_uint(entity + offsets.m_iShotsFired)
 
     def get_total_hits(self, entity):
-        return self.mem.game_handle.read_uint(entity + 0x103f8) # m_totalHitsOnServer
+        return self.mem.game_handle.read_uint(entity + 0xA3A8) # m_totalHitsOnServer
+
+    def is_bomb_planted(self):
+        return self.mem.game_handle.read_bool(
+            self.mem.game_handle.read_int(
+            self.mem.client_dll + offsets.dwGameRulesProxy) + offsets.m_bBombPlanted)
 
     def glow_object(self):
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwGlowObjectManager)
@@ -73,6 +81,9 @@ class Entity(LocalPlayer):
     def glow_index(self, entity):
         return self.mem.game_handle.read_uint(entity + offsets.m_iGlowIndex)
     
+    def is_bomb_planted(self):
+        return self.mem.game_handle.read_bool((client_dll + offsets.dwGameRulesProxy) + offsets.m_bBombPlanted)
+
     def is_valid(self):
         if (self.get_entity(0) > 0 and self.get_health(self.player) > 0
         and self.get_team(self.player) in {2, 3}):
@@ -110,3 +121,19 @@ class Entity(LocalPlayer):
         actWeapon = self.mem.game_handle.read_uint(self.local_player() + offsets.m_hActiveWeapon) & 0xFFF
         actWeapon = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + (actWeapon - 1) * 0x10)
         return self.mem.game_handle.read_short(actWeapon + offsets.m_iItemDefinitionIndex)
+
+    def get_name(self, entity):
+        player_info = self.mem.game_handle.read_uint(self.engine_ptr()
+        + offsets.dwClientState_PlayerInfo)
+                
+        player_info_items = self.mem.game_handle.read_uint(
+            self.mem.game_handle.read_uint(player_info + 0x40) + 0xC
+        )
+        info = self.mem.game_handle.read_uint(player_info_items + 0x28 + (entity * 0x34))
+
+        if info > 0:
+            return self.mem.game_handle.read_string(info + 0x10)
+    
+    def get_rank(self, entity):
+        player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
+        return self.mem.game_handle.read_uint(player_resources + entity * 4)

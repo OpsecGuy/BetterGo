@@ -19,6 +19,9 @@ class LocalPlayer():
     def get_entity_by_crosshair(self):
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + ((self.get_crosshair_id() - 1) * 0x10))
     
+    def get_team_by_crosshair(self):
+        return self.mem.game_handle.read_int(self.get_entity_by_crosshair() + offsets.m_iTeamNum)
+
     def force_jump(self, flag):
         self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceJump, flag)
 
