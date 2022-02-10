@@ -37,9 +37,6 @@ class LocalPlayer():
     def set_fov(self, value):
         self.mem.game_handle.write_int(self.local_player() + offsets.m_iDefaultFOV, value)
 
-    def total_hits(self):
-        return self.mem.game_handle.read_uint(self.local_player() + 0x103f8) # m_totalHitsOnServer 
-
     def aim_punch_angle(self):
         x = self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle)
         y = self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle + 0x4)

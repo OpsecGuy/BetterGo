@@ -86,6 +86,7 @@ class Weapon(IntEnum):
     Skeleton_Knife = 525
 
 class ClassId(IntEnum):
+    CAI_BaseNPC = 0,
     CAK47 = 1,
     CBaseAnimating = 2,
     CBaseAnimatingOverlay = 3,
@@ -368,6 +369,7 @@ class ClassId(IntEnum):
     RocketTrail = 280,
     SmokeTrail = 281,
     SporeExplosion = 282,
+    SporeTrail = 283,
 
 def class_id_gun(classID):
     if (classID == ClassId.CAK47 or classID == ClassId.CSCAR17 or classID == ClassId.CWeaponAug

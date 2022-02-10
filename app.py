@@ -3,6 +3,7 @@ __author__ = "MaGicSuR / https://github.com/MaGicSuR"
 from memory import *
 from entity import *
 from local import *
+from gui import *
 import helper as h
 import threading, winsound, ctypes, time, os
 
@@ -143,13 +144,13 @@ def spectator_list():
     
             if len(spectators) > 0:
                 format = '\n'.join(spectators)
-                print(format)
+                return format
+            else:
+                return ''
 
         except Exception as err:
             pass
         time.sleep(1)
-        os.system('cls')
-        print('> Spectators <')
 
 def exit(key: int):
     while True:
@@ -159,6 +160,12 @@ def exit(key: int):
             mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
             os._exit(0)
         time.sleep(0.2)
+
+def create_window():
+    h = window.create_window()
+    while True:
+        event, values = h.read(timeout=100)
+        h['spec_list'].update(spectator_list())
 
 def start_threads():
     try:
@@ -170,6 +177,7 @@ def start_threads():
         threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound').start()
         threading.Thread(target=spectator_list, name='spectator_list').start()
         threading.Thread(target=exit, args=[0x2E], name='exit').start()
+        threading.Thread(target=create_window, name='create_window').start()
 
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
@@ -181,6 +189,7 @@ if __name__ == '__main__':
         mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
         ent = Entity(mem)
         lp = LocalPlayer(mem)
+        window = GUI()
         ent.entity_loop()
         stop_timer = time.perf_counter()
         start_threads()
@@ -188,5 +197,3 @@ if __name__ == '__main__':
     except (Exception, KeyboardInterrupt) as err:
         print(f'Failed to initialize!\nReason: {err}\nExiting...')
         os._exit(0)
-
-    

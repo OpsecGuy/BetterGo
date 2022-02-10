@@ -65,7 +65,7 @@ class Entity(LocalPlayer):
         return self.mem.game_handle.read_uint(entity + offsets.m_iShotsFired)
 
     def get_total_hits(self, entity):
-        return self.mem.game_handle.read_uint(entity + 0xA3A8) # m_totalHitsOnServer
+        return self.mem.game_handle.read_uint(entity + 0x103f8) # m_totalHitsOnServer
 
     def is_bomb_planted(self):
         return self.mem.game_handle.read_bool(
@@ -136,4 +136,4 @@ class Entity(LocalPlayer):
     
     def get_rank(self, entity):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
-        return self.mem.game_handle.read_uint(player_resources + entity * 4)
+        return self.mem.game_handle.read_int(player_resources + offsets.m_iCompetitiveWins + (entity * 0x4))
