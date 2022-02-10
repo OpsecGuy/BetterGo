@@ -12,7 +12,7 @@ External CS:GO cheat based on PyMem library and threading system.
 ##### -> ...And more!
 
 ## In game:
-![This is an image](https://i2.paste.pics/93f95b4511332a3c8b48d14e522774e1.png)
+![This is an image](https://i.gyazo.com/a14ec5150ac9602ad328e517a53ed7c9.jpg)
 
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-cheat-base.html
