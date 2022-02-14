@@ -1,8 +1,7 @@
 from local import LocalPlayer
-import offsets
 from helper import *
 from memory import *
-from local import LocalPlayer
+import offsets
 
 class Entity(LocalPlayer):
     def __init__(self, mem) -> None:

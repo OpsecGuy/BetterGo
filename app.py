@@ -5,7 +5,6 @@ from entity import *
 from local import *
 from gui import *
 import helper as h
-import threading, winsound, ctypes, time, os
 
 def glow_esp():
     while True:
@@ -123,9 +122,9 @@ def spectator_list():
     spectators = []
     while True:
         spectators.clear()
-        try: 
+        try:
             if ent.get_health(lp.local_player()) <= 0:
-                continue
+                return ''
 
             for i in range(0, 64):
                 if ent.get_entity(i) <= 0:
@@ -155,9 +154,13 @@ def spectator_list():
 def exit(key: int):
     while True:
         if ctypes.windll.user32.GetAsyncKeyState(key):
-            print('Exiting...')
-            lp.set_fov(90)
-            mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
+            try:
+                print('Exiting...')
+                mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
+                lp.set_fov(90)
+            except exception.MemoryWriteError as err:
+                print(err)
+            
             os._exit(0)
         time.sleep(0.2)
 
@@ -165,7 +168,8 @@ def create_window():
     h = window.create_window()
     while True:
         event, values = h.read(timeout=100)
-        h['spec_list'].update(spectator_list())
+        if ent.in_game():
+            h['spec_list'].update(spectator_list())
 
 def start_threads():
     try:
@@ -187,12 +191,12 @@ if __name__ == '__main__':
     try:
         start_timer = time.perf_counter()
         mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
-        ent = Entity(mem)
         lp = LocalPlayer(mem)
+        ent = Entity(mem)
         window = GUI()
         ent.entity_loop()
-        stop_timer = time.perf_counter()
         start_threads()
+        stop_timer = time.perf_counter()
         print(f'Initialization took {round((stop_timer - start_timer), 5)} seconds.')
     except (Exception, KeyboardInterrupt) as err:
         print(f'Failed to initialize!\nReason: {err}\nExiting...')

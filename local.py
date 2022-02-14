@@ -1,7 +1,6 @@
 from memory import *
 from helper import *
-import offsets
-import struct
+import offsets, struct
 
 class LocalPlayer():
     def __init__(self, mem) -> None:
