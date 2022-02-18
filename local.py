@@ -18,20 +18,20 @@ class LocalPlayer():
     def get_entity_by_crosshair(self):
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + ((self.get_crosshair_id() - 1) * 0x10))
     
-    def get_team_by_crosshair(self):
-        return self.mem.game_handle.read_int(self.get_entity_by_crosshair() + offsets.m_iTeamNum)
+    def get_team_by_crosshair(self, entity):
+        return self.mem.game_handle.read_int(entity + offsets.m_iTeamNum)
 
     def force_jump(self, flag):
         self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceJump, flag)
 
     def force_attack(self, flag):
-        self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceAttack, flag)
+        self.mem.game_handle.write_uint(self.mem.client_dll + offsets.dwForceAttack, flag)
 
     def force_attack2(self, flag):
-        self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceAttack2, flag)
+        self.mem.game_handle.write_uint(self.mem.client_dll + offsets.dwForceAttack2, flag)
 
     def get_fov(self):
-        return self.mem.game_handle.read_uint(self.local_player() + offsets.m_iDefaultFOV)
+        return self.mem.game_handle.read_int(self.local_player() + offsets.m_iDefaultFOV)
 
     def set_fov(self, value):
         self.mem.game_handle.write_int(self.local_player() + offsets.m_iDefaultFOV, value)

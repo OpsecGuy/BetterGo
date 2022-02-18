@@ -198,6 +198,7 @@ if __name__ == '__main__':
         start_threads()
         stop_timer = time.perf_counter()
         print(f'Initialization took {round((stop_timer - start_timer), 5)} seconds.')
+        print('[NUMPAD 8/5/2] FOV Changer\n[MOUSE4] Auto Pistol\n[SPACE] BunnyHop\n[DEL] Exit safely from app!')
     except (Exception, KeyboardInterrupt) as err:
         print(f'Failed to initialize!\nReason: {err}\nExiting...')
         os._exit(0)

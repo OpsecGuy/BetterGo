@@ -83,9 +83,9 @@ class Entity(LocalPlayer):
     def is_bomb_planted(self):
         return self.mem.game_handle.read_bool((client_dll + offsets.dwGameRulesProxy) + offsets.m_bBombPlanted)
 
-    def is_valid(self):
-        if (self.get_entity(0) > 0 and self.get_health(self.player) > 0
-        and self.get_team(self.player) in {2, 3}):
+    def is_valid(self, entity):
+        if (self.get_team(entity) != 0 and self.get_health(entity) > 0
+        and self.get_dormant(entity) == False):
             return True
         else:
             return False
@@ -135,4 +135,4 @@ class Entity(LocalPlayer):
     
     def get_rank(self, entity):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
-        return self.mem.game_handle.read_int(player_resources + offsets.m_iCompetitiveWins + (entity * 0x4))
+        return self.mem.game_handle.read_int(player_resources + offsets.m_iCompetitiveRanking + (entity * 0x4))
