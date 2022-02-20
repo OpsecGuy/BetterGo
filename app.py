@@ -64,10 +64,8 @@ def trigger_bot(key: int, delay: float):
 
                     target = lp.get_entity_by_crosshair()
                     if ent.get_team(lp.local_player()) != lp.get_team_by_crosshair(target) and lp.get_health_by_crosshair(target) > 0:
-                        time.sleep(0.02)
+                        time.sleep(delay)
                         ent.force_attack(6)
-                        #time.sleep(0.01)
-                        #ent.force_attack(4)
         except Exception as err:
             pass
         time.sleep(0.001)
@@ -205,7 +203,7 @@ def start_threads():
     try:
         threading.Thread(target=glow_esp, name='glow_esp').start()
         threading.Thread(target=auto_pistol, args=[0x05, 0.02], name='auto_pistol').start()
-        threading.Thread(target=trigger_bot, args=[0x06, 0.03], name='trigger_bot').start(),
+        threading.Thread(target=trigger_bot, args=[0x06, 0.025], name='trigger_bot').start(),
         threading.Thread(target=bunny_hop, args=[0x20], name='bunny_hop').start()
         threading.Thread(target=radar_hack, name='radar_hack').start()
         threading.Thread(target=no_smoke, name='no_smoke').start()
