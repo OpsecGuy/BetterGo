@@ -21,6 +21,9 @@ class LocalPlayer():
     def get_team_by_crosshair(self, entity):
         return self.mem.game_handle.read_int(entity + offsets.m_iTeamNum)
 
+    def get_health_by_crosshair(self, entity):
+        return self.mem.game_handle.read_int(entity + offsets.m_iHealth)
+
     def force_jump(self, flag):
         self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceJump, flag)
 

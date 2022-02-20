@@ -83,13 +83,6 @@ class Entity(LocalPlayer):
     def is_bomb_planted(self):
         return self.mem.game_handle.read_bool((client_dll + offsets.dwGameRulesProxy) + offsets.m_bBombPlanted)
 
-    def is_valid(self, entity):
-        if (self.get_team(entity) != 0 and self.get_health(entity) > 0
-        and self.get_dormant(entity) == False):
-            return True
-        else:
-            return False
-
     def engine_ptr(self):
         return self.mem.game_handle.read_uint(self.mem.engine_dll + offsets.dwClientState)
 
@@ -108,6 +101,10 @@ class Entity(LocalPlayer):
         y = self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x4)
         z = self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x8)
         return Vector3(x, y, z)
+
+    def set_position(self, entity, x: float, y: float):
+        x = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin, x)
+        y = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin + 0x4, y)
     
     def get_bone_position(self, entity, bone_id):
         base = self.mem.game_handle.read_int(entity + offsets.m_dwBoneMatrix)

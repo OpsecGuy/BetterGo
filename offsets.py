@@ -1,17 +1,18 @@
 import memory
 
-# TO:DO
 # Implement more patterns to keep cheat as long updated as possible.
+# Some of the patterns are disabled until we use them. It saves time while launching app.
 # https://github.com/frk1/hazedumper/blob/master/config.json
+
 try:
     dwGlowObjectManager =  memory.get_sig('client.dll', rb'\xA1....\xA8\x01\x75\x4B', 4, 1)
     m_bDormant = memory.get_sig('client.dll', rb'\x8A\x81....\xC3\x32\xC0', 8, 2, False)
-    anim_overlays = memory.get_sig('client.dll', rb'\x8B\x89....\x8D\x0C\xD1', 0, 2, False)
-    clientstate_delta_ticks = memory.get_sig('engine.dll', rb'\xC7\x87........\xFF\x15....\x83\xC4\x08', 0, 2, False)
-    clientstate_choked_commands = memory.get_sig('engine.dll', rb'\x8B\x87....\x41', 0, 2, False)
-    clientstate_last_outgoing_command = memory.get_sig('engine.dll', rb'\x8B\x8F....\x8B\x87....\x41', 0, 2, False)
-    clientstate_net_channel = memory.get_sig('engine.dll', rb'\x8B\x8F....\x8B\x01\x8B\x40\x18', 0, 2, False)
-    convar_name_hash_table = memory.get_sig('vstdlib.dll', rb'\x8B\x3C\x85', 0, 3)
+    # anim_overlays = memory.get_sig('client.dll', rb'\x8B\x89....\x8D\x0C\xD1', 0, 2, False)
+    # clientstate_delta_ticks = memory.get_sig('engine.dll', rb'\xC7\x87........\xFF\x15....\x83\xC4\x08', 0, 2, False)
+    # clientstate_choked_commands = memory.get_sig('engine.dll', rb'\x8B\x87....\x41', 0, 2, False)
+    # clientstate_last_outgoing_command = memory.get_sig('engine.dll', rb'\x8B\x8F....\x8B\x87....\x41', 0, 2, False)
+    # clientstate_net_channel = memory.get_sig('engine.dll', rb'\x8B\x8F....\x8B\x01\x8B\x40\x18', 0, 2, False)
+    # convar_name_hash_table = memory.get_sig('vstdlib.dll', rb'\x8B\x3C\x85', 0, 3)
     dwForceAttack = memory.get_sig('client.dll', rb'\x89\x0D....\x8B\x0D....\x8B\xF2\x8B\xC1\x83\xCE\x04', 0, 2)
     dwForceAttack2 = memory.get_sig('client.dll', rb'\x89\x0D....\x8B\x0D....\x8B\xF2\x8B\xC1\x83\xCE\x04', 12, 2)
     dwForceJump = memory.get_sig('client.dll', rb'\x8B\x0D....\x8B\xD6\x8B\xC1\x83\xCA\x02', 0, 2)
@@ -25,25 +26,25 @@ try:
     dwClientState_State = memory.get_sig('engine.dll', rb'\x83\xB8.....\x0F\x94\xC0\xC3', 0, 2, False)
     dwClientState_ViewAngles = memory.get_sig('engine.dll', rb'\xF3\x0F\x11\x86....\xF3\x0F\x10\x44\x24.\xF3\x0F\x11\x86', 0, 4, False)
     dwEntityList = memory.get_sig('client.dll', rb'\xBB....\x83\xFF\x01\x0F\x8C....\x3B\xF8', 0, 1)
-    dwForceBackward = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 287)
-    dwForceForward = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 245)
-    dwForceLeft = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 465)
-    dwForceRight = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 512)
-    dwGameDir = memory.get_sig('engine.dll', rb'\x68....\x8D\x85....\x50\x68....\x68', 0, 1)
-    dwGameRulesProxy = memory.get_sig('client.dll', rb'\xA1....\x85\xC0\x0F\x84....\x80\xB8.....\x74\x7A', 0, 1)
-    dwGlobalVars = memory.get_sig('engine.dll', rb'\x68....\x68....\xFF\x50\x08\x85\xC0', 0, 1)
-    dwInput = memory.get_sig('client.dll', rb'\xB9....\xF3\x0F\x11\x04\x24\xFF\x50\x10', 0, 1)
+    # dwForceBackward = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 287)
+    # dwForceForward = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 245)
+    # dwForceLeft = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 465)
+    # dwForceRight = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 512)
+    # dwGameDir = memory.get_sig('engine.dll', rb'\x68....\x8D\x85....\x50\x68....\x68', 0, 1)
+    # dwGameRulesProxy = memory.get_sig('client.dll', rb'\xA1....\x85\xC0\x0F\x84....\x80\xB8.....\x74\x7A', 0, 1)
+    # dwGlobalVars = memory.get_sig('engine.dll', rb'\x68....\x68....\xFF\x50\x08\x85\xC0', 0, 1)
+    # dwInput = memory.get_sig('client.dll', rb'\xB9....\xF3\x0F\x11\x04\x24\xFF\x50\x10', 0, 1)
     dwLocalPlayer = memory.get_sig('client.dll', rb'\x8D\x34\x85....\x89\x15....\x8B\x41\x08\x8B\x48\x04\x83\xF9\xFF', 4, 3)
-    dwMouseEnable = memory.get_sig('client.dll', rb'\xB9....\xFF\x50\x34\x85\xC0\x75\x10', 48, 1)
-    dwMouseEnablePtr = memory.get_sig('client.dll', rb'\xB9....\xFF\x50\x34\x85\xC0\x75\x10', 0, 1)
+    # dwMouseEnable = memory.get_sig('client.dll', rb'\xB9....\xFF\x50\x34\x85\xC0\x75\x10', 48, 1)
+    # dwMouseEnablePtr = memory.get_sig('client.dll', rb'\xB9....\xFF\x50\x34\x85\xC0\x75\x10', 0, 1)
     dwPlayerResource = memory.get_sig('client.dll', rb'\x8B\x3D....\x85\xFF\x0F\x84....\x81\xC7', 0, 2)
-    dwRadarBase = memory.get_sig('client.dll', rb'\xA1....\x8B\x0C\xB0\x8B\x01\xFF\x50.\x46\x3B\x35....\x7C\xEA\x8B\x0D', 0, 1)
-    dwSensitivity = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x1D\xF3\x0F\x10\x05....\xF3\x0F\x11\x44\x24.\x8B\x44\x24\x0C\x35....\x89\x44\x24\x0C', 44, 2)
-    dwSensitivityPtr = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x1D\xF3\x0F\x10\x05....\xF3\x0F\x11\x44\x24.\x8B\x44\x24\x0C\x35....\x89\x44\x24\x0C', 0, 2)
+    # dwRadarBase = memory.get_sig('client.dll', rb'\xA1....\x8B\x0C\xB0\x8B\x01\xFF\x50.\x46\x3B\x35....\x7C\xEA\x8B\x0D', 0, 1)
+    # dwSensitivity = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x1D\xF3\x0F\x10\x05....\xF3\x0F\x11\x44\x24.\x8B\x44\x24\x0C\x35....\x89\x44\x24\x0C', 44, 2)
+    # dwSensitivityPtr = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x1D\xF3\x0F\x10\x05....\xF3\x0F\x11\x44\x24.\x8B\x44\x24\x0C\x35....\x89\x44\x24\x0C', 0, 2)
     dwViewMatrix = memory.get_sig('client.dll', rb'\x0F\x10\x05....\x8D\x85....\xB9', 176, 3)
-    dwWeaponTable = memory.get_sig('client.dll', rb'\xB9....\x6A\x00\xFF\x50\x08\xC3', 0, 1)
-    dwWeaponTableIndex = memory.get_sig('client.dll', rb'\x39\x86....\x74\x06\x89\x86....\x8B\x86', 0, 2, False)
-    dwYawPtr = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x16\xF3\x0F\x10\x05....\xF3\x0F\x11\x45.\x81\x75.....\xEB\x0A\x8B\x01\x8B\x40\x30\xFF\xD0\xD9\x5D\x0C\x8B\x55\x08', 0, 2)
+    # dwWeaponTable = memory.get_sig('client.dll', rb'\xB9....\x6A\x00\xFF\x50\x08\xC3', 0, 1)
+    # dwWeaponTableIndex = memory.get_sig('client.dll', rb'\x39\x86....\x74\x06\x89\x86....\x8B\x86', 0, 2, False)
+    # dwYawPtr = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x16\xF3\x0F\x10\x05....\xF3\x0F\x11\x45.\x81\x75.....\xEB\x0A\x8B\x01\x8B\x40\x30\xFF\xD0\xD9\x5D\x0C\x8B\x55\x08', 0, 2)
     is_c4_owner = 0x3C8110
     m_bDormant = 0xED
     m_flSpawnTime = 0x103C0
