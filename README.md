@@ -1,5 +1,5 @@
 # CS-GO-python
-External CS:GO cheat based on PyMem library and threading system.
+External CS:GO cheat written in python based on PyMem library.
 
 ## Functions:
 ##### -> GlowESP
