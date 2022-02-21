@@ -1,6 +1,6 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
 __name__ = 'BetterGo'
-__version__ = '1.4.0'
+__version__ = '1.4.1'
 
 from memory import *
 from entity import *
@@ -117,7 +117,7 @@ def no_smoke():
             pass
         time.sleep(0.01)
 
-def fov_changer(key_add: int, key_subtract: int, key_normalize: int):
+def fov_changer():
     while True:
         try:
             if ent.in_game():
@@ -248,7 +248,7 @@ def start_threads():
         threading.Thread(target=bunny_hop, args=[0x20], name='bunny_hop').start()
         threading.Thread(target=radar_hack, name='radar_hack').start()
         threading.Thread(target=no_smoke, name='no_smoke').start()
-        threading.Thread(target=fov_changer, args=[0x68, 0x62, 0x65], name='fov_changer').start()
+        threading.Thread(target=fov_changer, name='fov_changer').start()
         threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound').start()
         threading.Thread(target=spectator_list, name='spectator_list').start()
         threading.Thread(target=draw_gui, name='GUI').start()
