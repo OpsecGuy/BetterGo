@@ -13,7 +13,7 @@ External CS:GO cheat written in Python(3.9.2) based on PyMem library.
 - Spectator list  
 
 ## In game:
-![This is an image](https://i.gyazo.com/a14ec5150ac9602ad328e517a53ed7c9.jpg)
+![This is an image](https://i.ibb.co/x1RpjPV/csgo-i-CJTo-ZHhd4.jpg)
 
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-cheat-base.html
