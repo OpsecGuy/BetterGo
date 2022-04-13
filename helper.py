@@ -13,6 +13,28 @@ class Vector2:
     x: float
     y: float
 
+_RANKS_ =[
+    'Unranked',
+    "Silver I",
+    "Silver II",
+    "Silver III",
+    "Silver IV",
+    "Silver Elite",
+    "Silver Elite Master",
+    "Gold Nova I",
+    "Gold Nova II",
+    "Gold Nova III",
+    "Gold Nova Master",
+    "Master Guardian I",
+    "Master Guardian II",
+    "Master Guardian Elite",
+    "Distinguished Master Guardian",
+    "Legendary Eagle",
+    "Legendary Eagle Master",
+    "Supreme Master First Class",
+    "The Global Elite"
+    ]
+
 class Weapon(IntEnum):
     Desert_Eagle = 1
     Dual_Berettas = 2
@@ -370,6 +392,27 @@ class ClassId(IntEnum):
     SmokeTrail = 281,
     SporeExplosion = 282,
     SporeTrail = 283,
+
+def clamp_angle(angle):
+    if (angle.x > 89.0): angle.x = 89.0
+    elif (angle.x < -89.0): angle.x = -89.0
+
+    if (angle.y > 180.0): angle.y = 180.0
+    elif (angle.y < -180.0): angle.y = -180.0
+    angle.z = 0
+
+    return angle
+
+def normalize_vector(angle):
+    if ( angle.x != angle.x or angle.y != angle.y or angle.z != angle.z ):
+        return False
+    
+    if ( angle.x > 180 ): angle.x -= 360.0
+    if ( angle.x < -180 ): angle.x += 360.0
+    if ( angle.y > 180.0 ): angle.y -= 360.0
+    if ( angle.y < -180.0 ): angle.y += 360.0
+ 
+    return angle
 
 def class_id_gun(classID):
     if (classID == ClassId.CAK47 or classID == ClassId.CSCAR17 or classID == ClassId.CWeaponAug

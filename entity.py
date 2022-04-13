@@ -11,24 +11,32 @@ class Entity(LocalPlayer):
         self.player = self.get_entity(0)
     
     def entity_loop(self):
-        self.entity_list.clear()
         try:
-            for i in range(1, 32):
-                entity = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + i * 0x10)
+            self.entity_list.clear()
+            for i in range(0, 1024):
+                entity = self.mem.game_handle.read_uint(self.mem.client_dll + 0x4dd245c + i * 0x10)
+                
                 if entity != 0:
-                    self.entity_list.append(entity)
+                    if self.class_id(entity) == None:
+                        continue
+                    if [entity, self.class_id(entity)] not in self.entity_list:
+                        self.entity_list.append([i, entity, self.class_id(entity)])
         except Exception as err:
-            print(err)
-    
+            pass
+
     def glow_objects_loop(self):
-        self.glow_objects_list.clear()
         try:
-            for i in range(1, 2222):
-                entity = self.mem.game_handle.read_uint(self.glow_object() + 0x38 * (i - 1) + 0x4)
-                if entity != 0:
-                    self.glow_objects_list.append(entity)
+            self.glow_objects_list.clear()
+            for i in range(1, 1024):
+                glow_object = self.mem.game_handle.read_uint(self.glow_object() + 0x38 * (i - 1) + 0x4)
+
+                if glow_object != 0:
+                    if self.class_id(glow_object) == None:
+                        continue
+                    if [glow_object, self.class_id(glow_object)] not in self.glow_objects_list:
+                        self.glow_objects_list.append([i, glow_object, self.class_id(glow_object)])
         except Exception as err:
-            print(err)
+            pass
     
     def get_entity(self, entity):
         return self.mem.game_handle.read_uint((self.mem.client_dll + offsets.dwEntityList) + entity * 0x10)
@@ -88,7 +96,10 @@ class Entity(LocalPlayer):
 
     def in_game(self):
         return self.mem.game_handle.read_uint(self.engine_ptr() + offsets.dwClientState_State) == 6
-
+    
+    def get_map_name(self):
+        return self.mem.game_handle.read_string(self.engine_ptr() +  offsets.dwClientState_Map)
+         
     def class_id(self, entity):
         dwClientNetworkable = self.mem.game_handle.read_uint(entity + 0x8)
         dwGetClientClassFn = self.mem.game_handle.read_uint(dwClientNetworkable + 0x8)
@@ -106,6 +117,17 @@ class Entity(LocalPlayer):
         x = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin, x)
         y = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin + 0x4, y)
     
+    def get_view_angle(self):
+        x = self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles)
+        y = self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4)
+        z = self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8)
+        return Vector3(x, y, z)
+
+    def set_view_angle(self, x_angle, y_angle, z_angle):
+        x = self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles, x_angle)
+        y = self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4, y_angle)
+        z = self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8, z_angle)
+
     def get_bone_position(self, entity, bone_id):
         base = self.mem.game_handle.read_int(entity + offsets.m_dwBoneMatrix)
         x = self.mem.game_handle.read_float(base + 0x30 * bone_id + 0x0c)
@@ -132,4 +154,8 @@ class Entity(LocalPlayer):
     
     def get_rank(self, entity):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
-        return self.mem.game_handle.read_int(player_resources + offsets.m_iCompetitiveRanking + (entity * 0x4))
+        return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveRanking + (entity  + 1) * 0x4)
+    
+    def get_wins(self, entity):
+        player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
+        return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveWins + (entity + 1) * 0x4)
