@@ -263,7 +263,7 @@ def player_infos(key: int):
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) == None:
                             continue
-                        player_info = ''.join(f'Name: {ent.get_name(entity[0])} Wins: {str(ent.get_wins(entity[0]))} Rank: {str(_ranks[ent.get_rank(entity[0])])}')
+                        player_info = ''.join(f'Name: {ent.get_name(entity[0])} Wins: {str(ent.get_wins(entity[0]))} Rank: {str(ranks[ent.get_rank(entity[0])])}')
                         print(player_info)
         except Exception as err:
             pass
@@ -332,7 +332,7 @@ def convar_handler():
 
 def key_handler(key: str):
         v0 = dpg.get_value(key)
-        return _gui_keys_list.get(v0)
+        return gui_keys_list.get(v0)
 
 def start_threads():
     try:

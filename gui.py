@@ -29,11 +29,11 @@ class GUI():
                 dpg.add_separator()
                 dpg.add_checkbox(label='TriggerBot', user_data='triggerbot_checkbox', tag='triggerbot_checkbox')
                 dpg.add_checkbox(label='Humanization', user_data='humanization_checkbox', tag='humanization_checkbox')
-                dpg.add_combo(label='Key', items=tuple(h._gui_keys_list.keys()), default_value='MOUSE 5', user_data='triggerbot_key', tag='triggerbot_key')
+                dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 5', user_data='triggerbot_key', tag='triggerbot_key')
                 dpg.add_slider_float(label='TriggerBot Delay', default_value=0.025, min_value=0.01, max_value=0.1, user_data='triggerbot_delay', tag='triggerbot_delay')
                 dpg.add_separator()
                 dpg.add_checkbox(label='Auto Pistol', user_data='autopistol_checkbox', tag='autopistol_checkbox')
-                dpg.add_combo(label='Key', items=tuple(h._gui_keys_list.keys()), default_value='MOUSE 4', user_data='autopistol_key', tag='autopistol_key')
+                dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 4', user_data='autopistol_key', tag='autopistol_key')
             with dpg.collapsing_header(label='Visuals'):
                 dpg.add_checkbox(label='Player ESP', user_data='player_esp', tag='player_esp')
                 dpg.add_checkbox(label='Team Check', user_data='player_esp_temates', tag='player_esp_temates')

@@ -57,7 +57,7 @@ def normalize_vector(angle: Vector3):
  
     return angle
 
-_ranks =[
+ranks =[
     'Unranked',
     "Silver I",
     "Silver II",
@@ -79,7 +79,7 @@ _ranks =[
     "The Global Elite"
 ]
 
-_gui_keys_list = {
+gui_keys_list = {
     'LEFT MOUSE': 0x01,
     'RIGHT MOUSE': 0x02,
     'SCROLL': 0x04,
