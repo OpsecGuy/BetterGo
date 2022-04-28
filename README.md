@@ -1,19 +1,25 @@
 # CS-GO-python
-External CS:GO cheat written in Python(3.9.2) based on PyMem library.
+External CS:GO cheat written in Python(3.9.12).
 
 ## Functions:
-- GlowESP  
-- Auto pistol  
-- TriggerBot  
-- Bunny hop  
-- Radar hack  
-- No Smoke  
-- FOV changer  
-- Hit sound  
-- Spectator list  
+- Player ESP
+- Item ESP (guns, grenades, c4)
+- Grenade Trajectory
+- Recoil Control System
+- TriggerBot
+- Auto Pistol
+- BunnyHop
+- Radar Hack
+- No Smoke
+- Fov Changer
+- Hit Sound
+- Spectator List
+- Night / Full Bright Mode
+- Pattern Scan
+- Convars handler
 
 ## In game:
-![This is an image](https://i.ibb.co/x1RpjPV/csgo-i-CJTo-ZHhd4.jpg)
+![This is an image](https://i.imgur.com/o4vJmVM.jpeg)
 
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-multihack-exe-source.html
