@@ -2,6 +2,13 @@ from enum import IntEnum
 from ctypes import *
 from dataclasses import dataclass
 
+player_info_buffer = []
+
+@dataclass
+class ScreenSize:
+    x = windll.user32.GetSystemMetrics(0)
+    y = windll.user32.GetSystemMetrics(1)
+
 @dataclass
 class Vector3:
     x: float
@@ -13,7 +20,44 @@ class Vector2:
     x: float
     y: float
 
-_RANKS_ =[
+def w2s(pos: Vector3, matrix):
+    z = pos.x * matrix[12] + pos.y * matrix[13] + pos.z * matrix[14] + matrix[15]
+    if z < 0.1:
+        return None
+
+    x = pos.x * matrix[0] + pos.y * matrix[1] + pos.z * matrix[2] + matrix[3]
+    y = pos.x * matrix[4] + pos.y * matrix[5] + pos.z * matrix[6] + matrix[7]
+
+    xx = x / z
+    yy = y / z
+
+    _x = (1920 / 2 * xx) + (xx + 1920 / 2)
+    _y = (1090 / 2 * yy) + (yy + 1080 / 2)
+
+    return [_x, _y]
+
+def clamp_angle(angle: Vector3):
+    if (angle.x > 89.0): angle.x = 89.0
+    elif (angle.x < -89.0): angle.x = -89.0
+
+    if (angle.y > 180.0): angle.y = 180.0
+    elif (angle.y < -180.0): angle.y = -180.0
+    angle.z = 0.0
+
+    return angle
+
+def normalize_vector(angle: Vector3):
+    if ( angle.x != angle.x or angle.y != angle.y or angle.z != angle.z ):
+        return False
+    
+    if ( angle.x > 180 ): angle.x -= 360.0
+    if ( angle.x < -180 ): angle.x += 360.0
+    if ( angle.y > 180.0 ): angle.y -= 360.0
+    if ( angle.y < -180.0 ): angle.y += 360.0
+ 
+    return angle
+
+_ranks =[
     'Unranked',
     "Silver I",
     "Silver II",
@@ -33,7 +77,57 @@ _RANKS_ =[
     "Legendary Eagle Master",
     "Supreme Master First Class",
     "The Global Elite"
-    ]
+]
+
+_gui_keys_list = {
+    'LEFT MOUSE': 0x01,
+    'RIGHT MOUSE': 0x02,
+    'SCROLL': 0x04,
+    'MOUSE 4': 0x05,
+    'MOUSE 5': 0x06,
+    'SHIFT': 0x10,
+    'CTRL': 0x11,
+    'LEFT SHIFT': 0xA0,
+    'RIGHT SHIFT': 0xA1,
+    'LEFT CONTROL': 0xA2,
+    'RIGHT CONTROL': 0xA3,
+    'NUMPAD0': 0x60,
+    'NUMPAD1': 0x61,
+    'NUMPAD2': 0x62,
+    'NUMPAD3': 0x63,
+    'NUMPAD4': 0x64,
+    'NUMPAD5': 0x65,
+    'NUMPAD6': 0x66,
+    'NUMPAD7': 0x67,
+    'NUMPAD8': 0x68,
+    'NUMPAD9': 0x69,
+    'A': 0x41, 
+    'B': 0x42, 
+    'C': 0x43, 
+    'D': 0x44, 
+    'E': 0x45, 
+    'F': 0x46, 
+    'G': 0x47, 
+    'H': 0x48, 
+    'I': 0x49, 
+    'J': 0x4A, 
+    'K': 0x4B, 
+    'L': 0x4C, 
+    'M': 0x4D, 
+    'N': 0x4E, 
+    'O': 0x4F, 
+    'P': 0x50, 
+    'Q': 0x51, 
+    'R': 0x52, 
+    'S': 0x53, 
+    'T': 0x54, 
+    'U': 0x55, 
+    'V': 0x56, 
+    'W': 0x57, 
+    'X': 0x58, 
+    'Y': 0x59, 
+    'Z': 0x5A, 
+}
 
 class Weapon(IntEnum):
     Desert_Eagle = 1
@@ -392,27 +486,6 @@ class ClassId(IntEnum):
     SmokeTrail = 281,
     SporeExplosion = 282,
     SporeTrail = 283,
-
-def clamp_angle(angle):
-    if (angle.x > 89.0): angle.x = 89.0
-    elif (angle.x < -89.0): angle.x = -89.0
-
-    if (angle.y > 180.0): angle.y = 180.0
-    elif (angle.y < -180.0): angle.y = -180.0
-    angle.z = 0
-
-    return angle
-
-def normalize_vector(angle):
-    if ( angle.x != angle.x or angle.y != angle.y or angle.z != angle.z ):
-        return False
-    
-    if ( angle.x > 180 ): angle.x -= 360.0
-    if ( angle.x < -180 ): angle.x += 360.0
-    if ( angle.y > 180.0 ): angle.y -= 360.0
-    if ( angle.y < -180.0 ): angle.y += 360.0
- 
-    return angle
 
 def class_id_gun(classID):
     if (classID == ClassId.CAK47 or classID == ClassId.CSCAR17 or classID == ClassId.CWeaponAug

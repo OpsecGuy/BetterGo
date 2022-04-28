@@ -1,94 +1,62 @@
-import PySimpleGUI as gui
-import random
+import dearpygui.dearpygui as dpg
+import helper as h
+import random, win32gui
 
 class GUI():
     def __init__(self) -> None:
-        gui.theme_text_color('white')
-        self.screen_size = gui.Window.get_screen_size()
-    
-    def set_random_name(self) -> None:
+        self.v1 = self.get_random_string()
+        
+    def get_random_string(self) -> None:
         strings = ['A',
         'B', 'C', 'D', 'E', 'F','G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'U', 'P', 'R', 'S', 'T', 'W', 'Y', 'Z',
         'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'u', 'p', 'r', 's', 't', 'w', 'y', 'z',
         '1','2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '&', '(', ')', '-', '_', '=', '+']
         return ''.join(random.choice(strings) for _ in range(10, 15))
-
-    def visuals_tab_layout(self):
-        return[
-            [gui.Checkbox('Player ESP', default=True, key='player_esp_checkbox')],
-            [gui.Checkbox('Item ESP', default=False, key='item_esp_checkbox')],
-            ]
-
-    def aim_tab_layout(self):
-        return[
-            [gui.Checkbox('RCS', default=False, key='rcs_checkbox')],
-            [gui.Text('RCS:', key='rcs_text', justification='left'), gui.Text('', key='print_smooth_value')],
-            [gui.Slider(range=[0.0, 2.0], resolution=0.1, disable_number_display=True, default_value=1.6, orientation ='horizontal', size=(20, 8), key='rcs_smooth_value')],
-            [gui.Text('RCS after x shots', size=(15, 1)), gui.Spin(values=[i for i in range(0, 100)], initial_value=2, size=(4, 1), key='rcs_shots_fired')],
-            [gui.HorizontalSeparator(color='Black')],
-            [gui.Checkbox('TriggerBot', default=True, key='trigger_bot_checkbox')],
-            [gui.Text('Delay (sec):', key='triggerbot_delay_text', justification='left'), gui.Text('', key='print_triggerbot_delay')],
-            [gui.Checkbox('Humanization', default=False, key='trigger_bot_humanization_checkbox')],
-            [gui.Slider(range=[0.01, 0.1], resolution=0.005, disable_number_display=True, default_value=0.025, orientation ='horizontal', size=(20, 8), key='triggerbot_delay_value')],]
-
-    def misc_tab_layout(self):
-        return[
-            [gui.Checkbox('Auto Pistol', default=True, key='auto_pistol_checkbox')],
-            [gui.Checkbox('RadarHack', default=False, key='radar_hack_checkbox')],
-            [gui.Checkbox('Hit Sound', default=False, key='hit_sound_checkbox')],
-            [gui.Checkbox('BunnyHop', default=True, key='bunny_hop_checkbox')],
-            [gui.Checkbox('No Smoke', default=False, key='no_smoke_checkbox')],
-
-            [gui.Checkbox('No Flash', default=False, key='no_flash_checkbox')],
-            [gui.Text('Strength:', key='no_flash_text', justification='left'), gui.Text('', key='print_no_flash_value')],
-            [gui.Slider(range=[0.0, 255.0], resolution=1.0, disable_number_display=True, default_value=80.0, orientation ='horizontal', size=(20, 8), key='no_flash_strength')],
-
-            [gui.Checkbox('Night Mode', default=False, key='nightmode_checkbox')],
-            [gui.Text('Strength:', key='nightmode_text', justification='left'), gui.Text('', key='print_nightmode_value')],
-            [gui.Slider(range=[0.1, 3.0], resolution=0.1, disable_number_display=True, default_value=1.0, orientation ='horizontal', size=(20, 8), key='nightmode_strength')],
-            # [gui.Text('', key='whitespace_text')],
-            [gui.Text('FOV:', key='fov_text', justification='left'), gui.Text('', key='print_fov_value')],
-            [gui.Slider(range=(70, 160), disable_number_display=True, default_value=90.0, orientation ='horizontal', size=(20, 8), key='fov_value')],
-            [gui.HorizontalSeparator(color='Black')],
-            [gui.Text('Panic Key: DEL', key='panic_key_text')],]
-
-    def main_gui_layout(self):
-        return[
-            [gui.TabGroup([[gui.Tab('Visuals', self.visuals_tab_layout()), gui.Tab('Aim', self.aim_tab_layout()), 
-            gui.Tab('Misc', self.misc_tab_layout())]])],]
+    
+    def _log(self, sender, app_data, user_data):
+        print(f"sender: {sender}, \t app_data: {app_data}, \t user_data: {user_data}")
+    
+    def menu(self):
+        dpg.create_context()
+        dpg.create_viewport(title=self.v1, width=615, height=615)
+        dpg.setup_dearpygui()
+        
+        with dpg.window(label='Menu', user_data='menu', tag='#menu', width=600, height=600, no_close=True, no_move=True):
+            with dpg.collapsing_header(label="Aimbot"):
+                dpg.add_checkbox(label='RCS', user_data='rcs_checkbox', tag='rcs_checkbox')
+                dpg.add_slider_float(label='RCS Strength', default_value=0.0, min_value=0.0, max_value=2.0, user_data='rcs_strength', tag='rcs_strength')
+                dpg.add_slider_int(label='Shot after x bullets', default_value=0, min_value=0, max_value=30, user_data='rcs_get_bullets', tag='rcs_get_bullets')
+                dpg.add_separator()
+                dpg.add_checkbox(label='TriggerBot', user_data='triggerbot_checkbox', tag='triggerbot_checkbox')
+                dpg.add_checkbox(label='Humanization', user_data='humanization_checkbox', tag='humanization_checkbox')
+                dpg.add_combo(label='Key', items=tuple(h._gui_keys_list.keys()), default_value='MOUSE 5', user_data='triggerbot_key', tag='triggerbot_key')
+                dpg.add_slider_float(label='TriggerBot Delay', default_value=0.025, min_value=0.01, max_value=0.1, user_data='triggerbot_delay', tag='triggerbot_delay')
+                dpg.add_separator()
+                dpg.add_checkbox(label='Auto Pistol', user_data='autopistol_checkbox', tag='autopistol_checkbox')
+                dpg.add_combo(label='Key', items=tuple(h._gui_keys_list.keys()), default_value='MOUSE 4', user_data='autopistol_key', tag='autopistol_key')
+            with dpg.collapsing_header(label='Visuals'):
+                dpg.add_checkbox(label='Player ESP', user_data='player_esp', tag='player_esp')
+                dpg.add_checkbox(label='Team Check', user_data='player_esp_temates', tag='player_esp_temates')
+                dpg.add_checkbox(label='Item ESP', user_data='item_esp', tag='item_esp')
+                dpg.add_color_edit(label='Enemy team color', default_value=[124, 12, 51, 44], user_data='enemy_glow_color', tag='enemy_glow_color')
+                dpg.add_color_edit(label='Team color', default_value=[42, 196, 15, 44], user_data='temates_glow_color', tag='temates_glow_color')
+                dpg.add_separator()
+                dpg.add_checkbox(label='Grenade Trajectory', user_data='grenade_checkbox', tag='grenade_checkbox')
+            with dpg.collapsing_header(label='Misc'):
+                dpg.add_checkbox(label='Radar Hack', user_data='radarhack_checkbox', tag='radarhack_checkbox')
+                dpg.add_checkbox(label='Hit Sound', user_data='hitsound_checkbox', tag='hitsound_checkbox')
+                dpg.add_checkbox(label='BunnyHop', user_data='bunnyhop_checkbox', tag='bunnyhop_checkbox')
+                dpg.add_checkbox(label='No Smoke', user_data='nosmoke_checkbox', tag='nosmoke_checkbox')
+                dpg.add_checkbox(label='No Flash', user_data='noflash_checkbox', tag='noflash_checkbox')
+                dpg.add_slider_float(label='No Flash strength', default_value=255.0, min_value=0.0, max_value=255.0, user_data='noflash_strength', tag='noflash_strength')
+                dpg.add_checkbox(label='Night Mode', user_data='nightmode_checkbox', tag='nightmode_checkbox')
+                dpg.add_slider_float(label='Night Mode strength', default_value=0.3, min_value=0.01, max_value=3.0, user_data='nightmode_strength', tag='nightmode_strength')
+                dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, user_data='fov', tag='fov')
+                dpg.add_checkbox(label='Show FPS', user_data='fps_checkbox', tag='fps_checkbox')
             
-    def spectator_list_layout(self):
-        return[
-            [gui.Text('Spectator list', key='spec_list_text')],
-            [gui.Text('', key='spec_list')]]
-    
-    def player_info_layout(self):
-        return[
-            [gui.Text('Player info', key='playerinfo_text')],
-            [gui.Text('', key='playerinfo')]]
-    	
-    def create_main_gui(self):
-        gui.theme('Dark')
-        window = gui.Window(self.set_random_name(), self.main_gui_layout(),
-            resizable=True, no_titlebar=False, finalize=True,
-            grab_anywhere=True, keep_on_top=False, alpha_channel=1,
-            location=(self.screen_size[0] / 2, self.screen_size[1] / 2))
-        return window
-
-    def create_spectator_list(self):
-        gui.theme('DarkTeal4')
-        window = gui.Window(self.set_random_name(), self.spectator_list_layout(),
-            resizable=True, no_titlebar=True,
-            finalize=True, grab_anywhere=True, keep_on_top=True, 
-            alpha_channel=0.7, element_justification='center',
-            location=(5, self.screen_size[1] / 2))
-        return window
-    
-    def create_playerinfo_table(self):
-        gui.theme('DarkTeal4')
-        window = gui.Window(self.set_random_name(), self.player_info_layout(),
-            resizable=True, no_titlebar=True,
-            finalize=True, grab_anywhere=True, keep_on_top=True, 
-            alpha_channel=0.7, element_justification='center',
-            location=(5, self.screen_size[1] / 2))
-        return window
+            dpg.add_button(label='Unload', width=150, height=50, tag='unload_button')
+            
+        # with dpg.window(label='Spectators', user_data='menu2', tag='#menu2', autosize=True, no_background=True, no_close=True, pos=[5, h.ScreenSize().y / 2]): 
+        #     dpg.add_text(label='spectator_list', tag='spectator_list')
+        
+        dpg.show_viewport()
