@@ -1,5 +1,5 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.3'
+__version__ = '1.4.3.2'
 
 from time import sleep
 from memory import *
@@ -263,7 +263,7 @@ def player_infos(key: int):
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) == None:
                             continue
-                        player_info = ''.join(f'Name: {ent.get_name(entity[0])} Wins: {str(ent.get_wins(entity[0]))} Rank: {str(ranks[ent.get_rank(entity[0])])}')
+                        player_info = ''.join(f'Name: {ent.get_name(entity[0])} Wins: {str(ent.get_wins(entity[0]))} Rank: {str(ranks_list[ent.get_rank(entity[0])])}')
                         print(player_info)
         except Exception as err:
             pass
@@ -292,6 +292,7 @@ def exit():
         print('Exiting...')
         showfps.set_int(0)
         grenadepreview.set_int(0)
+        sky_name.set_string('embassy')
         lp.set_fov(90)
         lp.set_flashbang_alpha(255.0)
         mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
@@ -300,16 +301,18 @@ def exit():
     os._exit(0)
 
 def convar_handler():
-    global showfps, grenadepreview
+    global showfps, grenadepreview, sky_name
     showfps = ConVar('cl_showfps')
     grenadepreview = ConVar('cl_grenadepreview')
-    _temp1, _temp2 = 0, 0
+    sky_name = ConVar('sv_skyname')
+    _temp1, _temp2, _temp3 = 0, 0, ''
     while True:
         try:
             fps_state = int(dpg.get_value('fps_checkbox'))
             gre_state = int(dpg.get_value('grenade_checkbox'))
-            if fps_state != _temp1:
+            sky_state = dpg.get_value('sky_name')
 
+            if fps_state != _temp1:
                 if (dpg.get_value('fps_checkbox')):
                         showfps.set_int(fps_state)
                         _temp1 = fps_state
@@ -318,16 +321,23 @@ def convar_handler():
                     _temp1 = fps_state
 
             elif gre_state != _temp2:
-
                 if (dpg.get_value('grenade_checkbox')):
                         grenadepreview.set_int(gre_state)
                         _temp2 = gre_state
                 else:
                     grenadepreview.set_int(gre_state)
                     _temp2 = gre_state
+            
+            elif sky_state != _temp3:
+                if (dpg.get_value('sky_name')):
+                        sky_name.set_string(sky_state)
+                        _temp3 = sky_state
+                else:
+                    sky_name.set_string(sky_state)
+                    _temp3 = sky_state
 
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.01)
 
 def key_handler(key: str):

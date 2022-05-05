@@ -57,7 +57,30 @@ def normalize_vector(angle: Vector3):
  
     return angle
 
-ranks =[
+sky_list =[
+    'cs_tibet',
+    'embassy',
+    'italy',
+    'jungle',
+    'nukeblank',
+    'office',
+    'sky_cs15_daylight01_hdr',
+    'sky_cs15_daylight02_hdr',
+    'sky_cs15_daylight03_hdr',
+    'sky_cs15_daylight04_hdr',
+    'sky_csgo_cloudy01',
+    'sky_csgo_night02',
+    'sky_csgo_night02b',
+    'sky_day02_05',
+    'sky_dust',
+    'sky_lunacy',
+    'sky_venice',
+    'vertigo',
+    'vertigoblue_hdr',
+    'vietnam',
+]
+
+ranks_list =[
     'Unranked',
     "Silver I",
     "Silver II",
@@ -76,7 +99,7 @@ ranks =[
     "Legendary Eagle",
     "Legendary Eagle Master",
     "Supreme Master First Class",
-    "The Global Elite"
+    "The Global Elite",
 ]
 
 gui_keys_list = {

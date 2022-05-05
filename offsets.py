@@ -45,6 +45,7 @@ try:
     # dwWeaponTable = memory.get_sig('client.dll', rb'\xB9....\x6A\x00\xFF\x50\x08\xC3', 0, 1)
     # dwWeaponTableIndex = memory.get_sig('client.dll', rb'\x39\x86....\x74\x06\x89\x86....\x8B\x86', 0, 2, False)
     # dwYawPtr = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x16\xF3\x0F\x10\x05....\xF3\x0F\x11\x45.\x81\x75.....\xEB\x0A\x8B\x01\x8B\x40\x30\xFF\xD0\xD9\x5D\x0C\x8B\x55\x08', 0, 2)
+    interface_engine_cvar = 0x3E9EC
     is_c4_owner = 0x3C8110
     m_bDormant = 0xED
     m_flSpawnTime = 0x103C0
