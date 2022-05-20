@@ -55,7 +55,7 @@ try:
     model_ambient_min = 0x58F03C
     set_abs_angles = 0x1E5330
     set_abs_origin = 0x1E5170
-    dwbSendPackets = 0xD9662
+    dwbSendPackets = 0xD96A2
     # netvars
     cs_gamerules_data = 0x0
     m_ArmorValue = 0x117CC
