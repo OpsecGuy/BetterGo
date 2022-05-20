@@ -1,5 +1,4 @@
 from local import LocalPlayer
-from memory import *
 from helper import *
 import offsets
 
@@ -8,7 +7,6 @@ class Entity(LocalPlayer):
         self.mem = mem
         self.entity_list = []
         self.glow_objects_list = []
-        self.player = self.get_entity(0)
 
     def entity_loop(self):
         try:
@@ -89,7 +87,7 @@ class Entity(LocalPlayer):
         return self.mem.game_handle.read_uint(entity + offsets.m_iGlowIndex)
 
     def is_bomb_planted(self):
-        return self.mem.game_handle.read_bool((client_dll + offsets.dwGameRulesProxy) + offsets.m_bBombPlanted)
+        return self.mem.game_handle.read_bool((self.mem.client_dll + offsets.dwGameRulesProxy) + offsets.m_bBombPlanted)
 
     def engine_ptr(self):
         return self.mem.game_handle.read_uint(self.mem.engine_dll + offsets.dwClientState)

@@ -1,5 +1,5 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.3.2'
+__version__ = '1.4.4'
 
 from time import sleep
 from memory import *
@@ -140,7 +140,7 @@ def trigger_bot():
                         else:
                             time.sleep(dpg.get_value('triggerbot_delay'))
 
-                        ent.force_attack(6)
+                        lp.force_attack(6)
         except Exception as err:
             pass
         time.sleep(0.001)
@@ -207,6 +207,17 @@ def fov_changer():
         except Exception as err:
             pass
         time.sleep(0.1)
+
+def fake_lag():
+    while True:
+        try:
+            if dpg.get_value('fakelag_checkbox') and ent.in_game():
+                lp.send_packets(False)
+                time.sleep(dpg.get_value('fakelag_strength'))
+                lp.send_packets(True)
+        except Exception as err:
+            print(err)
+        time.sleep(0.001)
 
 def hit_sound(filename: str):
     oldDmg = 0
@@ -287,15 +298,44 @@ def night_mode():
             pass
         time.sleep(0.1)
 
+def bomb_events():
+    # works just fine, but currently unused.
+    # TO:DO : cleanup code
+    while True:
+        try:
+            cur_time = mem.game_handle.read_float(mem.engine_dll + offsets.dwGlobalVars + 0x10)
+            has_defuser = mem.game_handle.read_bool(lp.local_player() + 0x117DC)
+            # print(t)
+            for entity in ent.glow_objects_list:
+                bomb_defused = mem.game_handle.read_bool(entity[1] + 0x29c0)
+                
+                if entity[2] == 129:
+                    bomb = mem.game_handle.read_float(entity[1] + 0x29a0)
+                    time_to_explode = bomb - cur_time
+
+                    time_to_defuse = bomb - cur_time - (5 if has_defuser == True else 10)
+                    # print(time_to_explode, time_to_defuse)
+                    if (time_to_explode) <= 0:
+                        print('Bomb exploaded!')
+                        time.sleep(10)
+                    elif (bomb_defused == True):
+                        print('Bomb defused!')
+                        time.sleep(10)
+        except Exception as err:
+            print(err)
+        time.sleep(0.001)
+
 def exit():
     try:
         print('Exiting...')
+        lp.send_packets(True)
         showfps.set_int(0)
         grenadepreview.set_int(0)
         sky_name.set_string('embassy')
         lp.set_fov(90)
         lp.set_flashbang_alpha(255.0)
         mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
+        dpg.destroy_context()
     except exception.MemoryWriteError as err:
         pass
     os._exit(0)
@@ -359,10 +399,12 @@ def start_threads():
         threading.Thread(target=no_flash, name='no_flash').start()
         threading.Thread(target=no_smoke, name='no_smoke').start()
         threading.Thread(target=fov_changer, name='fov_changer').start()
+        threading.Thread(target=fake_lag, name='fake_lag').start()
         threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound').start()
         # threading.Thread(target=spectator_list, name='spectator_list').start()
         threading.Thread(target=player_infos, args=[0x77], name='player_infos').start()
         threading.Thread(target=night_mode, name='night_mode').start()
+        # threading.Thread(target=bomb_events, name='bomb_events').start()
         threading.Thread(target=convar_handler, name='convar_controller').start()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
@@ -379,5 +421,6 @@ if __name__ == '__main__':
         start_threads()
         dpg.start_dearpygui()
     except (Exception, KeyboardInterrupt) as err:
-        print(f'Failed to initialize!\nReason: {err}\nExiting...')
+        ctypes.windll.user32.MessageBoxW(0, f'Failed to initialize!\nExiting...\nReason: {err}', 'Fatal Error', 0)
+        print()
         os._exit(0)

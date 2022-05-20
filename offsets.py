@@ -18,7 +18,7 @@ try:
     dwForceJump = memory.get_sig('client.dll', rb'\x8B\x0D....\x8B\xD6\x8B\xC1\x83\xCA\x02', 0, 2)
     dwClientState = memory.get_sig('engine.dll', rb'\xA1....\x33\xD2\x6A\x00\x6A\x00\x33\xC9\x89\xB0', 0, 1)
     dwClientState_GetLocalPlayer = memory.get_sig('engine.dll', rb'\x8B\x80....\x40\xC3', 0, 2, False)
-    dwClientState_IsHLTV = memory.get_sig('engine.dll', rb'\x80\xBF.....\x0F\x84....\x32\xDB', 0, 2, False)
+    # dwClientState_IsHLTV = memory.get_sig('engine.dll', rb'\x80\xBF.....\x0F\x84....\x32\xDB', 0, 2, False)
     dwClientState_Map = memory.get_sig('engine.dll', rb'\x05....\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xA1', 0, 1, False)
     dwClientState_MapDirectory = memory.get_sig('engine.dll', rb'\xB8....\xC3\x05....\xC3', 0, 7, False)
     dwClientState_MaxPlayer = memory.get_sig('engine.dll', rb'\xA1....\x8B\x80....\xC3\xCC\xCC\xCC\xCC\x55\x8B\xEC\x8A\x45\x08', 0, 7, False)
@@ -32,7 +32,7 @@ try:
     # dwForceRight = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 512)
     # dwGameDir = memory.get_sig('engine.dll', rb'\x68....\x8D\x85....\x50\x68....\x68', 0, 1)
     # dwGameRulesProxy = memory.get_sig('client.dll', rb'\xA1....\x85\xC0\x0F\x84....\x80\xB8.....\x74\x7A', 0, 1)
-    # dwGlobalVars = memory.get_sig('engine.dll', rb'\x68....\x68....\xFF\x50\x08\x85\xC0', 0, 1)
+    dwGlobalVars = memory.get_sig('engine.dll', rb'\x68....\x68....\xFF\x50\x08\x85\xC0', 0, 1)
     # dwInput = memory.get_sig('client.dll', rb'\xB9....\xF3\x0F\x11\x04\x24\xFF\x50\x10', 0, 1)
     dwLocalPlayer = memory.get_sig('client.dll', rb'\x8D\x34\x85....\x89\x15....\x8B\x41\x08\x8B\x48\x04\x83\xF9\xFF', 4, 3)
     # dwMouseEnable = memory.get_sig('client.dll', rb'\xB9....\xFF\x50\x34\x85\xC0\x75\x10', 48, 1)
@@ -55,7 +55,7 @@ try:
     model_ambient_min = 0x58F03C
     set_abs_angles = 0x1E5330
     set_abs_origin = 0x1E5170
-    dwbSendPackets = 0xD94C2
+    dwbSendPackets = 0xD9662
     # netvars
     cs_gamerules_data = 0x0
     m_ArmorValue = 0x117CC

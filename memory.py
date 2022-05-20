@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from pymem import Pymem, process, exception
 import re, os, threading, winsound, ctypes, time
 
+# TO:DO : cleanup code
 try:
     game_handle = Pymem('csgo.exe')
     client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
     client_dll_size = process.module_from_name(game_handle.process_handle, 'client.dll').SizeOfImage
     engine_dll = process.module_from_name(game_handle.process_handle, 'engine.dll').lpBaseOfDll
 except exception.ProcessNotFound as err:
-    print(f'Failed to open a handle!')
+    ctypes.windll.user32.MessageBoxW(0, 'Could not find CS:GO process!\nMake sure the game is running first!', 'Fatal Error', 0)
     os._exit(0)
 
 @dataclass

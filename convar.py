@@ -1,5 +1,4 @@
 from memory import *
-from ctypes import *
 import offsets
 
 class ConVar():
