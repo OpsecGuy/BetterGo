@@ -92,6 +92,9 @@ class Entity(LocalPlayer):
     def engine_ptr(self):
         return self.mem.game_handle.read_uint(self.mem.engine_dll + offsets.dwClientState)
 
+    def force_update(self):
+        self.mem.game_handle.write_int(self.engine_ptr() + 0x174, -1)
+
     def in_game(self):
         return self.mem.game_handle.read_uint(self.engine_ptr() + offsets.dwClientState_State) == 6
 

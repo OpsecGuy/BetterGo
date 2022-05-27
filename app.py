@@ -1,5 +1,5 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.4'
+__version__ = '1.4.5'
 
 from time import sleep
 from memory import *
@@ -205,7 +205,7 @@ def fov_changer():
                     lp.set_fov(dpg.get_value('fov'))
                     temp = dpg.get_value('fov')
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def fake_lag():
@@ -334,7 +334,7 @@ def exit():
         sky_name.set_string('embassy')
         lp.set_fov(90)
         lp.set_flashbang_alpha(255.0)
-        mem.game_handle.write_int(ent.engine_ptr() + 0x174, -1)
+        ent.force_update()
         dpg.destroy_context()
     except exception.MemoryWriteError as err:
         pass
@@ -422,5 +422,4 @@ if __name__ == '__main__':
         dpg.start_dearpygui()
     except (Exception, KeyboardInterrupt) as err:
         ctypes.windll.user32.MessageBoxW(0, f'Failed to initialize!\nExiting...\nReason: {err}', 'Fatal Error', 0)
-        print()
         os._exit(0)

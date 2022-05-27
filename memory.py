@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pymem import Pymem, process, exception
+from pymem import Pymem, process, exception, pattern
 import re, os, threading, winsound, ctypes, time
 
 # TO:DO : cleanup code
@@ -19,10 +19,16 @@ class Memory:
     client_dll_size: process.module_from_name(game_handle.process_handle, 'client.dll').SizeOfImage
     engine_dll: process.module_from_name(game_handle.process_handle, 'engine.dll').lpBaseOfDll
 
-def get_sig(modname, pattern, extra = 0, offset = 0, relative = True):
+
+def get_sig(modname, _pattern, extra = 0, offset = 0, relative = True, deref = False):
     module = process.module_from_name(game_handle.process_handle, modname)
-    bytes = game_handle.read_bytes(module.lpBaseOfDll, module.SizeOfImage)
-    match = re.search(pattern, bytes).start()
-    non_relative = game_handle.read_int(module.lpBaseOfDll + match + offset) + extra
-    yes_relative = game_handle.read_int(module.lpBaseOfDll + match + offset) + extra - module.lpBaseOfDll
-    return yes_relative if relative else non_relative
+    result = pattern.pattern_scan_module(game_handle.process_handle, module, _pattern)
+
+    if relative == False and deref == True:
+        result += extra - module.lpBaseOfDll
+    elif relative == True and deref == False:
+        result = game_handle.read_int(result + offset) + extra - module.lpBaseOfDll
+    elif relative == False and deref == False:
+        result = game_handle.read_int(result + offset) + extra
+
+    return result

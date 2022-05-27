@@ -26,10 +26,6 @@ try:
     dwClientState_State = memory.get_sig('engine.dll', rb'\x83\xB8.....\x0F\x94\xC0\xC3', 0, 2, False)
     dwClientState_ViewAngles = memory.get_sig('engine.dll', rb'\xF3\x0F\x11\x86....\xF3\x0F\x10\x44\x24.\xF3\x0F\x11\x86', 0, 4, False)
     dwEntityList = memory.get_sig('client.dll', rb'\xBB....\x83\xFF\x01\x0F\x8C....\x3B\xF8', 0, 1)
-    # dwForceBackward = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 287)
-    # dwForceForward = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 245)
-    # dwForceLeft = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 465)
-    # dwForceRight = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 512)
     # dwGameDir = memory.get_sig('engine.dll', rb'\x68....\x8D\x85....\x50\x68....\x68', 0, 1)
     # dwGameRulesProxy = memory.get_sig('client.dll', rb'\xA1....\x85\xC0\x0F\x84....\x80\xB8.....\x74\x7A', 0, 1)
     dwGlobalVars = memory.get_sig('engine.dll', rb'\x68....\x68....\xFF\x50\x08\x85\xC0', 0, 1)
@@ -44,18 +40,10 @@ try:
     dwViewMatrix = memory.get_sig('client.dll', rb'\x0F\x10\x05....\x8D\x85....\xB9', 176, 3)
     # dwWeaponTable = memory.get_sig('client.dll', rb'\xB9....\x6A\x00\xFF\x50\x08\xC3', 0, 1)
     # dwWeaponTableIndex = memory.get_sig('client.dll', rb'\x39\x86....\x74\x06\x89\x86....\x8B\x86', 0, 2, False)
-    # dwYawPtr = memory.get_sig('client.dll', rb'\x81\xF9....\x75\x16\xF3\x0F\x10\x05....\xF3\x0F\x11\x45.\x81\x75.....\xEB\x0A\x8B\x01\x8B\x40\x30\xFF\xD0\xD9\x5D\x0C\x8B\x55\x08', 0, 2)
-    interface_engine_cvar = 0x3E9EC
+    interface_engine_cvar = memory.get_sig('vstdlib.dll', rb'\x8B\x0D....\xC7\x05', 0, 2)
     is_c4_owner = 0x3C8110
-    m_bDormant = 0xED
     m_flSpawnTime = 0x103C0
-    m_pStudioHdr = 0x2950
-    m_pitchClassPtr = 0x5205E80
-    m_yawClassPtr = 0xDBAF48
-    model_ambient_min = 0x58F03C
-    set_abs_angles = 0x1E5330
-    set_abs_origin = 0x1E5170
-    dwbSendPackets = 0xD96A2
+    dwbSendPackets = memory.get_sig('engine.dll', rb'\xB3\x01\x8B\x01\x8B\x40\x10\xFF\xD0\x84\xC0\x74\x0F\x80\xBF.....\x0F\x84', 1, 0, False, True)
     # netvars
     cs_gamerules_data = 0x0
     m_ArmorValue = 0x117CC
