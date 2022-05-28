@@ -1,7 +1,2 @@
-threading
-dataclasses
-pymem
-winsound
-ctypes
-dearpygui
-random
+pymem==1.8.5
+dearpygui==1.5.1
