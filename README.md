@@ -21,5 +21,9 @@ External CS:GO cheat written in Python(3.9.12).
 ## In game:
 ![This is an image](https://i.imgur.com/o4vJmVM.jpeg)
 
+## Instruction
+- Please read video description
+![Watch the video]([https://youtu.be/vt5fpE0bzSY](https://img.youtube.com/vi/HKtm_fYODTQ/default.jpg))
+
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-multihack-exe-source.html
