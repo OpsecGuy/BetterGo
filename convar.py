@@ -15,7 +15,7 @@ class ConVar():
                 # print(game_handle.read_string(game_handle.read_uint(a0 + 0x0C)))
                 v2 = game_handle.read_uint(v2 + 0x4)
         except Exception as err:
-            pass
+            print(err)
     
     def get_name(self):
         return game_handle.read_string(game_handle.read_uint(self.address + 0xC))

@@ -1,13 +1,13 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.5'
+__version__ = '1.4.6'
 
-from time import sleep
 from memory import *
 from entity import *
 from local import *
 from gui import *
 from helper import *
 from convar import *
+
 
 def entity_loop():
     while True:
@@ -17,16 +17,16 @@ def entity_loop():
                 ent.glow_objects_loop()
         except Exception as err:
             pass
-        sleep(0.001)
+        time.sleep(0.001)
 
 def player_esp():
     while True:
         try:
             if dpg.get_value('player_esp'):
                 enemy_team_color = dpg.get_value('enemy_glow_color')
-                my_team_color = dpg.get_value('temates_glow_color')
+                team_color = dpg.get_value('mates_glow_color')
                 c1 = [round(enemy_team_color[0], 1), round(enemy_team_color[1], 1), round(enemy_team_color[2], 1), round(enemy_team_color[3], 1)]
-                c2 = [round(my_team_color[0], 1), round(my_team_color[1], 1), round(my_team_color[2], 1), round(my_team_color[3], 1)]
+                c2 = [round(team_color[0], 1), round(team_color[1], 1), round(team_color[2], 1), round(team_color[3], 1)]
                 
                 for entity in ent.glow_objects_list:
                     if entity[2] == 40:
@@ -205,7 +205,7 @@ def fov_changer():
                     lp.set_fov(dpg.get_value('fov'))
                     temp = dpg.get_value('fov')
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.1)
 
 def fake_lag():
@@ -216,7 +216,7 @@ def fake_lag():
                 time.sleep(dpg.get_value('fakelag_strength'))
                 lp.send_packets(True)
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.001)
 
 def hit_sound(filename: str):
@@ -228,8 +228,8 @@ def hit_sound(filename: str):
                 if damage != oldDmg:
                     if 0 < oldDmg >= 255:
                         continue
-                    oldDmg = damage
                     winsound.PlaySound(filename, winsound.SND_ASYNC)
+                    oldDmg = damage
         except Exception as err:
             pass
         time.sleep(0.01)
@@ -272,7 +272,7 @@ def player_infos(key: int):
                 os.system('cls')
                 for entity in ent.entity_list:
                     if entity[2] == 40:
-                        if ent.get_name(entity[0]) == None:
+                        if ent.get_name(entity[0]) in [None, 'GOTV']:
                             continue
                         player_info = ''.join(f'Name: {ent.get_name(entity[0])} Wins: {str(ent.get_wins(entity[0]))} Rank: {str(ranks_list[ent.get_rank(entity[0])])}')
                         print(player_info)
@@ -296,6 +296,30 @@ def night_mode():
 
         except Exception as err:
             pass
+        time.sleep(0.1)
+
+def chat_spam():
+    global last_cmd, free_chat_vmem, close_chat_handle
+    last_cmd = ''
+    while True:
+        try:
+            if dpg.get_value('chat_spam_checkbox') and ent.in_game():
+                current_cmd = f'say {dpg.get_value("chat_spam_input")}'.encode('ascii')
+                
+                if current_cmd != last_cmd:
+                    if last_cmd != '':
+                        free_chat_vmem = kernel32.VirtualFreeEx(game_handle.process_handle, vchat_spam_buffer, sys.getsizeof(current_cmd) + 1, win32con.MEM_RELEASE)
+                        close_chat_handle = kernel32.CloseHandle(thread_handle)
+                    vchat_spam_buffer = kernel32.VirtualAllocEx(game_handle.process_handle, 0, sys.getsizeof(current_cmd) + 1, 0x00001000 | 0x00002000, win32con.PAGE_READWRITE)
+
+                kernel32.WriteProcessMemory(game_handle.process_handle, vchat_spam_buffer, current_cmd, sys.getsizeof(current_cmd), 0)
+                chat_spam_thread = win32process.CreateRemoteThread(game_handle.process_handle, None, 0, (engine_dll + offsets.Cmd_ExecuteCommand), vchat_spam_buffer, 0)
+                win32event.WaitForSingleObject(chat_spam_thread[0], 0)
+                thread_handle = int(str(chat_spam_thread[0]).removesuffix('>').split(':')[1])
+                last_cmd = current_cmd
+
+        except Exception as err:
+            print(err)
         time.sleep(0.1)
 
 def bomb_events():
@@ -322,30 +346,35 @@ def bomb_events():
                         print('Bomb defused!')
                         time.sleep(10)
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.001)
 
 def exit():
     try:
         print('Exiting...')
         lp.send_packets(True)
+        if last_cmd != '':
+            free_chat_vmem
+            close_chat_handle
         showfps.set_int(0)
-        grenadepreview.set_int(0)
+        grenade_preview.set_int(0)
         sky_name.set_string('embassy')
         lp.set_fov(90)
         lp.set_flashbang_alpha(255.0)
         ent.force_update()
         dpg.destroy_context()
+        process.close_handle(game_handle.process_handle)
     except exception.MemoryWriteError as err:
         pass
     os._exit(0)
 
 def convar_handler():
-    global showfps, grenadepreview, sky_name
+    global showfps, grenade_preview, sky_name
     showfps = ConVar('cl_showfps')
-    grenadepreview = ConVar('cl_grenadepreview')
+    grenade_preview = ConVar('cl_grenadepreview')
     sky_name = ConVar('sv_skyname')
     _temp1, _temp2, _temp3 = 0, 0, ''
+
     while True:
         try:
             fps_state = int(dpg.get_value('fps_checkbox'))
@@ -362,10 +391,10 @@ def convar_handler():
 
             elif gre_state != _temp2:
                 if (dpg.get_value('grenade_checkbox')):
-                        grenadepreview.set_int(gre_state)
+                        grenade_preview.set_int(gre_state)
                         _temp2 = gre_state
                 else:
-                    grenadepreview.set_int(gre_state)
+                    grenade_preview.set_int(gre_state)
                     _temp2 = gre_state
             
             elif sky_state != _temp3:
@@ -386,7 +415,7 @@ def key_handler(key: str):
 
 def start_threads():
     try:
-        window.menu()
+        gui.menu()
         dpg.set_item_callback('unload_button', exit)
         threading.Thread(target=entity_loop, name='entity_loop').start()
         threading.Thread(target=player_esp, name='player_esp').start()
@@ -404,8 +433,10 @@ def start_threads():
         # threading.Thread(target=spectator_list, name='spectator_list').start()
         threading.Thread(target=player_infos, args=[0x77], name='player_infos').start()
         threading.Thread(target=night_mode, name='night_mode').start()
+        threading.Thread(target=chat_spam, name='cmd').start()
         # threading.Thread(target=bomb_events, name='bomb_events').start()
         threading.Thread(target=convar_handler, name='convar_controller').start()
+        threading.Thread(target=gui.make_interactive, name='interactive_gui').start()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
         os._exit(0)
@@ -417,7 +448,7 @@ if __name__ == '__main__':
         mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
         lp = LocalPlayer(mem)
         ent = Entity(mem)
-        window = GUI()
+        gui = GUI()
         start_threads()
         dpg.start_dearpygui()
     except (Exception, KeyboardInterrupt) as err:

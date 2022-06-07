@@ -1,6 +1,11 @@
-from dataclasses import dataclass
+
+from ctypes.wintypes import DWORD, LPVOID, HANDLE, CHAR
 from pymem import Pymem, process, exception, pattern
-import re, os, threading, winsound, ctypes, time
+from dataclasses import dataclass
+import os, time, threading, winsound, ctypes, win32process, win32api, win32con, win32event, sys
+
+LPTHREAD_START_ROUTINE = ctypes.WINFUNCTYPE(LPVOID)
+kernel32 = ctypes.WinDLL('kernel32.dll')
 
 # TO:DO : cleanup code
 try:
