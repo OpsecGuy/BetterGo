@@ -36,41 +36,44 @@ class Entity(LocalPlayer):
         except Exception as err:
             pass
 
-    def get_entity(self, entity):
+    def get_entity(self, entity: int):
         return self.mem.game_handle.read_uint((self.mem.client_dll + offsets.dwEntityList) + entity * 0x10)
 
-    def get_life_state(self, entity):
+    def get_life_state(self, entity: int):
         return self.mem.game_handle.read_int(entity + offsets.m_lifeState)
 
-    def get_health(self, entity):
+    def get_health(self, entity: int):
         return self.mem.game_handle.read_int(entity + offsets.m_iHealth)
 
-    def get_team(self, entity):
+    def get_team(self, entity: int):
         return self.mem.game_handle.read_int(entity + offsets.m_iTeamNum)
 
-    def get_dormant(self, entity):
+    def get_dormant(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bDormant)
 
-    def set_dormant(self, entity, val: bool):
-        return self.mem.game_handle.write_bool(entity + offsets.m_bDormant, val)
+    def set_dormant(self, entity: int, value: bool):
+        return self.mem.game_handle.write_bool(entity + offsets.m_bDormant, value)
 
-    def is_visible(self, entity):
+    def is_spotted(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bSpotted)
+    
+    def set_spotted(self, entity: int, value: bool):
+        return self.mem.game_handle.write_bool(entity + offsets.m_bSpotted, value)
 
-    def set_is_visible(self, entity, val: bool):
-        return self.mem.game_handle.write_bool(entity + offsets.m_bSpotted, val)
+    def is_spotted_by_mask(self, entity: int):
+        return self.mem.game_handle.read_bool(entity + offsets.m_bSpottedByMask)
 
-    def is_defusing(self, entity):
+    def set_spotted_by_mask(self, entity: int, value: bool):
+        return self.mem.game_handle.write_bool(entity + offsets.m_bSpottedByMask, value)
+
+    def is_defusing(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bIsDefusing)
 
-    def get_flag(self, entity):
+    def is_protected(self, entity: int):
+        return self.mem.game_handle.read_bool(entity + offsets.m_bGunGameImmunity)
+    
+    def get_flag(self, entity: int):
         return self.mem.game_handle.read_int(entity + offsets.m_fFlags)
-
-    def get_shots_fired(self, entity):
-        return self.mem.game_handle.read_uint(entity + offsets.m_iShotsFired)
-
-    def get_total_hits(self, entity):
-        return self.mem.game_handle.read_uint(entity + 0x103f8) # m_totalHitsOnServer
 
     def is_bomb_planted(self):
         return self.mem.game_handle.read_bool(
@@ -83,7 +86,7 @@ class Entity(LocalPlayer):
     def glow_object_size(self):
         return self.mem.game_handle.read_uint(self.glow_object() + 0xC)
 
-    def glow_index(self, entity):
+    def glow_index(self, entity: int):
         return self.mem.game_handle.read_uint(entity + offsets.m_iGlowIndex)
 
     def is_bomb_planted(self):
@@ -101,48 +104,48 @@ class Entity(LocalPlayer):
     def get_map_name(self):
         return self.mem.game_handle.read_string(self.engine_ptr() +  offsets.dwClientState_Map)
 
-    def class_id(self, entity):
-        dwClientNetworkable = self.mem.game_handle.read_uint(entity + 0x8)
-        dwGetClientClassFn = self.mem.game_handle.read_uint(dwClientNetworkable + 0x8)
-        dwEntityClientClass = self.mem.game_handle.read_uint(dwGetClientClassFn + 0x1)
-        classID = self.mem.game_handle.read_uint(dwEntityClientClass + 0x14)
-        return classID
+    def get_map_dir(self):
+        return self.mem.game_handle.read_string(self.engine_ptr() +  offsets.dwClientState_MapDirectory)
 
-    def get_position(self, entity):
-        x = self.mem.game_handle.read_float(entity + offsets.m_vecOrigin)
-        y = self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x4)
-        z = self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x8)
-        return Vector3(x, y, z)
+    def class_id(self, entity: int):
+        client_networkable = self.mem.game_handle.read_uint(entity + 0x8)
+        dwGetClientClassFn = self.mem.game_handle.read_uint(client_networkable + 0x8)
+        entity_client_class = self.mem.game_handle.read_uint(dwGetClientClassFn + 0x1)
+        class_id = self.mem.game_handle.read_uint(entity_client_class + 0x14)
+        return class_id
 
-    def set_position(self, entity, vec3: Vector3):
-        x = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin, vec3.x)
-        y = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin + 0x4, vec3.y)
-        y = self.mem.game_handle.write_float(entity + offsets.m_vecOrigin + 0x4, vec3.z)
+    def get_position(self, entity: int):
+        return Vector3(self.mem.game_handle.read_float(entity + offsets.m_vecOrigin),
+                       self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x4),
+                       self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x8)
+        )
+
+    def set_position(self, entity, position: Vector3):
+        Vector3(self.mem.game_handle.write_float(entity + offsets.m_vecOrigin, position.x),
+                self.mem.game_handle.write_float(entity + offsets.m_vecOrigin + 0x4, position.y),
+                self.mem.game_handle.write_float(entity + offsets.m_vecOrigin + 0x4, position.z)
+        )
 
     def get_view_angle(self):
-        x = self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles)
-        y = self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4)
-        z = self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8)
-        return Vector3(x, y, z)
+        return Vector3(self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles),
+                       self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4),
+                       self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8)
+        )
 
     def set_view_angle(self, angle: Vector3):
-        x = self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles, angle.x)
-        y = self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4, angle.y)
-        z = self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8, angle.z)
+        Vector3(self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles, angle.x),
+                self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4, angle.y),
+                self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8, angle.z),
+        )
 
     def get_bone_position(self, entity, bone_id: int):
-        base = self.mem.game_handle.read_uint(entity + offsets.m_dwBoneMatrix)
-        x = self.mem.game_handle.read_float(base + 0x30 * bone_id + 0x0c)
-        y = self.mem.game_handle.read_float(base + 0x30 * bone_id + 0x1c)
-        z = self.mem.game_handle.read_float(base + 0x30 * bone_id + 0x2c)
-        return Vector3(x, y, z)
+        bone_matrix = self.mem.game_handle.read_uint(entity + offsets.m_dwBoneMatrix)
+        return Vector3(self.mem.game_handle.read_float(bone_matrix + 0x30 * bone_id + 0x0c),
+                       self.mem.game_handle.read_float(bone_matrix + 0x30 * bone_id + 0x1c),
+                       self.mem.game_handle.read_float(bone_matrix + 0x30 * bone_id + 0x2c)
+        )
 
-    def active_weapon(self):
-        actWeapon = self.mem.game_handle.read_uint(self.local_player() + offsets.m_hActiveWeapon) & 0xFFF
-        actWeapon = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + (actWeapon - 1) * 0x10)
-        return self.mem.game_handle.read_short(actWeapon + offsets.m_iItemDefinitionIndex)
-
-    def get_name(self, entity):
+    def get_name(self, entity: int):
         player_info = self.mem.game_handle.read_uint(self.engine_ptr()
         + offsets.dwClientState_PlayerInfo)
                 
@@ -154,10 +157,10 @@ class Entity(LocalPlayer):
         if info > 0:
             return self.mem.game_handle.read_string(info + 0x10)
 
-    def get_rank(self, entity):
+    def get_rank(self, entity: int):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
         return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveRanking + (entity  + 1) * 0x4)
 
-    def get_wins(self, entity):
+    def get_wins(self, entity: int):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
         return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveWins + (entity + 1) * 0x4)

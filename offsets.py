@@ -16,6 +16,8 @@ try:
     dwForceAttack = memory.get_sig('client.dll', rb'\x89\x0D....\x8B\x0D....\x8B\xF2\x8B\xC1\x83\xCE\x04', 0, 2)
     dwForceAttack2 = memory.get_sig('client.dll', rb'\x89\x0D....\x8B\x0D....\x8B\xF2\x8B\xC1\x83\xCE\x04', 12, 2)
     dwForceJump = memory.get_sig('client.dll', rb'\x8B\x0D....\x8B\xD6\x8B\xC1\x83\xCA\x02', 0, 2)
+    dwForceLeft = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 465)
+    dwForceRight = memory.get_sig('client.dll', rb'\x55\x8B\xEC\x51\x53\x8A\x5D\x08', 0, 512)
     dwClientState = memory.get_sig('engine.dll', rb'\xA1....\x33\xD2\x6A\x00\x6A\x00\x33\xC9\x89\xB0', 0, 1)
     dwClientState_GetLocalPlayer = memory.get_sig('engine.dll', rb'\x8B\x80....\x40\xC3', 0, 2, False)
     # dwClientState_IsHLTV = memory.get_sig('engine.dll', rb'\x80\xBF.....\x0F\x84....\x32\xDB', 0, 2, False)
@@ -44,7 +46,6 @@ try:
     is_c4_owner = 0x3C8110
     m_flSpawnTime = 0x103C0
     dwbSendPackets = memory.get_sig('engine.dll', rb'\xB3\x01\x8B\x01\x8B\x40\x10\xFF\xD0\x84\xC0\x74\x0F\x80\xBF.....\x0F\x84', 1, 0, False, True)
-    # should be B2160, no need to deref
     Cmd_ExecuteCommand = memory.get_sig('engine.dll', rb'\x55\x8B\xEC\x8B\x0D....\x81\xF9....\x75\x0C\xA1....\x35....\xEB\x05\x8B\x01\xFF\x50\x34\x50', 0, 0, False, True)
     # 55 8B EC 8B 0D ? ? ? ? 81 F9 ? ? ? ? 75 0C A1 ? ? ? ? 35 ? ? ? ? EB 05 8B 01 FF 50 34 50 
     # netvars

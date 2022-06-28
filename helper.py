@@ -1,13 +1,11 @@
 from enum import IntEnum
-from ctypes import *
 from dataclasses import dataclass
-
-player_info_buffer = []
+import ctypes, math
 
 @dataclass
 class ScreenSize:
-    x = windll.user32.GetSystemMetrics(0)
-    y = windll.user32.GetSystemMetrics(1)
+    x = ctypes.windll.user32.GetSystemMetrics(0)
+    y = ctypes.windll.user32.GetSystemMetrics(1)
 
 @dataclass
 class Vector3:
@@ -20,21 +18,17 @@ class Vector2:
     x: float
     y: float
 
-def w2s(pos: Vector3, matrix):
-    z = pos.x * matrix[12] + pos.y * matrix[13] + pos.z * matrix[14] + matrix[15]
-    if z < 0.1:
-        return None
+def to_angle(delta: Vector3):
+    return Vector3(
+        math.atan2(-delta.z, math.hypot(delta.x, delta.y)) * (180.0 / math.pi),
+        math.atan2(delta.y, delta.x) * (180.0 / math.pi),
+        0.0
+    )
 
-    x = pos.x * matrix[0] + pos.y * matrix[1] + pos.z * matrix[2] + matrix[3]
-    y = pos.x * matrix[4] + pos.y * matrix[5] + pos.z * matrix[6] + matrix[7]
-
-    xx = x / z
-    yy = y / z
-
-    _x = (1920 / 2 * xx) + (xx + 1920 / 2)
-    _y = (1090 / 2 * yy) + (yy + 1080 / 2)
-
-    return [_x, _y]
+def calculate_angle(start_pos: Vector3, end_pos: Vector3, view_angle: Vector3):
+    distance = Vector3(end_pos.x - start_pos.x, end_pos.y - start_pos.y, end_pos.z - start_pos.z)
+    angle = to_angle(distance)
+    return Vector3(angle.x - view_angle.x, angle.y - view_angle.y, angle.z - view_angle.z)
 
 def clamp_angle(angle: Vector3):
     if (angle.x > 89.0): angle.x = 89.0
@@ -46,16 +40,24 @@ def clamp_angle(angle: Vector3):
 
     return angle
 
-def normalize_vector(angle: Vector3):
+def normalize_angle(angle: Vector3):
     if ( angle.x != angle.x or angle.y != angle.y or angle.z != angle.z ):
         return False
     
-    if ( angle.x > 180 ): angle.x -= 360.0
-    if ( angle.x < -180 ): angle.x += 360.0
+    if ( angle.x > 180.0 ): angle.x -= 360.0
+    if ( angle.x < -180.0 ): angle.x += 360.0
     if ( angle.y > 180.0 ): angle.y -= 360.0
     if ( angle.y < -180.0 ): angle.y += 360.0
  
     return angle
+
+def distance(start_point: Vector3, end_point: Vector3):
+	distance = math.sqrt(
+        (int(start_point.x) - int(end_point.x)) * (int(start_point.x) - int(end_point.x)) +
+		(int(start_point.y) - int(end_point.y)) * (int(start_point.y) - int(end_point.y)) +
+		(int(start_point.z) - int(end_point.z)) * (int(start_point.z) - int(end_point.z)))
+
+	return int(abs(round(distance)))
 
 sky_list =[
     'cs_tibet',
@@ -510,74 +512,74 @@ class ClassId(IntEnum):
     SporeExplosion = 282,
     SporeTrail = 283,
 
-def class_id_gun(classID):
-    if (classID == ClassId.CAK47 or classID == ClassId.CSCAR17 or classID == ClassId.CWeaponAug
-    or classID == ClassId.CWeaponBizon or classID == ClassId.CWeaponElite or classID == ClassId.CWeaponFamas
-    or classID == ClassId.CWeaponFiveSeven or classID == ClassId.CDEagle or classID == ClassId.CWeaponM249
-    or classID == ClassId.CWeaponG3SG1 or classID == ClassId.CWeaponGalil or classID == ClassId.CWeaponGalilAR
-    or classID == ClassId.CWeaponGlock or classID == ClassId.CWeaponHKP2000  or classID == ClassId.CWeaponM3
-    or classID == ClassId.CWeaponM4A1 or classID == ClassId.CWeaponMAC10 or classID == ClassId.CWeaponMag7
-    or classID == ClassId.CWeaponMP5Navy or classID == ClassId.CWeaponMP7 or classID == ClassId.CWeaponMP9
-    or classID == ClassId.CWeaponNegev or classID == ClassId.CWeaponNOVA or classID == ClassId.CWeaponP228
-    or classID == ClassId.CWeaponP250 or classID == ClassId.CWeaponP90 or classID == ClassId.CWeaponSawedoff
-    or classID == ClassId.CWeaponSCAR20 or classID == ClassId.CWeaponScout or classID == ClassId.CWeaponSG550
-    or classID == ClassId.CWeaponSG552 or classID == ClassId.CWeaponSG556 or classID == ClassId.CWeaponShield
-    or classID == ClassId.CWeaponSSG08 or classID == ClassId.CWeaponTaser or classID == ClassId.CWeaponUSP
-    or classID == ClassId.CWeaponTec9 or classID == ClassId.CWeaponTMP or classID == ClassId.CWeaponUMP45
-    or classID == ClassId.CWeaponXM1014 or classID == ClassId.CWeaponAWP):
+def class_id_gun(class_id):
+    if (class_id == class_id.CAK47 or class_id == class_id.CSCAR17 or class_id == class_id.CWeaponAug
+        or class_id == class_id.CWeaponBizon or class_id == class_id.CWeaponElite or class_id == class_id.CWeaponFamas
+        or class_id == class_id.CWeaponFiveSeven or class_id == class_id.CDEagle or class_id == class_id.CWeaponM249
+        or class_id == class_id.CWeaponG3SG1 or class_id == class_id.CWeaponGalil or class_id == class_id.CWeaponGalilAR
+        or class_id == class_id.CWeaponGlock or class_id == class_id.CWeaponHKP2000  or class_id == class_id.CWeaponM3
+        or class_id == class_id.CWeaponM4A1 or class_id == class_id.CWeaponMAC10 or class_id == class_id.CWeaponMag7
+        or class_id == class_id.CWeaponMP5Navy or class_id == class_id.CWeaponMP7 or class_id == class_id.CWeaponMP9
+        or class_id == class_id.CWeaponNegev or class_id == class_id.CWeaponNOVA or class_id == class_id.CWeaponP228
+        or class_id == class_id.CWeaponP250 or class_id == class_id.CWeaponP90 or class_id == class_id.CWeaponSawedoff
+        or class_id == class_id.CWeaponSCAR20 or class_id == class_id.CWeaponScout or class_id == class_id.CWeaponSG550
+        or class_id == class_id.CWeaponSG552 or class_id == class_id.CWeaponSG556 or class_id == class_id.CWeaponShield
+        or class_id == class_id.CWeaponSSG08 or class_id == class_id.CWeaponTaser or class_id == class_id.CWeaponUSP
+        or class_id == class_id.CWeaponTec9 or class_id == class_id.CWeaponTMP or class_id == class_id.CWeaponUMP45
+        or class_id == class_id.CWeaponXM1014 or class_id == class_id.CWeaponAWP):
         return True
     else:
         return False
 
-def class_id_grenade(classID):
-    if (classID == ClassId.CDecoyGrenade or classID == ClassId.CDecoyProjectile
-    or classID == ClassId.CMolotovProjectile or classID == ClassId.CMolotovGrenade
-    or classID == ClassId.CHEGrenade or classID == ClassId.CIncendiaryGrenade 
-    or classID == ClassId.CSmokeGrenade or classID == ClassId.ParticleSmokeGrenade
-    or classID == ClassId.CSmokeGrenadeProjectile or classID == ClassId.CFlashbang):
+def class_id_grenade(class_id):
+    if (class_id == class_id.CDecoyGrenade or class_id == class_id.CDecoyProjectile
+        or class_id == class_id.CMolotovProjectile or class_id == class_id.CMolotovGrenade
+        or class_id == class_id.CHEGrenade or class_id == class_id.CIncendiaryGrenade 
+        or class_id == class_id.CSmokeGrenade or class_id == class_id.ParticleSmokeGrenade
+        or class_id == class_id.CSmokeGrenadeProjectile or class_id == class_id.CFlashbang):
         return True
     else:
         return False
 
-def class_id_c4(classID):
-    if (classID == ClassId.CC4 or classID == ClassId.CPlantedC4):
+def class_id_c4(class_id):
+    if (class_id == class_id.CC4 or class_id == class_id.CPlantedC4):
         return True
     else:
         return False
 
 def weapon_knife(weapon):
-    if (weapon == Weapon.Knife or weapon == Weapon.Bayonet or weapon == Weapon.Classic_Knife 
-    or weapon == Weapon.Flip_Knife or weapon == Weapon.Gut_Knife or weapon == Weapon.Paracord_Knife
-    or weapon == Weapon.Karambit or weapon == Weapon.M9_Bayonet or weapon == Weapon.Huntsman_Knife
-    or weapon == Weapon.Falchion_Knife or weapon == Weapon.Bowie_Knife or weapon == Weapon.Stiletto_Knife
-    or weapon == Weapon.Butterfly_Knife or weapon == Weapon.Shadow_Daggers
-    or weapon == Weapon.Survival_Knife or weapon == Weapon.Ursus_Knife
-    or weapon == Weapon.Navaja_Knife or weapon == Weapon.Nomad_Knife
-    or weapon == Weapon.Talon_Knife or weapon == Weapon.Skeleton_Knife):
+    if (weapon == Weapon.Knife or weapon == Weapon.T_knife or weapon == Weapon.Bayonet
+        or weapon == Weapon.Flip_Knife or weapon == Weapon.Gut_Knife or weapon == Weapon.Paracord_Knife
+        or weapon == Weapon.Karambit or weapon == Weapon.M9_Bayonet or weapon == Weapon.Huntsman_Knife
+        or weapon == Weapon.Falchion_Knife or weapon == Weapon.Bowie_Knife or weapon == Weapon.Stiletto_Knife
+        or weapon == Weapon.Butterfly_Knife or weapon == Weapon.Shadow_Daggers or weapon == Weapon.Classic_Knife 
+        or weapon == Weapon.Survival_Knife or weapon == Weapon.Ursus_Knife
+        or weapon == Weapon.Navaja_Knife or weapon == Weapon.Nomad_Knife
+        or weapon == Weapon.Talon_Knife or weapon == Weapon.Skeleton_Knife):
         return True
     else:
         return False
 
 def weapon_rifle(weapon):
     if (weapon == Weapon.AK_47 or weapon == Weapon.AUG or weapon == Weapon.FAMAS 
-    or weapon == Weapon.Galil_AR or weapon == Weapon.SG_553
-    or weapon == Weapon.M4A1_S or weapon == Weapon.M4A4):
+        or weapon == Weapon.Galil_AR or weapon == Weapon.SG_553
+        or weapon == Weapon.M4A1_S or weapon == Weapon.M4A4):
         return True
     else:
         return False
 
 def weapon_pistol(weapon):
     if (weapon == Weapon.Desert_Eagle or weapon == Weapon.Dual_Berettas or weapon == Weapon.Five_SeveN
-    or weapon == Weapon.Glock_18 or weapon == Weapon.Tec_9 or weapon == Weapon.P2000
-    or weapon == Weapon.P250 or weapon == Weapon.USP_S or weapon == Weapon.R8_Revolver
-    or weapon == Weapon.CZ75_Auto):
+        or weapon == Weapon.Glock_18 or weapon == Weapon.Tec_9 or weapon == Weapon.P2000
+        or weapon == Weapon.P250 or weapon == Weapon.USP_S or weapon == Weapon.R8_Revolver
+        or weapon == Weapon.CZ75_Auto):
         return True
     else:
         return False
 
 def weapon_grenade(weapon):
     if (weapon == Weapon.Flashbang or weapon == Weapon.Explosive_Grenade or weapon == Weapon.Smoke_Grenade
-    or weapon == Weapon.Molotov or weapon == Weapon.Decoy_Grenade or weapon == Weapon.C4):
+        or weapon == Weapon.Molotov or weapon == Weapon.Decoy_Grenade or weapon == Weapon.C4):
         return True
     else:
         return False
@@ -590,14 +592,14 @@ def weapon_sniper(weapon):
 
 def weapon_smg(weapon):
     if (weapon == Weapon.MAC_10 or weapon == Weapon.MP7 or weapon == Weapon.UMP_45 or weapon == Weapon.P90
-    or weapon == Weapon.Bizon or weapon == Weapon.MP5_SD or weapon == Weapon.MP9):
+        or weapon == Weapon.Bizon or weapon == Weapon.MP5_SD or weapon == Weapon.MP9):
         return True
     else:
         return False
 
 def weapon_heavy(weapon):
     if (weapon == Weapon.Nova or weapon == Weapon.XM1014 or weapon == Weapon.Sawed_Off or weapon == Weapon.M249
-    or weapon == Weapon.Negev or weapon == Weapon.MAG_7):
+        or weapon == Weapon.Negev or weapon == Weapon.MAG_7):
         return True
     else:
         return False
