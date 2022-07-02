@@ -2,13 +2,17 @@
 External CS:GO cheat written in Python(3.9.12).
 
 ## Functions:
+- Aimbot
 - Player ESP
 - Item ESP (guns, grenades, c4)
 - Grenade Trajectory
 - Recoil Control System
 - TriggerBot
+- Zeus Bot
+- Knife Bot
 - Auto Pistol
 - BunnyHop
+- Auto Strafer
 - Radar Hack
 - No Smoke
 - Fov Changer
