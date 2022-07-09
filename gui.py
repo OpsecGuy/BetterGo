@@ -43,8 +43,9 @@ class GUI():
                 dpg.add_checkbox(label='Player ESP', tag='player_esp')
                 dpg.add_checkbox(label='Team Check', tag='player_esp_temates')
                 dpg.add_checkbox(label='Item ESP', tag='item_esp')
-                dpg.add_color_edit(label='Enemy Team Color', default_value=[124, 12, 51, 44], tag='enemy_glow_color')
-                dpg.add_color_edit(label='Team color', default_value=[42, 196, 15, 44], tag='mates_glow_color')
+                dpg.add_color_edit(label='Enemy Team Color', default_value=[124, 12, 51, 160], tag='enemy_glow_color')
+                dpg.add_color_edit(label='Team color', default_value=[42, 196, 15, 160], tag='mates_glow_color')
+                dpg.add_checkbox(label='Health Based', tag='health_mode_checkbox')
                 dpg.add_separator()
                 dpg.add_checkbox(label='Grenade Trajectory', tag='grenade_checkbox')
                 dpg.add_checkbox(label='Night Mode', tag='nightmode_checkbox')
@@ -68,7 +69,9 @@ class GUI():
                 dpg.add_input_text(label='Command', width=215, tag='chat_spam_input')
                 dpg.add_checkbox(label='Fake Lag', tag='fakelag_checkbox')
                 dpg.add_slider_float(label='Fake Lag Strength', default_value=0.001, min_value=0.001, max_value=0.016, width=215, tag='fakelag_strength')
-            dpg.add_button(label='Unload', width=150, height=30, tag='unload_button')
+            
+            dpg.add_button(label='Players Info (Console)', width=160, height=25, tag='players_info_button')
+            dpg.add_button(label='Unload', width=160, height=25, tag='unload_button')
             
         # with dpg.window(label='Spectators', user_data='menu2', tag='#menu2', autosize=True, no_background=True, no_close=True, pos=[5, h.ScreenSize().y / 2]): 
         #     dpg.add_text(label='spectator_list', tag='spectator_list')

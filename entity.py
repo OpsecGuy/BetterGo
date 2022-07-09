@@ -155,7 +155,8 @@ class Entity(LocalPlayer):
         info = self.mem.game_handle.read_uint(player_info_items + 0x28 + (entity * 0x34))
 
         if info > 0:
-            return self.mem.game_handle.read_string(info + 0x10)
+            return self.mem.game_handle.read_bytes(info + 0x10, 64)
+            # return self.mem.game_handle.read_string(info + 0x10)
 
     def get_rank(self, entity: int):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)

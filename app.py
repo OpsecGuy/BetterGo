@@ -1,6 +1,7 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.7'
+__version__ = '1.4.7.1'
 
+from io import BytesIO
 from memory import *
 from entity import *
 from local import *
@@ -84,24 +85,26 @@ def player_esp():
                 
                 for entity in ent.glow_objects_list:
                     if entity[2] == 40:
+                        if lp.local_player() == entity[1]:
+                            continue
                         if ent.get_dormant(entity[1]) == True:
-                                continue
+                            continue
                         if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c1[0] / 100)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c1[1] / 100)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c1[2] / 100)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c1[3] / 100)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c1[0] / 255 if not dpg.get_value('health_mode_checkbox') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c1[1] / 255 if not dpg.get_value('health_mode_checkbox') else (2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c1[2] / 255 if not dpg.get_value('health_mode_checkbox') else 0.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c1[3] / 255)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
                         elif ent.get_team(lp.local_player()) and dpg.get_value('player_esp_temates'):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c2[0] / 100)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c2[1] / 100)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c2[2] / 100)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c2[3] / 100)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c2[0] / 255 if not dpg.get_value('health_mode_checkbox') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c2[1] / 255 if not dpg.get_value('health_mode_checkbox') else (2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c2[2] / 255 if not dpg.get_value('health_mode_checkbox') else 0.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c2[3] / 255)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def item_esp():
@@ -338,19 +341,20 @@ def spectator_list():
             pass
         time.sleep(0.2)
 
-def player_infos(key: int):
+def player_infos():
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(key) and ent.in_game(): 
-                os.system('cls')
+            if dpg.is_item_clicked('players_info_button') and ent.in_game():
                 for entity in ent.entity_list:
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) not in [None, 'GOTV']:
-                            player_info = ''.join(f'Name: {ent.get_name(entity[0])} Wins: {str(ent.get_wins(entity[0]))} Rank: {str(ranks_list[ent.get_rank(entity[0])])}')
-                        print(player_info)
+                            name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()
+                            
+                            execute_cmd(f'echo {entity[0]} {name} {ent.get_wins(entity[0])} {ranks_list[ent.get_rank(entity[0])]}'.encode('ascii'), (engine_dll + offsets.Cmd_ExecuteCommand))
+                            time.sleep(0.1)
         except Exception as err:
             pass
-        time.sleep(0.2)
+        time.sleep(0.001)
 
 def night_mode():
     temp = 0
@@ -371,15 +375,15 @@ def night_mode():
         time.sleep(0.1)
 
 def chat_spam():
-    global last_cmd, free_chat_vmem, close_chat_handle
-    last_cmd = ''
+    global last_cmd_chat, free_chat_vmem, close_chat_handle
+    last_cmd_chat = ''
     while True:
         try:
             if dpg.get_value('chat_spam_checkbox') and ent.in_game():
                 current_cmd = f'say {dpg.get_value("chat_spam_input")}'.encode('ascii')
                 
-                if current_cmd != last_cmd:
-                    if last_cmd != '':
+                if current_cmd != last_cmd_chat:
+                    if last_cmd_chat != '':
                         free_chat_vmem = kernel32.VirtualFreeEx(game_handle.process_handle, vchat_spam_buffer, sys.getsizeof(current_cmd) + 1, win32con.MEM_RELEASE)
                         close_chat_handle = kernel32.CloseHandle(thread_handle)
                     vchat_spam_buffer = kernel32.VirtualAllocEx(game_handle.process_handle, 0, sys.getsizeof(current_cmd) + 1, 0x00001000 | 0x00002000, win32con.PAGE_READWRITE)
@@ -388,11 +392,11 @@ def chat_spam():
                 chat_spam_thread = win32process.CreateRemoteThread(game_handle.process_handle, None, 0, (engine_dll + offsets.Cmd_ExecuteCommand), vchat_spam_buffer, 0)
                 win32event.WaitForSingleObject(chat_spam_thread[0], 0)
                 thread_handle = int(str(chat_spam_thread[0]).removesuffix('>').split(':')[1])
-                last_cmd = current_cmd
+                last_cmd_chat = current_cmd
 
         except Exception as err:
-            print(err)
-        time.sleep(0.1)
+            pass
+        time.sleep(0.01)
 
 def bomb_events():
     # works just fine, but currently unused.
@@ -425,7 +429,7 @@ def exit():
     try:
         print('Exiting...')
         lp.send_packets(True)
-        if last_cmd != '':
+        if last_cmd_chat != '':
             free_chat_vmem
             close_chat_handle
         showfps.set_int(0)
@@ -506,7 +510,7 @@ def start_threads():
         threading.Thread(target=fake_lag, name='fake_lag').start()
         threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound').start()
         # threading.Thread(target=spectator_list, name='spectator_list').start()
-        threading.Thread(target=player_infos, args=[0x77], name='player_infos').start()
+        threading.Thread(target=player_infos, name='player_infos').start()
         threading.Thread(target=night_mode, name='night_mode').start()
         threading.Thread(target=chat_spam, name='cmd').start()
         # threading.Thread(target=bomb_events, name='bomb_events').start()
@@ -519,7 +523,6 @@ def start_threads():
 if __name__ == '__main__':
     try:
         print(f'By: {__author__}\nVersion: {__version__}')
-        print('[F8] Players info')
         mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
         lp = LocalPlayer(mem)
         ent = Entity(mem)

@@ -14,10 +14,10 @@ class LocalPlayer():
     def get_flashbang_duration(self):
         return self.mem.game_handle.read_float(self.local_player() + offsets.m_flFlashDuration)
     
-    def set_flashbang_duration(self, value: int):
+    def set_flashbang_duration(self, value: float):
         self.mem.game_handle.write_float(self.local_player() + offsets.m_flFlashDuration, value)
 
-    def set_flashbang_alpha(self, value: int):
+    def set_flashbang_alpha(self, value: float):
         self.mem.game_handle.write_float(self.local_player() + offsets.m_flFlashMaxAlpha, value)
 
     def get_total_hits(self):
