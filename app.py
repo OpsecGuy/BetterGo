@@ -1,5 +1,5 @@
 __author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.7.1'
+__version__ = '1.4.7.2'
 
 from io import BytesIO
 from memory import *
@@ -17,7 +17,7 @@ def entity_loop():
                 ent.glow_objects_loop()
         except Exception as err:
             pass
-        time.sleep(0.001)
+        time.sleep(0.1)
 
 def aimbot():
     fov = 0
@@ -61,15 +61,15 @@ def aimbot():
 
                 if best_angle.x < fov and best_angle.y < fov and best_angle.x != 0.0 and best_angle.y != 0.0:
                     if dpg.get_value('aimbot_smooth') < 1.0:
-                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x,
-                                            view_angle.y + best_angle.y,
-                                            view_angle.z + best_angle.z
+                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x - aim_punch.x if dpg.get_value('aimbot_rcs_checkbox') else view_angle.x + best_angle.x,
+                                            view_angle.y + best_angle.y - aim_punch.y if dpg.get_value('aimbot_rcs_checkbox') else view_angle.y + best_angle.y,
+                                            view_angle.z + best_angle.z - aim_punch.z if dpg.get_value('aimbot_rcs_checkbox') else view_angle.z + best_angle.z
                                             ))
                     else:
-                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x / dpg.get_value('aimbot_smooth'),
-                                                view_angle.y + best_angle.y / dpg.get_value('aimbot_smooth'),
-                                                view_angle.z + best_angle.z / dpg.get_value('aimbot_smooth')
-                                                ))
+                        ent.set_view_angle(Vector3(view_angle.x + (best_angle.x - aim_punch.x) / dpg.get_value('aimbot_smooth') if dpg.get_value('aimbot_rcs_checkbox') else view_angle.x + best_angle.x / dpg.get_value('aimbot_smooth'),
+                                            view_angle.y + (best_angle.y - aim_punch.y) / dpg.get_value('aimbot_smooth') if dpg.get_value('aimbot_rcs_checkbox') else view_angle.y + best_angle.y / dpg.get_value('aimbot_smooth'),
+                                            view_angle.z + (best_angle.z - aim_punch.z) / dpg.get_value('aimbot_smooth') if dpg.get_value('aimbot_rcs_checkbox') else view_angle.z + best_angle.z / dpg.get_value('aimbot_smooth')                                                
+                                            ))
         except Exception as err:
             pass
         time.sleep(0.001)
@@ -104,7 +104,7 @@ def player_esp():
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.001)
 
 def item_esp():
@@ -135,7 +135,7 @@ def rcs(key: int):
     old_angle = Vector3(0, 0, 0)
     while (True):
         try:
-            if dpg.get_value('rcs_checkbox') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
+            if dpg.get_value('standalone_rcs_checkbox') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
                 if ctypes.windll.user32.GetAsyncKeyState(key) and ent.get_shots_fired() > dpg.get_value('rcs_get_bullets'):
                     if weapon_rifle(lp.active_weapon()) or weapon_smg(lp.active_weapon()) or weapon_heavy(lp.active_weapon()):
                         view_angle = ent.get_view_angle()
@@ -396,7 +396,7 @@ def chat_spam():
 
         except Exception as err:
             pass
-        time.sleep(0.01)
+        time.sleep(0.1)
 
 def bomb_events():
     # works just fine, but currently unused.
@@ -487,8 +487,7 @@ def convar_handler():
         time.sleep(0.01)
 
 def key_handler(key: str):
-        v0 = dpg.get_value(key)
-        return gui_keys_list.get(v0)
+        return gui_keys_list.get(dpg.get_value(key))
 
 def start_threads():
     try:
