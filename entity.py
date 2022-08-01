@@ -24,9 +24,10 @@ class Entity(LocalPlayer):
 
     def glow_objects_loop(self):
         try:
+            self.glow_objects_list.clear()
             for i in range(1, 1024):
                 glow_object = self.mem.game_handle.read_uint(self.glow_object() + 0x38 * (i - 1) + 0x4)
-
+                
                 if glow_object != 0:
                     if self.class_id(glow_object) == None:
                         continue
