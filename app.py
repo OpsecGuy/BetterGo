@@ -1,7 +1,6 @@
-__author__ = 'MaGicSuR / https://github.com/MaGicSuR'
-__version__ = '1.4.7.2'
+__author__ = 'Opsec'
+__version__ = '1.4.7.3'
 
-from io import BytesIO
 from memory import *
 from entity import *
 from local import *
@@ -226,7 +225,7 @@ def auto_strafer():
     while True:
         try:
             if ctypes.windll.user32.GetAsyncKeyState(0x20) and dpg.get_value('bunnyhop_checkbox') and dpg.get_value('auto_strafer_checkbox'):
-                if ent.get_flag(lp.local_player()) != 257 and lp.get_move_type() != 9: # 9 - on ladder
+                if ent.get_flag(lp.local_player()) != 257 and lp.get_move_type() != 9: # 9 - player on ladder
                     current_angle = ent.get_view_angle()
                     if current_angle.y > old_view_angle.y:
                         lp.force_left(6)
@@ -303,7 +302,7 @@ def hit_sound(filename: str):
             if dpg.get_value('hitsound_checkbox') and ent.in_game():
                 shots_fired = lp.get_total_hits()
                 if shots_fired != shots_count:
-                    if shots_count <= 255:
+                    if shots_count <= 255: # 255 - limit of shots_fired per round
                         winsound.PlaySound(filename, winsound.SND_ASYNC)
                     shots_count = shots_fired
         except Exception as err:
@@ -521,7 +520,7 @@ def start_threads():
 
 if __name__ == '__main__':
     try:
-        print(f'By: {__author__}\nVersion: {__version__}')
+        print(f'Author: {__author__}\nVersion: {__version__}')
         mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
         lp = LocalPlayer(mem)
         ent = Entity(mem)

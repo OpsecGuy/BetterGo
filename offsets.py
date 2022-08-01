@@ -46,9 +46,9 @@ try:
     is_c4_owner = 0x3C8110
     m_flSpawnTime = 0x103C0
     dwbSendPackets = memory.get_sig('engine.dll', rb'\xB3\x01\x8B\x01\x8B\x40\x10\xFF\xD0\x84\xC0\x74\x0F\x80\xBF.....\x0F\x84', 1, 0, False, True)
-    Cmd_ExecuteCommand = memory.get_sig('engine.dll', rb'\x55\x8B\xEC\x8B\x0D....\x81\xF9....\x75\x0C\xA1....\x35....\xEB\x05\x8B\x01\xFF\x50\x34\x50', 0, 0, False, True)
-    # 55 8B EC 8B 0D ? ? ? ? 81 F9 ? ? ? ? 75 0C A1 ? ? ? ? 35 ? ? ? ? EB 05 8B 01 FF 50 34 50 
+    Cmd_ExecuteCommand = memory.get_sig('engine.dll', rb'\x55\x8B\xEC\x8B\x0D....\x81\xF9....\x75\x0C\xA1....\x35....\xEB\x05\x8B\x01\xFF\x50\x34\x50', 0, 0, False, True) # 55 8B EC 8B 0D ? ? ? ? 81 F9 ? ? ? ? 75 0C A1 ? ? ? ? 35 ? ? ? ? EB 05 8B 01 FF 50 34 50 
     # netvars
+    dwGameRulesProxy = 0x52F90CC
     cs_gamerules_data = 0x0
     m_ArmorValue = 0x117CC
     m_Collision = 0x320
