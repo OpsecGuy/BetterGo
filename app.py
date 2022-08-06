@@ -1,5 +1,5 @@
 __author__ = 'Opsec'
-__version__ = '1.4.7.3'
+__version__ = '1.4.7.4'
 
 from memory import *
 from entity import *
@@ -126,7 +126,7 @@ def item_esp():
                         game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
                         game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def rcs(key: int):

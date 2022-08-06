@@ -553,36 +553,36 @@ class ClassId(IntEnum):
     SporeTrail          = 283
 
 def class_id_gun(class_id):
-    if (class_id == class_id.CAK47 or class_id == class_id.CSCAR17 or class_id == class_id.CWeaponAug
-        or class_id == class_id.CWeaponBizon or class_id == class_id.CWeaponElite or class_id == class_id.CWeaponFamas
-        or class_id == class_id.CWeaponFiveSeven or class_id == class_id.CDEagle or class_id == class_id.CWeaponM249
-        or class_id == class_id.CWeaponG3SG1 or class_id == class_id.CWeaponGalil or class_id == class_id.CWeaponGalilAR
-        or class_id == class_id.CWeaponGlock or class_id == class_id.CWeaponHKP2000  or class_id == class_id.CWeaponM3
-        or class_id == class_id.CWeaponM4A1 or class_id == class_id.CWeaponMAC10 or class_id == class_id.CWeaponMag7
-        or class_id == class_id.CWeaponMP5Navy or class_id == class_id.CWeaponMP7 or class_id == class_id.CWeaponMP9
-        or class_id == class_id.CWeaponNegev or class_id == class_id.CWeaponNOVA or class_id == class_id.CWeaponP228
-        or class_id == class_id.CWeaponP250 or class_id == class_id.CWeaponP90 or class_id == class_id.CWeaponSawedoff
-        or class_id == class_id.CWeaponSCAR20 or class_id == class_id.CWeaponScout or class_id == class_id.CWeaponSG550
-        or class_id == class_id.CWeaponSG552 or class_id == class_id.CWeaponSG556 or class_id == class_id.CWeaponShield
-        or class_id == class_id.CWeaponSSG08 or class_id == class_id.CWeaponTaser or class_id == class_id.CWeaponUSP
-        or class_id == class_id.CWeaponTec9 or class_id == class_id.CWeaponTMP or class_id == class_id.CWeaponUMP45
-        or class_id == class_id.CWeaponXM1014 or class_id == class_id.CWeaponAWP):
+    if (class_id == ClassId.CAK47 or class_id == ClassId.CSCAR17 or class_id == ClassId.CWeaponAug
+        or class_id == ClassId.CWeaponBizon or class_id == ClassId.CWeaponElite or class_id == ClassId.CWeaponFamas
+        or class_id == ClassId.CWeaponFiveSeven or class_id == ClassId.CDEagle or class_id == ClassId.CWeaponM249
+        or class_id == ClassId.CWeaponG3SG1 or class_id == ClassId.CWeaponGalil or class_id == ClassId.CWeaponGalilAR
+        or class_id == ClassId.CWeaponGlock or class_id == ClassId.CWeaponHKP2000  or class_id == ClassId.CWeaponM3
+        or class_id == ClassId.CWeaponM4A1 or class_id == ClassId.CWeaponMAC10 or class_id == ClassId.CWeaponMag7
+        or class_id == ClassId.CWeaponMP5Navy or class_id == ClassId.CWeaponMP7 or class_id == ClassId.CWeaponMP9
+        or class_id == ClassId.CWeaponNegev or class_id == ClassId.CWeaponNOVA or class_id == ClassId.CWeaponP228
+        or class_id == ClassId.CWeaponP250 or class_id == ClassId.CWeaponP90 or class_id == ClassId.CWeaponSawedoff
+        or class_id == ClassId.CWeaponSCAR20 or class_id == ClassId.CWeaponScout or class_id == ClassId.CWeaponSG550
+        or class_id == ClassId.CWeaponSG552 or class_id == ClassId.CWeaponSG556 or class_id == ClassId.CWeaponShield
+        or class_id == ClassId.CWeaponSSG08 or class_id == ClassId.CWeaponTaser or class_id == ClassId.CWeaponUSP
+        or class_id == ClassId.CWeaponTec9 or class_id == ClassId.CWeaponTMP or class_id == ClassId.CWeaponUMP45
+        or class_id == ClassId.CWeaponXM1014 or class_id == ClassId.CWeaponAWP):
         return True
     else:
         return False
 
 def class_id_grenade(class_id):
-    if (class_id == class_id.CDecoyGrenade or class_id == class_id.CDecoyProjectile
-        or class_id == class_id.CMolotovProjectile or class_id == class_id.CMolotovGrenade
-        or class_id == class_id.CHEGrenade or class_id == class_id.CIncendiaryGrenade 
-        or class_id == class_id.CSmokeGrenade or class_id == class_id.ParticleSmokeGrenade
-        or class_id == class_id.CSmokeGrenadeProjectile or class_id == class_id.CFlashbang):
+    if (class_id == ClassId.CDecoyGrenade or class_id == ClassId.CDecoyProjectile
+        or class_id == ClassId.CMolotovProjectile or class_id == ClassId.CMolotovGrenade
+        or class_id == ClassId.CHEGrenade or class_id == ClassId.CIncendiaryGrenade 
+        or class_id == ClassId.CSmokeGrenade or class_id == ClassId.ParticleSmokeGrenade
+        or class_id == ClassId.CSmokeGrenadeProjectile or class_id == ClassId.CFlashbang):
         return True
     else:
         return False
 
 def class_id_c4(class_id):
-    if (class_id == class_id.CC4 or class_id == class_id.CPlantedC4):
+    if (class_id == ClassId.CC4 or class_id == ClassId.CPlantedC4):
         return True
     else:
         return False

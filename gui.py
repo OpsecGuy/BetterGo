@@ -11,7 +11,7 @@ class GUI():
         'B', 'C', 'D', 'E', 'F','G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'U', 'P', 'R', 'S', 'T', 'W', 'Y', 'Z',
         'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'u', 'p', 'r', 's', 't', 'w', 'y', 'z',
         '1','2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '&', '(', ')', '-', '_', '=', '+']
-        return ''.join(random.choice(chars) for _ in range(10, 15))
+        return ''.join(random.choice(chars) for _ in range(0, 15))
     
     def _log(self, sender, app_data, user_data):
         print(f"sender: {sender}, \t app_data: {app_data}, \t user_data: {user_data}")
@@ -113,5 +113,5 @@ class GUI():
                     y2 = y1
 
             except Exception as err:
-                print(err)
+                pass
             time.sleep(0.01)
