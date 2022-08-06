@@ -1,3 +1,4 @@
+#!python3.9
 __author__ = 'Opsec'
 __version__ = '1.4.7.4'
 
