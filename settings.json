@@ -1,0 +1,49 @@
+{
+    "window": {
+      "x": 600,
+      "y": 650
+    },
+    "aimbot": {
+      "switch": true,
+      "fov": 2.0,
+      "smooth": 7.9,
+      "visible_only": true,
+      "attack_team": true,
+      "no_recoil": true
+    },
+    "standalone_rcs": {
+      "switch": false,
+      "strength": 2.0,
+      "min_bullets": 1
+    },
+    "triggerbot": {
+      "switch": true,
+      "humanization": true,
+      "delay": 0.025
+    },
+    "visuals": {
+      "player_esp": true,
+      "glow_team": false,
+      "health_mode": false,
+      "item_esp": true,
+      "grenade_traces": false,
+      "night_mode": false,
+      "noflash": false,
+      "noflash_strength": 255.0,
+      "player_fov": 90
+    },
+    "misc":{
+      "auto_pistol": false,
+      "radar_hack": false,
+      "hit_sound": true,
+      "bunny_hop": true,
+      "auto_strafe": false,
+      "auto_zeus": false,
+      "knife_bot": false,
+      "no_smoke": false,
+      "show_fps": false,
+      "chat_spam": false,
+      "fake_lag": false,
+      "lag_strength": 0.001
+    }
+}

@@ -4,8 +4,6 @@ from pymem import Pymem, process, exception, pattern
 from dataclasses import dataclass
 import os, time, threading, winsound, ctypes, win32process, win32api, win32con, win32event, sys
 
-
-
 # TO:DO : cleanup code
 try:
     kernel32 = ctypes.WinDLL('kernel32.dll')

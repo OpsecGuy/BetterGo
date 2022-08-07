@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
 import helper as h
+from config import Config
 import random, time, webbrowser
 
 class GUI():
@@ -15,13 +16,12 @@ class GUI():
     
     def _log(self, sender, app_data, user_data):
         print(f"sender: {sender}, \t app_data: {app_data}, \t user_data: {user_data}")
-    
+
     def menu(self):
         dpg.create_context()
-        dpg.create_viewport(title=self.v1, decorated=True, min_width=425, min_height=620, width=430, height=640)
-        dpg.setup_dearpygui()
-
-        with dpg.window(label='Menu', tag='menu', min_size=[425, 620], no_close=True, no_move=True, no_title_bar=True, horizontal_scrollbar=True):
+        dpg.create_viewport(title=self.v1, decorated=True, width=400, height=350)
+        
+        with dpg.window(tag='main'):
             with dpg.collapsing_header(label="Aimbot", tag='aimbot_header'):
                 dpg.add_checkbox(label='Aimbot', tag='aimbot_checkbox')
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='LEFT MOUSE', width=215, tag='aimbot_key')
@@ -33,7 +33,7 @@ class GUI():
                 dpg.add_separator()
                 dpg.add_checkbox(label='Standalone RCS', tag='standalone_rcs_checkbox')
                 dpg.add_slider_float(label='RCS Strength', default_value=0.0, min_value=0.0, max_value=2.0, width=215, tag='rcs_strength')
-                dpg.add_slider_int(label='Shot After x Bullets', default_value=0, min_value=0, max_value=30, width=215, tag='rcs_get_bullets')
+                dpg.add_slider_int(label='Shot After x Bullets', default_value=0, min_value=0, max_value=30, width=215, tag='rcs_min_bullets')
                 dpg.add_separator()
                 dpg.add_checkbox(label='TriggerBot', tag='triggerbot_checkbox')
                 dpg.add_checkbox(label='Humanization', tag='humanization_checkbox')
@@ -52,7 +52,7 @@ class GUI():
                 dpg.add_slider_float(label='Night Mode Strength', default_value=0.3, min_value=0.01, max_value=3.0, width=215, tag='nightmode_strength')
                 dpg.add_checkbox(label='No Flash', tag='noflash_checkbox')
                 dpg.add_slider_float(label='No Flash Strength', default_value=255.0, min_value=0.0, max_value=255.0, width=215, tag='noflash_strength')
-                dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, width=215, tag='fov')
+                dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, width=215, tag='player_fov')
                 dpg.add_combo(label='Sky', items=list(h.sky_list), default_value='', width=215, tag='sky_name')
             with dpg.collapsing_header(label='Misc', tag='misc_header'):
                 dpg.add_checkbox(label='Auto Pistol', tag='autopistol_checkbox')
@@ -70,18 +70,19 @@ class GUI():
                 dpg.add_checkbox(label='Fake Lag', tag='fakelag_checkbox')
                 dpg.add_slider_float(label='Fake Lag Strength', default_value=0.001, min_value=0.001, max_value=0.016, width=215, tag='fakelag_strength')
                 dpg.add_button(label='Players Info (Console)', width=160, height=25, tag='players_info_button')
-                dpg.add_separator()
-                
+            
+            dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='unload_button')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
+            dpg.add_button(label='Load Config', width=160, height=25, callback=lambda: self.override())
+            dpg.add_text('Version: 1.4.7.5')
         
-        # with dpg.window(label='Spectators', user_data='menu2', tag='#menu2', autosize=True, no_background=True, no_close=True, pos=[5, h.ScreenSize().y / 2]): 
-        #     dpg.add_text(label='spectator_list', tag='spectator_list')
+        dpg.setup_dearpygui()
         dpg.show_viewport()
-
+        dpg.set_primary_window("main", True)
+        
+        
     def make_interactive(self):
-        x2 = 0
-        y2 = 0
         while True:
             try:
                 dpg.hide_item('aimbot_key') if dpg.get_value('aimbot_checkbox') == False else dpg.show_item('aimbot_key')
@@ -90,7 +91,7 @@ class GUI():
                 dpg.hide_item('aimbot_visible_check') if dpg.get_value('aimbot_checkbox') == False else dpg.show_item('aimbot_visible_check')
                 dpg.hide_item('aimbot_team_check') if dpg.get_value('aimbot_checkbox') == False else dpg.show_item('aimbot_team_check')
                 dpg.hide_item('rcs_strength') if dpg.get_value('standalone_rcs_checkbox') == False else dpg.show_item('rcs_strength')
-                dpg.hide_item('rcs_get_bullets') if dpg.get_value('standalone_rcs_checkbox') == False else dpg.show_item('rcs_get_bullets')
+                dpg.hide_item('rcs_min_bullets') if dpg.get_value('standalone_rcs_checkbox') == False else dpg.show_item('rcs_min_bullets')
                 dpg.hide_item('humanization_checkbox') if dpg.get_value('triggerbot_checkbox') == False else dpg.show_item('humanization_checkbox')
                 dpg.hide_item('triggerbot_key') if dpg.get_value('triggerbot_checkbox') == False else dpg.show_item('triggerbot_key')
                 dpg.hide_item('triggerbot_delay') if dpg.get_value('triggerbot_checkbox') == False else dpg.show_item('triggerbot_delay')
@@ -104,14 +105,43 @@ class GUI():
                 dpg.hide_item('fakelag_strength') if dpg.get_value('fakelag_checkbox') == False else dpg.show_item('fakelag_strength')
                 dpg.hide_item('nightmode_strength') if dpg.get_value('nightmode_checkbox') == False else dpg.show_item('nightmode_strength')
                 dpg.hide_item('noflash_strength') if dpg.get_value('noflash_checkbox') == False else dpg.show_item('noflash_strength')
-                
-                x1 = dpg.get_viewport_width()
-                y1 = dpg.get_viewport_height()
-                if x1 != x2 or y1 != y2:
-                    dpg.set_item_width('menu', x1 - 15)
-                    x2 = x1
-                    y2 = y1
 
             except Exception as err:
                 pass
             time.sleep(0.01)
+            
+    def override(self):
+        dpg.set_value('aimbot_checkbox', Config.read('aimbot','switch'))
+        if Config.read('aimbot','fov') <= dpg.get_item_configuration('aimbot_fov')['max_value']: dpg.set_value('aimbot_fov', Config.read('aimbot','fov'))
+        if Config.read('aimbot','smooth') <= dpg.get_item_configuration('aimbot_smooth')['max_value']: dpg.set_value('aimbot_smooth', Config.read('aimbot','smooth'))
+        dpg.set_value('aimbot_visible_check', Config.read('aimbot','visible_only'))
+        dpg.set_value('aimbot_team_check', Config.read('aimbot','attack_team'))
+        dpg.set_value('aimbot_rcs_checkbox', Config.read('aimbot','no_recoil'))
+        dpg.set_value('standalone_rcs_checkbox', Config.read('standalone_rcs','switch'))
+        if Config.read('standalone_rcs','strength') <= dpg.get_item_configuration('rcs_strength')['max_value']: dpg.set_value('rcs_strength', Config.read('standalone_rcs','strength'))
+        if Config.read('standalone_rcs', 'min_bullets') <= dpg.get_item_configuration('rcs_min_bullets')['max_value']: dpg.set_value('rcs_min_bullets', Config.read('standalone_rcs', 'min_bullets'))
+        dpg.set_value('triggerbot_checkbox', Config.read('triggerbot','switch'))
+        dpg.set_value('humanization_checkbox', Config.read('triggerbot','humanization'))
+        dpg.set_value('triggerbot_delay', Config.read('triggerbot','delay')) if Config.read('triggerbot','delay') <= dpg.get_item_configuration('triggerbot_delay')['max_value'] else None
+        dpg.set_value('player_esp', Config.read('visuals','player_esp'))
+        dpg.set_value('player_esp_temates', Config.read('visuals','glow_team'))
+        dpg.set_value('health_mode_checkbox', Config.read('visuals','health_mode'))
+        dpg.set_value('item_esp', Config.read('visuals','item_esp'))
+        dpg.set_value('grenade_checkbox', Config.read('visuals','grenade_traces'))
+        dpg.set_value('nightmode_checkbox', Config.read('visuals','night_mode'))
+        dpg.set_value('noflash_checkbox', Config.read('visuals','noflash'))
+        if Config.read('visuals','noflash_strength') <= dpg.get_item_configuration('noflash_strength')['max_value']: dpg.set_value('noflash_strength', Config.read('visuals','noflash_strength'))
+        dpg.set_value('player_fov', Config.read('visuals','player_fov')) if Config.read('visuals','player_fov') <= dpg.get_item_configuration('player_fov')['max_value'] else None
+        if Config.read('visuals','player_fov') <= dpg.get_item_configuration('player_fov')['max_value']: dpg.set_value('player_fov', Config.read('visuals','player_fov'))
+        dpg.set_value('autopistol_checkbox', Config.read('misc','auto_pistol'))
+        dpg.set_value('radarhack_checkbox', Config.read('misc','radar_hack'))
+        dpg.set_value('hitsound_checkbox', Config.read('misc','hit_sound'))
+        dpg.set_value('bunnyhop_checkbox', Config.read('misc','bunny_hop'))
+        dpg.set_value('auto_strafer_checkbox', Config.read('misc','auto_strafe'))
+        dpg.set_value('auto_zeus_checkbox', Config.read('misc','auto_zeus'))
+        dpg.set_value('knifebot_checkbox', Config.read('misc','knife_bot'))
+        dpg.set_value('nosmoke_checkbox', Config.read('misc','no_smoke'))
+        dpg.set_value('fps_checkbox', Config.read('misc','show_fps'))
+        dpg.set_value('chat_spam_checkbox', Config.read('misc','chat_spam'))
+        dpg.set_value('fakelag_checkbox', Config.read('misc','fake_lag'))
+        if Config.read('misc','lag_strength') <= dpg.get_item_configuration('fakelag_strength')['max_value']: dpg.set_value('fakelag_strength',Config.read('misc','lag_strength'))
