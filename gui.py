@@ -3,9 +3,6 @@ import helper as h
 from config import Config
 import random, time, webbrowser
 
-test_case = [['asdad', '30'], ['asdd', '20'], ['21dsad', '10']]
-
-
 class GUI():
     def __init__(self) -> None:
         self.v1 = self.get_random_string()
