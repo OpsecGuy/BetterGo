@@ -80,7 +80,7 @@ class GUI():
             dpg.add_button(label='Load Config', width=160, height=25, callback=lambda: self.override())
             dpg.add_text('Version: 1.4.7.8')
         
-        with dpg.window(label='Player info', tag='w_second', show=False):
+        with dpg.window(label='Player info', tag='w_second', show=False, autosize=True):
             with dpg.group(horizontal=True):
                 dpg.add_text('', tag='buffer_name')
                 dpg.add_text('', tag='buffer_wins')

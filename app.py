@@ -348,7 +348,7 @@ def player_infos():
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) not in [None, 'GOTV']:
                             name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
-                            
+                             
                             if name not in h.player_info_buffer:
                                 player_info_buffer.append([name, str(ent.get_wins(entity[0])), str(ranks_list[ent.get_rank(entity[0])])])
                                        
