@@ -1,5 +1,4 @@
 __author__ = 'Opsec'
-__version__ = '1.4.8.0'
 
 from memory import *
 from entity import *
@@ -19,12 +18,13 @@ def entity_loop():
         time.sleep(0.1)
 
 def aimbot():
+    # TO:DO Lock aim on player
     fov = 0
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(key_handler('aimbot_key')) and dpg.get_value('aimbot_checkbox') and ent.in_game():
+            if ctypes.windll.user32.GetAsyncKeyState(key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game():
                 best_angle = Vector3(0.0, 0.0, 0.0)
-                best_fov = dpg.get_value('aimbot_fov')
+                best_fov = dpg.get_value('s_aimbot_fov')
                 local_origin = ent.get_position(lp.local_player())
                 view_angle = ent.get_view_angle()
                 aim_punch = lp.aim_punch_angle()
@@ -33,10 +33,10 @@ def aimbot():
                     if entity[2] == 40:
                         if entity[1] == lp.local_player():
                             continue
-                        if dpg.get_value('aimbot_visible_check'):
+                        if dpg.get_value('c_aimbot_vis'):
                             if ent.is_spotted_by_mask(entity[1]) == False:
                                 continue
-                        if not dpg.get_value('aimbot_team_check'):
+                        if not dpg.get_value('c_aimbot_team'):
                             if ent.get_team(entity[1]) == ent.get_team(lp.local_player()):
                                 continue
                         if ent.get_dormant(entity[1]) or ent.is_protected(entity[1]) == True:
@@ -58,28 +58,27 @@ def aimbot():
                             best_fov = fov
                             best_angle = fixed_angle
 
-                # TO:DO Fix aimbot
                 if best_angle.x < fov and best_angle.y < fov and best_angle.x != 0.0 and best_angle.y != 0.0:
-                    if dpg.get_value('aimbot_smooth') < 1.0:
-                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x - aim_punch.x if dpg.get_value('aimbot_rcs_checkbox') else view_angle.x + best_angle.x,
-                                            view_angle.y + best_angle.y - aim_punch.y if dpg.get_value('aimbot_rcs_checkbox') else view_angle.y + best_angle.y,
-                                            view_angle.z + best_angle.z - aim_punch.z  if dpg.get_value('aimbot_rcs_checkbox') else view_angle.z + best_angle.z
+                    try:
+                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x - aim_punch.x * 2.0 / dpg.get_value('s_aimbot_smooth') if dpg.get_value('c_aimbot_rcs') else view_angle.x + best_angle.x - aim_punch.x / dpg.get_value('s_aimbot_smooth'),
+                                            view_angle.y + best_angle.y - aim_punch.y * 2.0 / dpg.get_value('s_aimbot_smooth') if dpg.get_value('c_aimbot_rcs') else view_angle.y + best_angle.y - aim_punch.y / dpg.get_value('s_aimbot_smooth'),
+                                            view_angle.z + best_angle.z - aim_punch.z * 2.0 / dpg.get_value('s_aimbot_smooth') if dpg.get_value('c_aimbot_rcs') else view_angle.z + best_angle.z - aim_punch.z / dpg.get_value('s_aimbot_smooth')                                                
                                             ))
-                    else:
-                        ent.set_view_angle(Vector3(view_angle.x + (best_angle.x - aim_punch.x) / dpg.get_value('aimbot_smooth') if dpg.get_value('aimbot_rcs_checkbox') else view_angle.x + best_angle.x / dpg.get_value('aimbot_smooth'),
-                                            view_angle.y + (best_angle.y - aim_punch.y) / dpg.get_value('aimbot_smooth') if dpg.get_value('aimbot_rcs_checkbox') else view_angle.y + best_angle.y / dpg.get_value('aimbot_smooth'),
-                                            view_angle.z + (best_angle.z - aim_punch.z) / dpg.get_value('aimbot_smooth') if dpg.get_value('aimbot_rcs_checkbox') else view_angle.z + best_angle.z / dpg.get_value('aimbot_smooth')                                                
+                    except ZeroDivisionError:
+                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x - aim_punch.x,
+                                                view_angle.y + best_angle.y - aim_punch.y,
+                                                view_angle.z + best_angle.z - aim_punch.z                                      
                                             ))
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def player_esp():
     while True:
         try:
-            if dpg.get_value('player_esp'):
-                enemy_team_color = dpg.get_value('enemy_glow_color')
-                team_color = dpg.get_value('mates_glow_color')
+            if dpg.get_value('c_esp'):
+                enemy_team_color = dpg.get_value('e_esp_enemy')
+                team_color = dpg.get_value('e_esp_team')
                 c1 = [round(enemy_team_color[0], 1), round(enemy_team_color[1], 1), round(enemy_team_color[2], 1), round(enemy_team_color[3], 1)]
                 c2 = [round(team_color[0], 1), round(team_color[1], 1), round(team_color[2], 1), round(team_color[3], 1)]
                 
@@ -90,16 +89,16 @@ def player_esp():
                         if ent.get_dormant(entity[1]) == True:
                             continue
                         if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c1[0] / 255 if not dpg.get_value('health_mode_checkbox') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c1[1] / 255 if not dpg.get_value('health_mode_checkbox') else (2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c1[2] / 255 if not dpg.get_value('health_mode_checkbox') else 0.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c1[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c1[2] / 255 if not dpg.get_value('c_esp_health') else 0.0)
                             game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c1[3] / 255)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
-                        elif ent.get_team(lp.local_player()) and dpg.get_value('player_esp_temates'):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c2[0] / 255 if not dpg.get_value('health_mode_checkbox') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c2[1] / 255 if not dpg.get_value('health_mode_checkbox') else (2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c2[2] / 255 if not dpg.get_value('health_mode_checkbox') else 0.0)
+                        elif ent.get_team(lp.local_player()) and dpg.get_value('c_esp_team'):
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c2[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c2[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0)
+                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c2[2] / 255 if not dpg.get_value('c_esp_health') else 0.0)
                             game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c2[3] / 255)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
                             game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
@@ -110,7 +109,7 @@ def player_esp():
 def item_esp():
     while True:
         try:
-            if dpg.get_value('item_esp'):
+            if dpg.get_value('c_esp_items'):
                 for entity in ent.glow_objects_list:
                     if class_id_c4(entity[2]) or class_id_gun(entity[2]):
                             game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), 0.95)
@@ -135,20 +134,20 @@ def rcs(key: int):
     old_angle = Vector3(0, 0, 0)
     while (True):
         try:
-            if dpg.get_value('standalone_rcs_checkbox') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
-                if ctypes.windll.user32.GetAsyncKeyState(key) and ent.get_shots_fired() > dpg.get_value('rcs_min_bullets'):
+            if dpg.get_value('c_rcs') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
+                if ctypes.windll.user32.GetAsyncKeyState(key) and ent.get_shots_fired() > dpg.get_value('s_rcs_min_bullets'):
                     if weapon_rifle(lp.active_weapon()) or weapon_smg(lp.active_weapon()) or weapon_heavy(lp.active_weapon()):
                         view_angle = ent.get_view_angle()
                         punch_angle = lp.aim_punch_angle()
 
-                        current_angle.x = (view_angle.x + old_angle.x) - punch_angle.x * dpg.get_value('rcs_strength')
-                        current_angle.y = (view_angle.y + old_angle.y) - punch_angle.y * dpg.get_value('rcs_strength')
+                        current_angle.x = (view_angle.x + old_angle.x) - punch_angle.x * dpg.get_value('s_rcs_str')
+                        current_angle.y = (view_angle.y + old_angle.y) - punch_angle.y * dpg.get_value('s_rcs_str')
 
                         clamped_angle = clamp_angle(current_angle)
                         ent.set_view_angle(Vector3(clamped_angle.x, clamped_angle.y, clamped_angle.z))
 
-                        old_angle.x = punch_angle.x * dpg.get_value('rcs_strength')
-                        old_angle.y = punch_angle.y * dpg.get_value('rcs_strength')
+                        old_angle.x = punch_angle.x * dpg.get_value('s_rcs_str')
+                        old_angle.y = punch_angle.y * dpg.get_value('s_rcs_str')
                 else:
                     old_angle.x = old_angle.y = 0.0
         except Exception as err:
@@ -158,8 +157,8 @@ def rcs(key: int):
 def auto_pistol():
     while True:
         try:
-            if dpg.get_value('autopistol_checkbox') and ent.in_game():
-                if ctypes.windll.user32.GetAsyncKeyState(key_handler('autopistol_key')) and weapon_pistol(lp.active_weapon()):
+            if dpg.get_value('c_autopistol') and ent.in_game():
+                if ctypes.windll.user32.GetAsyncKeyState(key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):
                     lp.force_attack(6)
                     time.sleep(0.02)
         except Exception as err:
@@ -178,23 +177,23 @@ def trigger_bot():
                     
                 local_position = ent.get_position(lp.local_player())
                 distance = h.distance(local_position, ent.get_position(entity))
-                if ctypes.windll.user32.GetAsyncKeyState(key_handler('triggerbot_key')) and dpg.get_value('triggerbot_checkbox'):
+                if ctypes.windll.user32.GetAsyncKeyState(key_handler('k_tbot')) and dpg.get_value('c_tbot'):
                     if lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()) and lp.get_health_by_crosshair(entity) >= 1:
-                        if dpg.get_value('humanization_checkbox') == True:
+                        if dpg.get_value('c_tbot_legit') == True:
                             v2_delay = round(random.uniform(0.001, 0.01), 3)
                             
-                            time.sleep(dpg.get_value('triggerbot_delay') + v2_delay)
+                            time.sleep(dpg.get_value('s_tbot_delay') + v2_delay)
                         else:
-                            time.sleep(dpg.get_value('triggerbot_delay'))
+                            time.sleep(dpg.get_value('s_tbot_delay'))
                         lp.force_attack(6)
                 
-                if dpg.get_value('auto_zeus_checkbox'):
+                if dpg.get_value('c_zeus'):
                     if lp.active_weapon() == 31 and lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()):
                         if lp.get_health_by_crosshair(entity) > 0:
                             if distance <= 150:
                                 lp.force_attack(6)
 
-                if dpg.get_value('knifebot_checkbox'):
+                if dpg.get_value('c_knifebot'):
                     if weapon_knife(lp.active_weapon()) and lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()):
                         if distance <= 82:
                             if lp.get_health_by_crosshair(entity) <= 55 and distance <= 70:
@@ -209,7 +208,7 @@ def trigger_bot():
 def bunny_hop():
     while True:
         try:
-            if dpg.get_value('bunnyhop_checkbox') and lp.get_current_state() == 5:
+            if dpg.get_value('c_bh') and lp.get_current_state() == 5:
                 while ctypes.windll.user32.GetAsyncKeyState(0x20):
                     if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
                         lp.force_jump(5)
@@ -225,7 +224,7 @@ def auto_strafer():
     old_view_angle = Vector3(0.0, 0.0, 0.0)
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(0x20) and dpg.get_value('bunnyhop_checkbox') and dpg.get_value('auto_strafer_checkbox'):
+            if ctypes.windll.user32.GetAsyncKeyState(0x20) and dpg.get_value('c_bh') and dpg.get_value('c_strafer'):
                 if ent.get_flag(lp.local_player()) != 257 and lp.get_move_type() != 9: # 9 - player on ladder
                     current_angle = ent.get_view_angle()
                     if current_angle.y > old_view_angle.y:
@@ -240,7 +239,7 @@ def auto_strafer():
 def radar_hack():
     while True:
         try:
-            if dpg.get_value('radarhack_checkbox') and ent.in_game():
+            if dpg.get_value('c_radar') and ent.in_game():
                 for entity in ent.entity_list:
                     if entity[2] == 40:
                         ent.set_spotted(entity[1], True)
@@ -252,11 +251,11 @@ def no_flash():
     temp = 0
     while True:
         try:
-            if dpg.get_value('noflash_checkbox') and ent.in_game():
+            if dpg.get_value('c_noflash') and ent.in_game():
                 if lp.get_flashbang_duration() > 0:
-                    lp.set_flashbang_alpha(dpg.get_value('noflash_strength'))
-                    temp = dpg.get_value('noflash_strength')
-            elif dpg.get_value('noflash_checkbox') == False and temp != 255.0:
+                    lp.set_flashbang_alpha(dpg.get_value('s_noflash_str'))
+                    temp = dpg.get_value('s_noflash_str')
+            elif dpg.get_value('c_noflash') == False and temp != 255.0:
                 lp.set_flashbang_alpha(255.0)
         except Exception as err:
             pass
@@ -265,7 +264,7 @@ def no_flash():
 def no_smoke():
     while True:
         try:
-            if dpg.get_value('nosmoke_checkbox') and ent.in_game():
+            if dpg.get_value('c_nosmoke') and ent.in_game():
                 for glow_object in ent.glow_objects_list:
                     if glow_object[2] == 157:
                         ent.set_position(glow_object[1], Vector3(0.0, 0.0, 0.0))
@@ -278,9 +277,9 @@ def fov_changer():
     while True:
         try:
             if ent.in_game():
-                if temp != dpg.get_value('player_fov'):
-                    lp.set_fov(dpg.get_value('player_fov'))
-                    temp = dpg.get_value('player_fov')
+                if temp != dpg.get_value('s_foc'):
+                    lp.set_fov(dpg.get_value('s_foc'))
+                    temp = dpg.get_value('s_foc')
         except Exception as err:
             pass
         time.sleep(0.1)
@@ -288,9 +287,9 @@ def fov_changer():
 def fake_lag():
     while True:
         try:
-            if dpg.get_value('fakelag_checkbox') and ent.in_game():
+            if dpg.get_value('c_fakelag') and ent.in_game():
                 lp.send_packets(False)
-                time.sleep(dpg.get_value('fakelag_strength'))
+                time.sleep(dpg.get_value('s_fakelag_str'))
                 lp.send_packets(True)
         except Exception as err:
             pass
@@ -300,7 +299,7 @@ def hit_sound(filename: str):
     shots_count = 0
     while True:
         try:
-            if dpg.get_value('hitsound_checkbox') and ent.in_game():
+            if dpg.get_value('c_hitsound') and ent.in_game():
                 shots_fired = lp.get_total_hits()
                 if shots_fired != shots_count:
                     if shots_count <= 255: # 255 - limit of shots_fired per round
@@ -344,7 +343,7 @@ def spectator_list():
 def player_infos():
     while True:
         try:
-            if dpg.is_item_clicked('players_info_button') and ent.in_game():
+            if dpg.is_item_clicked('b_pinfo') and ent.in_game():
                 for entity in ent.entity_list:
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) not in [None, 'GOTV']:
@@ -360,15 +359,15 @@ def night_mode():
     temp = 0
     while True:
         try:
-            if dpg.get_value('nightmode_checkbox') and ent.in_game():
-                if temp != dpg.get_value('nightmode_strength'):
+            if dpg.get_value('c_night') and ent.in_game():
+                if temp != dpg.get_value('s_night_str'):
                     for entity in ent.entity_list:
                         if entity[2] == 69:
                             game_handle.write_int(entity[1] + offsets.m_bUseCustomAutoExposureMin, 1)
                             game_handle.write_int(entity[1] + offsets.m_bUseCustomAutoExposureMax, 1)
-                            game_handle.write_float(entity[1] + offsets.m_flCustomAutoExposureMin, dpg.get_value('nightmode_strength'))
-                            game_handle.write_float(entity[1] + offsets.m_flCustomAutoExposureMax, dpg.get_value('nightmode_strength'))
-                            temp = dpg.get_value('nightmode_strength')
+                            game_handle.write_float(entity[1] + offsets.m_flCustomAutoExposureMin, dpg.get_value('s_night_str'))
+                            game_handle.write_float(entity[1] + offsets.m_flCustomAutoExposureMax, dpg.get_value('s_night_str'))
+                            temp = dpg.get_value('s_night_str')
 
         except Exception as err:
             pass
@@ -379,8 +378,8 @@ def chat_spam():
     last_cmd_chat = ''
     while True:
         try:
-            if dpg.get_value('chat_spam_checkbox') and ent.in_game():
-                current_cmd = f'say {dpg.get_value("chat_spam_input")}'.encode('ascii')
+            if dpg.get_value('c_chat') and ent.in_game():
+                current_cmd = f'say {dpg.get_value("i_chat")}'.encode('ascii')
                 
                 if current_cmd != last_cmd_chat:
                     if last_cmd_chat != '':
@@ -454,12 +453,12 @@ def convar_handler():
 
     while True:
         try:
-            fps_state = int(dpg.get_value('fps_checkbox'))
-            gre_state = int(dpg.get_value('grenade_checkbox'))
-            sky_state = dpg.get_value('sky_name')
+            fps_state = int(dpg.get_value('c_fps'))
+            gre_state = int(dpg.get_value('c_gre_line'))
+            sky_state = dpg.get_value('d_sky')
 
             if fps_state != _temp1:
-                if (dpg.get_value('fps_checkbox')):
+                if (dpg.get_value('c_fps')):
                         showfps.set_int(fps_state)
                         _temp1 = fps_state
                 else:
@@ -467,7 +466,7 @@ def convar_handler():
                     _temp1 = fps_state
 
             elif gre_state != _temp2:
-                if (dpg.get_value('grenade_checkbox')):
+                if (dpg.get_value('c_gre_line')):
                         grenade_preview.set_int(gre_state)
                         _temp2 = gre_state
                 else:
@@ -475,7 +474,7 @@ def convar_handler():
                     _temp2 = gre_state
             
             elif sky_state != _temp3:
-                if (dpg.get_value('sky_name')):
+                if (dpg.get_value('d_sky')):
                         sky_name.set_string(sky_state)
                         _temp3 = sky_state
                 else:
