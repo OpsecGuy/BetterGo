@@ -43,12 +43,12 @@ def aimbot():
                             continue
                         if ent.get_health(entity[1]) == 0:
                             continue
-                            
-                        bone_matrix = ent.get_bone_position(entity[1], 8)
+                        
+                        bone_matrix = ent.get_bone_position(entity[1], bone_ids.get(dpg.get_value('c_aimbot_bone')))
                         current_view_angle = \
-                        Vector3(view_angle.x + aim_punch.x,
-                                view_angle.y + aim_punch.y,
-                                view_angle.z + aim_punch.z)
+                        Vector3(view_angle.x + aim_punch.x * 2.0,
+                                view_angle.y + aim_punch.y * 2.0,
+                                view_angle.z + aim_punch.z * 2.0)
                         
                         angle = calculate_angle(local_eye_pos, bone_matrix, current_view_angle)
                         fov = math.hypot(angle.x, angle.y)
@@ -59,16 +59,11 @@ def aimbot():
                             best_angle = fixed_angle
 
                 if best_angle.x < fov and best_angle.y < fov and best_angle.x != 0.0 and best_angle.y != 0.0:
-                    try:
-                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x - aim_punch.x * 2.0 / dpg.get_value('s_aimbot_smooth') if dpg.get_value('c_aimbot_rcs') else view_angle.x + best_angle.x - aim_punch.x / dpg.get_value('s_aimbot_smooth'),
-                                            view_angle.y + best_angle.y - aim_punch.y * 2.0 / dpg.get_value('s_aimbot_smooth') if dpg.get_value('c_aimbot_rcs') else view_angle.y + best_angle.y - aim_punch.y / dpg.get_value('s_aimbot_smooth'),
-                                            view_angle.z + best_angle.z - aim_punch.z * 2.0 / dpg.get_value('s_aimbot_smooth') if dpg.get_value('c_aimbot_rcs') else view_angle.z + best_angle.z - aim_punch.z / dpg.get_value('s_aimbot_smooth')                                                
-                                            ))
-                    except ZeroDivisionError:
-                        ent.set_view_angle(Vector3(view_angle.x + best_angle.x - aim_punch.x,
-                                                view_angle.y + best_angle.y - aim_punch.y,
-                                                view_angle.z + best_angle.z - aim_punch.z                                      
-                                            ))
+                    ent.set_view_angle(Vector3(view_angle.x + best_angle.x / dpg.get_value('s_aimbot_smooth'),
+                                        view_angle.y + best_angle.y / dpg.get_value('s_aimbot_smooth'),
+                                        view_angle.z + best_angle.z / dpg.get_value('s_aimbot_smooth')
+                                        ))
+                                               
         except Exception as err:
             print(err)
         time.sleep(0.001)
@@ -449,7 +444,7 @@ def exit():
     os._exit(0)
 
 def convar_handler():
-    # weapon_recoil_view_punch_extra
+    # TO:DO weapon_recoil_view_punch_extra
     global showfps, grenade_preview, sky_name
     showfps = ConVar('cl_showfps')
     grenade_preview = ConVar('cl_grenadepreview')

@@ -8,9 +8,9 @@
       "key": "MOUSE 5",
       "fov": 2.0,
       "smooth": 7.9,
-      "visible_only": true,
-      "attack_team": true,
-      "no_recoil": true
+      "bone": "HEAD",
+      "visible_only": false,
+      "attack_team": false
     },
     "standalone_rcs": {
       "switch": false,
@@ -28,7 +28,7 @@
       "glow_team": false,
       "health_mode": false,
       "item_esp": true,
-      "grenade_traces": false,
+      "grenade_traces": true,
       "night_mode": false,
       "noflash": false,
       "noflash_strength": 255.0,

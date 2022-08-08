@@ -1,6 +1,6 @@
 from ctypes import wintypes
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum, IntEnum
 import ctypes, struct, math
 
 player_info_buffer = []
@@ -192,6 +192,14 @@ gui_keys_list = {
     'X': 0x58, 
     'Y': 0x59, 
     'Z': 0x5A, 
+}
+
+bone_ids = {
+    'HEAD': 8,
+    'NECK': 7,
+    'UPPER BODY': 6,
+    'CENTER BODY': 5,
+    'LOWER BODY': 0,
 }
 
 class Weapon(IntEnum):
