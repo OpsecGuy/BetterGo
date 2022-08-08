@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 import ctypes, struct, math
 
-
+player_info_buffer = []
 
 class MyStructure(ctypes.Structure):
     _fields_ = [

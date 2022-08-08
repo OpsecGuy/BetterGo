@@ -347,10 +347,15 @@ def player_infos():
                 for entity in ent.entity_list:
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) not in [None, 'GOTV']:
-                            name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()
+                            name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
                             
-                            execute_cmd(f'echo {entity[0]} {name} {ent.get_wins(entity[0])} {ranks_list[ent.get_rank(entity[0])]}'.encode('ascii'), (engine_dll + offsets.Cmd_ExecuteCommand))
-                            time.sleep(0.1)
+                            if name not in h.player_info_buffer:
+                                player_info_buffer.append([name, str(ent.get_wins(entity[0])), str(ranks_list[ent.get_rank(entity[0])])])
+                                       
+                dpg.set_value('buffer_name','\n'.join([i[0] for i in h.player_info_buffer]))
+                dpg.set_value('buffer_wins','\n'.join([i[1] for i in h.player_info_buffer]))
+                dpg.set_value('buffer_rank','\n'.join([i[2] for i in h.player_info_buffer]))
+                h.player_info_buffer.clear()
         except Exception as err:
             pass
         time.sleep(0.001)

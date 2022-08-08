@@ -3,6 +3,9 @@ import helper as h
 from config import Config
 import random, time, webbrowser
 
+test_case = [['asdad', '30'], ['asdd', '20'], ['21dsad', '10']]
+
+
 class GUI():
     def __init__(self) -> None:
         self.v1 = self.get_random_string()
@@ -21,7 +24,7 @@ class GUI():
         dpg.create_context()
         dpg.create_viewport(title=self.v1, decorated=True, width=Config.read('window','x'), height=Config.read('window','y'))
         
-        with dpg.window(tag='main'):
+        with dpg.window(tag='w_main'):
             with dpg.collapsing_header(label="Aimbot", tag='aimbot_header'):
                 dpg.add_checkbox(label='Aimbot', tag='c_aimbot')
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 5', width=215, tag='k_aimbot')
@@ -69,17 +72,23 @@ class GUI():
                 dpg.add_input_text(label='Command', width=215, tag='i_chat')
                 dpg.add_checkbox(label='Fake Lag', tag='c_fakelag')
                 dpg.add_slider_float(label='Fake Lag Strength', default_value=0.001, min_value=0.001, max_value=0.016, width=215, tag='s_fakelag_str')
-                dpg.add_button(label='Players Info (Console)', width=160, height=25, tag='b_pinfo')
+                dpg.add_button(label='Players Info', width=160, height=25, tag='b_pinfo', callback=lambda: dpg.show_item('w_second'))
             
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='unload_button')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
             dpg.add_button(label='Load Config', width=160, height=25, callback=lambda: self.override())
-            dpg.add_text('Version: 1.4.7.7')
+            dpg.add_text('Version: 1.4.7.8')
         
+        with dpg.window(label='Player info', tag='w_second', show=False):
+            with dpg.group(horizontal=True):
+                dpg.add_text('', tag='buffer_name')
+                dpg.add_text('', tag='buffer_wins')
+                dpg.add_text('', tag='buffer_rank')
+            
         dpg.setup_dearpygui()
         dpg.show_viewport()
-        dpg.set_primary_window("main", True)
+        dpg.set_primary_window("w_main", True)
         
         
     def make_interactive(self):
