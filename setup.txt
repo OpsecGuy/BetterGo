@@ -1,3 +1,5 @@
 pymem==1.8.5
 dearpygui==1.5.1
 pywin32==304
+pyopengl==3.1.6
+glfw==2.5.4
