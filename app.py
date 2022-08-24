@@ -224,10 +224,10 @@ def bunny_hop():
                 while ctypes.windll.user32.GetAsyncKeyState(0x20):
                     if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
                         lp.force_jump(5)
-                        time.sleep(0.01)
+                        #time.sleep(0.01)
                     else:
                         lp.force_jump(4)
-                        time.sleep(0.01)
+                        #time.sleep(0.01)
         except Exception as err:
             pass
         time.sleep(0.001)
