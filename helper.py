@@ -156,6 +156,8 @@ gui_keys_list = {
     'RIGHT SHIFT': 0xA1,
     'LEFT CONTROL': 0xA2,
     'RIGHT CONTROL': 0xA3,
+    'LEFT_ALT': 0xA4,
+    'RIGHT_ALT': 0xA5,
     'NUMPAD0': 0x60,
     'NUMPAD1': 0x61,
     'NUMPAD2': 0x62,
