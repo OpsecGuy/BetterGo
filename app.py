@@ -6,6 +6,7 @@ from local import *
 from gui import *
 from helper import *
 from convar import *
+from overlay import *
 
 def entity_loop():
     while True:
@@ -17,12 +18,84 @@ def entity_loop():
             pass
         time.sleep(0.1)
 
+def glow_esp():
+    while True:
+        try:
+            if dpg.get_value('c_esp'):
+                enemy_team_color = dpg.get_value('e_esp_enemy')
+                team_color = dpg.get_value('e_esp_team')
+                c1 = [round(enemy_team_color[0], 1), round(enemy_team_color[1], 1), round(enemy_team_color[2], 1), round(enemy_team_color[3], 1)]
+                c2 = [round(team_color[0], 1), round(team_color[1], 1), round(team_color[2], 1), round(team_color[3], 1)]
+
+                for entity in ent.glow_objects_list:
+                    bytes = game_handle.read_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), 0x38)
+                    var = list(struct.unpack("2i4f4c3f4c3i", bytes))
+                    if entity[2] == 40:
+                        if lp.local_player() == entity[1]:
+                            continue
+                        if ent.get_dormant(entity[1]) == True and ent.get_health(entity[1]) > 0:
+                            continue
+                        
+                        if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
+                            # 02 - 05 color 13 -Occluded 14 - Unoccluded 15 - FullBloomRender 16 - RenderStyle 17 - SplitScreenSlot
+                            var[2] = c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
+                            var[3] = c1[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
+                            var[4] = c1[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
+                            var[5] = c1[3] / 255
+                            var[13] = b'\x01'
+                            var[14] = b'\x00'
+                            var2 = tuple(var)
+                            value = struct.pack("2i4f4c3f4c3i", *var2)
+                            # Write new glow struct to game memory
+                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                        
+                        elif ent.get_team(lp.local_player()) and dpg.get_value('c_esp_team'):  
+                            var[2] = c2[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
+                            var[3] = c2[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
+                            var[4] = c2[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
+                            var[5] = c2[3] / 255
+                            var[13] = b'\x01'
+                            var[14] = b'\x00'
+                            var2 = tuple(var)
+                            value = struct.pack("2i4f4c3f4c3i", *var2)
+                            # Write new glow struct to game memory
+                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+
+                    if dpg.get_value('c_esp_items'):
+                        if class_id_c4(entity[2]) or class_id_gun(entity[2]):
+                            var[2] = 0.92
+                            var[3] = 0.79
+                            var[4] = 0.16
+                            var[5] = 0.6
+                            var[13] = b'\x01'
+                            var[14] = b'\x00'
+                            var2 = tuple(var)
+                            value = struct.pack("2i4f4c3f4c3i", *var2)
+                            # Write new glow struct to game memory
+                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                            
+                        elif class_id_grenade(entity[2]):
+                            var[2] = 1.0
+                            var[3] = 1.0
+                            var[4] = 1.0
+                            var[5] = 0.6
+                            var[13] = b'\x01'
+                            var[14] = b'\x00'
+                            var2 = tuple(var)
+                            value = struct.pack("2i4f4c3f4c3i", *var2)
+                            # Write new glow struct to game memory
+                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                            
+        except Exception as err:
+            print(err)
+        time.sleep(0.001)
+
 def aimbot():
     # TO:DO Lock aim on player
     fov = 0
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game():
+            if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game():
                 best_angle = Vector3(0.0, 0.0, 0.0)
                 best_fov = dpg.get_value('s_aimbot_fov')
                 local_origin = ent.get_position(lp.local_player())
@@ -51,7 +124,7 @@ def aimbot():
                                 view_angle.z + aim_punch.z * 2.0)
                         
                         angle = calculate_angle(local_eye_pos, bone_matrix, current_view_angle)
-                        fov = math.hypot(angle.x, angle.y)
+                        fov = hypot(angle.x, angle.y)
                         
                         fixed_angle = clamp_angle(normalize_angle(angle))
                         if fov < best_fov:
@@ -64,62 +137,6 @@ def aimbot():
                                         view_angle.z + best_angle.z / dpg.get_value('s_aimbot_smooth')
                                         ))
                                                
-        except Exception as err:
-            print(err)
-        time.sleep(0.001)
-
-def player_esp():
-    while True:
-        try:
-            if dpg.get_value('c_esp'):
-                enemy_team_color = dpg.get_value('e_esp_enemy')
-                team_color = dpg.get_value('e_esp_team')
-                c1 = [round(enemy_team_color[0], 1), round(enemy_team_color[1], 1), round(enemy_team_color[2], 1), round(enemy_team_color[3], 1)]
-                c2 = [round(team_color[0], 1), round(team_color[1], 1), round(team_color[2], 1), round(team_color[3], 1)]
-                
-                for entity in ent.glow_objects_list:
-                    if entity[2] == 40:
-                        if lp.local_player() == entity[1]:
-                            continue
-                        if ent.get_dormant(entity[1]) == True:
-                            continue
-                        if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c1[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c1[2] / 255 if not dpg.get_value('c_esp_health') else 0.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c1[3] / 255)
-                            game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
-                            game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
-                        elif ent.get_team(lp.local_player()) and dpg.get_value('c_esp_team'):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), c2[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), c2[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), c2[2] / 255 if not dpg.get_value('c_esp_health') else 0.0)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), c2[3] / 255)
-                            game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
-                            game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
-        except Exception as err:
-            pass
-        time.sleep(0.001)
-
-def item_esp():
-    while True:
-        try:
-            if dpg.get_value('c_esp_items'):
-                for entity in ent.glow_objects_list:
-                    if class_id_c4(entity[2]) or class_id_gun(entity[2]):
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), 0.95)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), 0.12)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), 0.54)
-                            game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), 0.6)
-                            game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
-                            game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
-                    elif class_id_grenade(entity[2]):
-                        game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x8), 1.0)
-                        game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0xC), 1.0)
-                        game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x10), 1.0)
-                        game_handle.write_float(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x14), 0.6)
-                        game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x28), True)
-                        game_handle.write_bool(ent.glow_object() + ((0x38 * (entity[0] - 1)) + 0x29), False)
         except Exception as err:
             print(err)
         time.sleep(0.001)
@@ -153,7 +170,7 @@ def auto_pistol():
     while True:
         try:
             if dpg.get_value('c_autopistol') and ent.in_game():
-                if ctypes.windll.user32.GetAsyncKeyState(key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):
+                if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):
                     lp.force_attack(6)
                     time.sleep(0.02)
         except Exception as err:
@@ -172,7 +189,7 @@ def trigger_bot():
                     
                 local_position = ent.get_position(lp.local_player())
                 distance = h.distance(local_position, ent.get_position(entity))
-                if ctypes.windll.user32.GetAsyncKeyState(key_handler('k_tbot')) and dpg.get_value('c_tbot'):
+                if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_tbot')) and dpg.get_value('c_tbot'):
                     if lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()) and lp.get_health_by_crosshair(entity) >= 1:
                         if dpg.get_value('c_tbot_legit') == True:
                             v2_delay = round(random.uniform(0.001, 0.01), 3)
@@ -427,6 +444,7 @@ def bomb_events():
 def exit():
     try:
         print('Exiting...')
+        overlay.close()
         lp.send_packets(True)
         if last_cmd_chat != '':
             free_chat_vmem
@@ -485,18 +503,63 @@ def convar_handler():
             pass
         time.sleep(0.01)
 
-def key_handler(key: str):
-        return gui_keys_list.get(dpg.get_value(key))
+def opengl_overlay():
+    global overlay
+    overlay = Overlay()
+
+    while True:
+        try:
+            if ent.in_game() and overlay_state == True:
+                view_matrix = ent.view_matrix()
+                for entity in ent.entity_list:
+                    if entity[2] == 40:
+                        if entity[1] == lp.local_player() or ent.get_team(lp.local_player()) == ent.get_team(entity[1]):
+                            continue
+                        if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
+                            continue
+                        
+                        entity_position = ent.get_position(entity[1])
+                        w2s_position = w2s(Vector3(entity_position.x, entity_position.y, entity_position.z), view_matrix)
+                        bone_head = w2s(ent.get_head_position(entity[1]), view_matrix)
+                        if w2s_position is None or bone_head is None:
+                            continue
+                        
+                        # line from local_player to entity
+                        if dpg.get_value('c_snaplines'):
+                            overlay.draw_line(ScreenSize.x/2, 0, w2s_position[0], w2s_position[1], 1, (0, 255, 0))
+                        
+                        # circle indicator for head position
+                        if dpg.get_value('c_head_indicator'):
+                            overlay.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0, 255, 0))
+
+                    # bomb indicator
+                    if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
+                        c4_pos = ent.get_position(entity[1])
+                        w2s_c4_pos = w2s(c4_pos, view_matrix)
+                        
+                        if w2s_c4_pos is None or c4_pos.x == 0.0:
+                            continue
+                        overlay.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 20.0, 10, (255, 255, 0))
+                        
+                    if dpg.get_value('c_sniper_crosshair'):
+                        if h.weapon_sniper(lp.active_weapon()):
+                            overlay.draw_line(ScreenSize.x/2, ScreenSize.y/2 + 10, ScreenSize.x/2, ScreenSize.y/2 - 10, 1, (255, 0, 0))
+                            overlay.draw_line(ScreenSize.x/2 + 10, ScreenSize.y/2, ScreenSize.x/2 - 10, ScreenSize.y/2, 1, (255, 0, 0))
+                        
+                         
+        except Exception as err:
+            print(err)
+        overlay.refresh()
+        time.sleep(0.001)
 
 def main():
     try:
         gui.menu()
-        
-        dpg.set_item_callback('unload_button', exit)
+        dpg.set_item_callback('b_unload', exit)
         threading.Thread(target=entity_loop, name='entity_loop').start()
+        threading.Thread(target=opengl_overlay, name='opengl_overlay').start()
         threading.Thread(target=aimbot, name='aimbot').start()
-        threading.Thread(target=player_esp, name='player_esp').start()
-        threading.Thread(target=item_esp, name='item_esp').start()
+        threading.Thread(target=glow_esp, name='glow_esp').start()
         threading.Thread(target=rcs, args=[0x01], name='rcs').start()
         threading.Thread(target=auto_pistol, name='auto_pistol').start()
         threading.Thread(target=trigger_bot, name='trigger_bot').start()

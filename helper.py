@@ -1,34 +1,110 @@
-from ctypes import wintypes
 from dataclasses import dataclass
-from enum import Enum, IntEnum
-import ctypes, struct, math
+from enum import IntEnum
+from math import atan2, hypot, sqrt, pi
+from memory import ctypes
 
 player_info_buffer = []
 
-class MyStructure(ctypes.Structure):
+config_example = {
+    'aimbot': {
+        'switch': True,
+        'key': 'MOUSE 5',
+        'fov': 2.0,
+        'smooth': 7.9,
+        'bone': 'HEAD',
+        'visible_only': False,
+        'attack_team': False
+    },
+    "standalone_rcs": {
+        "switch": False,
+        "strength": 2.0,
+        "min_bullets": 1
+    },
+    "triggerbot": {
+        "switch": False,
+        "key": "MOUSE 4",
+        "humanization": True,
+        "delay": 0.025
+    },
+    "visuals": {
+        "player_esp": True,
+        "glow_team": False,
+        "health_mode": False,
+        "item_esp": False,
+        "snap_lines": False,
+        "head_indicator": False,
+        "bomb_indicator": False,
+        "grenade_traces": False,
+        "sniper_crosshair": False,
+        "night_mode": False,
+        "noflash": False,
+        "noflash_strength": 255.0,
+        "player_fov": 90
+    },
+    "misc":{
+        "auto_pistol": False,
+        "radar_hack": False,
+        "hit_sound": True,
+        "bunny_hop": True,
+        "auto_strafe": False,
+        "auto_zeus": False,
+        "knife_bot": False,
+        "no_smoke": False,
+        "show_fps": False,
+        "chat_spam": False,
+        "fake_lag": False,
+        "lag_strength": 0.001
+    }
+}
+
+class head_pos(ctypes.Structure):
     _fields_ = [
-        ("field1_float", ctypes.c_float),
-        ("field2_int", ctypes.c_int32),
+        ('pad_0000[396]', ctypes.c_char * 396),
+        ('BoneHeadX', ctypes.c_float),
+        ('pad_0190[12]', ctypes.c_char * 12),
+        ('BoneHeadY', ctypes.c_float),
+        ('pad_01A0[12]', ctypes.c_char * 12),
+        ('BoneHeadZ', ctypes.c_float),
     ]
 
-class glow_t(ctypes.Structure):
+def custom_glow_stuct(entity):
+    glow = GlowObjectDefinition_t()
+    glow.m_pEntity = entity
+    glow.r = 0.0
+    glow.g = 0.0
+    glow.b = 0.0
+    glow.a = 0.0
+    glow.m_bGlowAlphaCappedByRenderAlpha = False
+    glow.m_flGlowAlphaFunctionOfMaxVelocity = 0.0
+    glow.m_flGlowAlphaMax = 1.0
+    glow.m_flGlowPulseOverdrive = 0.0
+    glow.m_bRenderWhenOccluded = True
+    glow.m_bRenderWhenUnoccluded = False
+    glow.m_bFullBloomRender = False
+    glow.m_nRenderStyle = 0
+    glow.m_nSplitScreenSlot = 0
+    
+    return glow
+
+class GlowObjectDefinition_t(ctypes.Structure):
     _fields_ = [
         ("m_nNextFreeSlot", ctypes.c_int32),
-        ("dwBase", ctypes.c_uint32),
+        ("m_pEntity", ctypes.c_uint32),
         ("r", ctypes.c_float),
         ("g", ctypes.c_float),
         ("b", ctypes.c_float),
         ("a", ctypes.c_float),
-        ("pad_0018[4]", ctypes.c_char * 4),
-        ("m_flUnk", ctypes.c_float),
-        ("m_flBloomAmount", ctypes.c_float),
-        ("localplayeriszeropoint3", ctypes.c_float),
+        ("m_bGlowAlphaCappedByRenderAlpha", ctypes.c_bool),
+        ("pad_0018[3]", ctypes.c_char * 3),
+        ("m_flGlowAlphaFunctionOfMaxVelocity", ctypes.c_float),
+        ("m_flGlowAlphaMax", ctypes.c_float),
+        ("m_flGlowPulseOverdrive", ctypes.c_float),
         ("m_bRenderWhenOccluded", ctypes.c_bool),
         ("m_bRenderWhenUnoccluded", ctypes.c_bool),
         ("m_bFullBloomRender", ctypes.c_bool),
         ("pad_002B[1]", ctypes.c_char),
         ("m_nFullBloomStencilTestValue", ctypes.c_int32),
-        ("m_nGlowStyle", ctypes.c_int32),
+        ("m_nRenderStyle", ctypes.c_int32),
         ("m_nSplitScreenSlot", ctypes.c_int32)
     ]
 
@@ -39,8 +115,6 @@ class color(ctypes.Structure):
         ("b", ctypes.c_float),
         ("a", ctypes.c_float)
     ]
-
-
 
 @dataclass
 class ScreenSize:
@@ -60,8 +134,8 @@ class Vector2:
 
 def to_angle(delta: Vector3):
     return Vector3(
-        math.atan2(-delta.z, math.hypot(delta.x, delta.y)) * (180.0 / math.pi),
-        math.atan2(delta.y, delta.x) * (180.0 / math.pi),
+        atan2(-delta.z, hypot(delta.x, delta.y)) * (180.0 / pi),
+        atan2(delta.y, delta.x) * (180.0 / pi),
         0.0
     )
 
@@ -92,12 +166,28 @@ def normalize_angle(angle: Vector3):
     return angle
 
 def distance(start_point: Vector3, end_point: Vector3):
-	distance = math.sqrt(
+	distance = sqrt(
         (int(start_point.x) - int(end_point.x)) * (int(start_point.x) - int(end_point.x)) +
 		(int(start_point.y) - int(end_point.y)) * (int(start_point.y) - int(end_point.y)) +
 		(int(start_point.z) - int(end_point.z)) * (int(start_point.z) - int(end_point.z)))
 
 	return int(abs(round(distance)))
+
+def w2s(pos: Vector3, matrix):
+    z = pos.x * matrix[12] + pos.y * matrix[13] + pos.z * matrix[14] + matrix[15]
+    if z < 0.1:
+        return None
+
+    x = pos.x * matrix[0] + pos.y * matrix[1] + pos.z * matrix[2] + matrix[3]
+    y = pos.x * matrix[4] + pos.y * matrix[5] + pos.z * matrix[6] + matrix[7]
+
+    xx = x / z
+    yy = y / z
+
+    _x = (ScreenSize.x / 2 * xx) + (xx + ScreenSize.x / 2)
+    _y = (ScreenSize.y / 2 * yy) + (yy + ScreenSize.y / 2)
+
+    return [_x, _y]
 
 sky_list =[
     'cs_tibet',

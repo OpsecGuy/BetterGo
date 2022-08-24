@@ -1,6 +1,6 @@
 from local import LocalPlayer
 from helper import *
-import offsets
+import offsets, struct
 
 class Entity(LocalPlayer):
     def __init__(self, mem) -> None:
@@ -11,7 +11,9 @@ class Entity(LocalPlayer):
     def entity_loop(self):
         try:
             self.entity_list.clear()
-            for i in range(0, 1024):
+            # 0 - world entity
+            # 1 - 64 - reserved for players
+            for i in range(1, 1024):
                 entity = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + i * 0x10)
                 
                 if entity != 0:
@@ -84,7 +86,7 @@ class Entity(LocalPlayer):
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwGlowObjectManager)
 
     def glow_object_size(self):
-        return self.mem.game_handle.read_uint(self.glow_object() + 0xC)
+        return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwGlowObjectManager + 0xC)
 
     def glow_index(self, entity: int):
         return self.mem.game_handle.read_uint(entity + offsets.m_iGlowIndex)
@@ -138,6 +140,14 @@ class Entity(LocalPlayer):
                 self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8, angle.z),
         )
 
+    def get_head_position(self, entity):
+        bone_matrix = self.mem.game_handle.read_uint(entity + offsets.m_dwBoneMatrix)
+        bytes = self.mem.game_handle.read_bytes(bone_matrix, 432)
+        var  = struct.unpack("99if3if3if", bytes)
+        # var[99] # 103 107
+        return Vector3(var[99], var[103], var[107])
+                
+
     def get_bone_position(self, entity, bone_id: int):
         bone_matrix = self.mem.game_handle.read_uint(entity + offsets.m_dwBoneMatrix)
         return Vector3(self.mem.game_handle.read_float(bone_matrix + 0x30 * bone_id + 0x0c),
@@ -165,3 +175,8 @@ class Entity(LocalPlayer):
     def get_wins(self, entity: int):
         player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
         return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveWins + (entity + 1) * 0x4)
+    
+    def view_matrix(self):
+        view = self.mem.game_handle.read_bytes(self.mem.client_dll + offsets.dwViewMatrix, 64)
+        matrix = struct.unpack("16f", view)
+        return matrix

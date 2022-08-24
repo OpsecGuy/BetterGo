@@ -72,11 +72,6 @@ class LocalPlayer():
                        self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle + 0x4),
                        self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle + 0x8)
         )
-       
-    def view_matrix(self):
-        view = self.mem.game_handle.read_bytes(self.mem.client_dll + offsets.dwViewMatrix, 64)
-        matrix = struct.unpack("16f", view)
-        return matrix
 
     def get_move_type(self):
         return self.mem.game_handle.read_int(self.local_player() + offsets.m_MoveType)

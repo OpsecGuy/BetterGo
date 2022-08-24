@@ -1,8 +1,6 @@
-
-from ctypes.wintypes import DWORD, LPVOID, HANDLE, CHAR
 from pymem import Pymem, process, exception, pattern
 from dataclasses import dataclass
-import os, time, threading, winsound, ctypes, win32process, win32api, win32con, win32event, sys
+import os, time, threading, winsound, ctypes, win32process, win32con, win32event, sys, struct
 
 # TO:DO : cleanup code
 try:
