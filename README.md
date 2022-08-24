@@ -3,28 +3,25 @@ External CS:GO cheat written in Python(3.9.12).
 
 ## Functions:
 - Aimbot
-- Player ESP
-- Item ESP (guns, grenades, c4)
-- Grenade Trajectory
+- GlowESP
 - Recoil Control System
 - TriggerBot
-- Zeus Bot
 - Knife Bot
 - Auto Pistol
 - BunnyHop
-- Auto Strafer
-- Radar Hack
-- No Smoke
-- Fov Changer
 - Hit Sound
-- Spectator List
-- Night / Full Bright Mode
 - Chat Spam
 - Pattern Scan
 - Convars handler
-
+- Overlay
+- Many more... :)
+https://i.imgur.com/.png
 ## In game:
-![This is an image](https://i.imgur.com/o4vJmVM.jpeg)
+![This is an image](https://i.imgur.com/cddlZVs.png)
+![This is an image](https://i.imgur.com/rpQSf0P.png)
+![This is an image](https://i.imgur.com/LNjuQ3n.png)
+![This is an image](https://i.imgur.com/8NjW7Ly.png)
+![This is an image](https://i.imgur.com/VlAsuOp.png)
 
 ## Instruction
 - Please read video description
@@ -32,7 +29,7 @@ External CS:GO cheat written in Python(3.9.12).
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/bwnokvZOPxo/0.jpg)](https://www.youtube.com/watch?v=bwnokvZOPxo)
 
 ## Contributors
-- [boris768](https://github.com/boris768/) - Solved issue with memory allocation for Chat Spam function
+- [boris768](https://github.com/boris768/)
 
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-multihack-exe-source.html
