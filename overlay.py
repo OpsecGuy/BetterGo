@@ -10,10 +10,10 @@ from win32con import WS_EX_LAYERED, GWL_EXSTYLE, WS_EX_TRANSPARENT
 from win32gui import FindWindow, GetWindowLong, SetWindowLong
 from math import tan, cos, pi
 from helper import ScreenSize, Vector3
-from memory import kernel32
+from memory import kernel32, win32gui
 
 overlay_state = True
-        
+
 class Overlay():
     def __init__(self, target='Counter-Strike: Global Offensive - Direct3D 9'):
         # init glfw
@@ -44,7 +44,9 @@ class Overlay():
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             # get handle to created window
             self.handle = FindWindow(None, title)
-            
+            self.game_window = FindWindow(None, 'Counter-Strike: Global Offensive - Direct3D 9')
+            # self.game_window_size = win32gui.GetClientRect(self.game_window)
+            # print(self.game_window_size)
             # make window transparent
             exstyle = GetWindowLong(self.handle, GWL_EXSTYLE)
             exstyle |= WS_EX_LAYERED
@@ -101,4 +103,14 @@ class Overlay():
         glColor4f(color[0], color[1], color[2], 255)
         glVertex2f(start_point_x, start_point_y)
         glVertex2f(end_point_x, end_point_y)
+        glEnd()
+        
+    def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float):
+        glLineWidth(line_width)
+        glBegin(GL_LINES)
+        glColor4f(255.0, 0.0, 155.0, 255.0)
+        glVertex2f(start_point_x, start_point_y + 5)
+        glVertex2f(start_point_x, start_point_y - 5)
+        glVertex2f(start_point_x - 5, start_point_y)
+        glVertex2f(start_point_x + 5, start_point_y)
         glEnd()

@@ -7,42 +7,47 @@ player_info_buffer = []
 
 config_example = {
     'aimbot': {
-        'switch': True,
+        'switch': False,
         'key': 'MOUSE 5',
         'fov': 2.0,
-        'smooth': 7.9,
+        'smooth': 10.0,
         'bone': 'HEAD',
         'visible_only': False,
-        'attack_team': False
+        'attack_team': False,
     },
     "standalone_rcs": {
         "switch": False,
         "strength": 2.0,
-        "min_bullets": 1
+        "min_bullets": 1,
     },
     "triggerbot": {
-        "switch": False,
+        "switch": True,
         "key": "MOUSE 4",
         "humanization": True,
-        "delay": 0.025
+        "delay": 0.025,
     },
     "visuals": {
-        "player_esp": True,
+        "player_esp": False,
         "glow_team": False,
         "health_mode": False,
         "item_esp": False,
-        "snap_lines": False,
-        "head_indicator": False,
+        "night_mode": False,
+        "night_mode_strength": 1.0,
+        "noflash": False,
+        "noflash_strength": 255.0,
+        "player_fov": 90,
+    },
+    "overlay": {
+        "snap_lines": True,
+        "head_indicator": True,
         "bomb_indicator": False,
         "grenade_traces": False,
         "sniper_crosshair": False,
-        "night_mode": False,
-        "noflash": False,
-        "noflash_strength": 255.0,
-        "player_fov": 90
+        "recoil_crosshair": True,
     },
     "misc":{
-        "auto_pistol": False,
+        "auto_pistol": True,
+        "auto_pistol_key": 'MOUSE 5',
         "radar_hack": False,
         "hit_sound": True,
         "bunny_hop": True,
@@ -51,40 +56,10 @@ config_example = {
         "knife_bot": False,
         "no_smoke": False,
         "show_fps": False,
-        "chat_spam": False,
         "fake_lag": False,
-        "lag_strength": 0.001
-    }
+        "lag_strength": 0.001,
+    },
 }
-
-class head_pos(ctypes.Structure):
-    _fields_ = [
-        ('pad_0000[396]', ctypes.c_char * 396),
-        ('BoneHeadX', ctypes.c_float),
-        ('pad_0190[12]', ctypes.c_char * 12),
-        ('BoneHeadY', ctypes.c_float),
-        ('pad_01A0[12]', ctypes.c_char * 12),
-        ('BoneHeadZ', ctypes.c_float),
-    ]
-
-def custom_glow_stuct(entity):
-    glow = GlowObjectDefinition_t()
-    glow.m_pEntity = entity
-    glow.r = 0.0
-    glow.g = 0.0
-    glow.b = 0.0
-    glow.a = 0.0
-    glow.m_bGlowAlphaCappedByRenderAlpha = False
-    glow.m_flGlowAlphaFunctionOfMaxVelocity = 0.0
-    glow.m_flGlowAlphaMax = 1.0
-    glow.m_flGlowPulseOverdrive = 0.0
-    glow.m_bRenderWhenOccluded = True
-    glow.m_bRenderWhenUnoccluded = False
-    glow.m_bFullBloomRender = False
-    glow.m_nRenderStyle = 0
-    glow.m_nSplitScreenSlot = 0
-    
-    return glow
 
 class GlowObjectDefinition_t(ctypes.Structure):
     _fields_ = [
@@ -106,14 +81,6 @@ class GlowObjectDefinition_t(ctypes.Structure):
         ("m_nFullBloomStencilTestValue", ctypes.c_int32),
         ("m_nRenderStyle", ctypes.c_int32),
         ("m_nSplitScreenSlot", ctypes.c_int32)
-    ]
-
-class color(ctypes.Structure):
-    _fields_ = [
-        ("r", ctypes.c_float),
-        ("g", ctypes.c_float),
-        ("b", ctypes.c_float),
-        ("a", ctypes.c_float)
     ]
 
 @dataclass

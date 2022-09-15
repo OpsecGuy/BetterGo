@@ -9,9 +9,11 @@ from convar import *
 from overlay import *
 
 def entity_loop():
+    global window_name
     while True:
         try:
-            if ent.in_game():
+            window_name = win32gui.GetWindowText(win32gui.GetForegroundWindow())
+            if ent.in_game() and window_name == 'Counter-Strike: Global Offensive - Direct3D 9':
                 ent.entity_loop()
                 ent.glow_objects_loop()
         except Exception as err:
@@ -21,7 +23,7 @@ def entity_loop():
 def glow_esp():
     while True:
         try:
-            if dpg.get_value('c_esp'):
+            if ent.in_game():
                 enemy_team_color = dpg.get_value('e_esp_enemy')
                 team_color = dpg.get_value('e_esp_team')
                 c1 = [round(enemy_team_color[0], 1), round(enemy_team_color[1], 1), round(enemy_team_color[2], 1), round(enemy_team_color[3], 1)]
@@ -30,36 +32,39 @@ def glow_esp():
                 for entity in ent.glow_objects_list:
                     bytes = game_handle.read_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), 0x38)
                     var = list(struct.unpack("2i4f4c3f4c3i", bytes))
-                    if entity[2] == 40:
-                        if lp.local_player() == entity[1]:
-                            continue
-                        if ent.get_dormant(entity[1]) == True and ent.get_health(entity[1]) > 0:
-                            continue
-                        
-                        if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
-                            # 02 - 05 color 13 -Occluded 14 - Unoccluded 15 - FullBloomRender 16 - RenderStyle 17 - SplitScreenSlot
-                            var[2] = c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
-                            var[3] = c1[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
-                            var[4] = c1[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
-                            var[5] = c1[3] / 255
-                            var[13] = b'\x01'
-                            var[14] = b'\x00'
-                            var2 = tuple(var)
-                            value = struct.pack("2i4f4c3f4c3i", *var2)
-                            # Write new glow struct to game memory
-                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
-                        
-                        elif ent.get_team(lp.local_player()) and dpg.get_value('c_esp_team'):  
-                            var[2] = c2[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
-                            var[3] = c2[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
-                            var[4] = c2[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
-                            var[5] = c2[3] / 255
-                            var[13] = b'\x01'
-                            var[14] = b'\x00'
-                            var2 = tuple(var)
-                            value = struct.pack("2i4f4c3f4c3i", *var2)
-                            # Write new glow struct to game memory
-                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                    if dpg.get_value('c_esp'):
+                        if entity[2] == 40:
+                            if lp.local_player() == entity[1]:
+                                continue
+                            if ent.get_dormant(entity[1]) == True and ent.get_health(entity[1]) > 0:
+                                continue
+                            
+                            if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
+                                # 02 - 05 color 13 -Occluded 14 - Unoccluded 15 - FullBloomRender 16 - RenderStyle 17 - SplitScreenSlot
+                                var[2] = c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
+                                var[3] = c1[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
+                                var[4] = c1[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
+                                var[5] = c1[3] / 255
+                                var[13] = b'\x01'
+                                var[14] = b'\x00'
+                                # convert list into tuple
+                                var2 = tuple(var)
+                                # pack Glow object struct with our changes
+                                value = struct.pack("2i4f4c3f4c3i", *var2)
+                                # Write new glow struct to game memory
+                                game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                            
+                            elif ent.get_team(lp.local_player()) and dpg.get_value('c_esp_team'):  
+                                var[2] = c2[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
+                                var[3] = c2[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
+                                var[4] = c2[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
+                                var[5] = c2[3] / 255
+                                var[13] = b'\x01'
+                                var[14] = b'\x00'
+                                var2 = tuple(var)
+                                value = struct.pack("2i4f4c3f4c3i", *var2)
+                                # Write new glow struct to game memory
+                                game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
 
                     if dpg.get_value('c_esp_items'):
                         if class_id_c4(entity[2]) or class_id_gun(entity[2]):
@@ -87,7 +92,7 @@ def glow_esp():
                             game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
                             
         except Exception as err:
-            print(err)
+           pass
         time.sleep(0.001)
 
 def aimbot():
@@ -95,7 +100,7 @@ def aimbot():
     fov = 0
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game():
+            if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game() and ent.get_health(lp.local_player()) > 1:
                 best_angle = Vector3(0.0, 0.0, 0.0)
                 best_fov = dpg.get_value('s_aimbot_fov')
                 local_origin = ent.get_position(lp.local_player())
@@ -138,7 +143,7 @@ def aimbot():
                                         ))
                                                
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.001)
 
 def rcs(key: int):
@@ -169,8 +174,8 @@ def rcs(key: int):
 def auto_pistol():
     while True:
         try:
-            if dpg.get_value('c_autopistol') and ent.in_game():
-                if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):
+            if dpg.get_value('c_autopistol') and ent.in_game() and window_name == 'Counter-Strike: Global Offensive - Direct3D 9':
+                if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):    
                     lp.force_attack(6)
                     time.sleep(0.02)
         except Exception as err:
@@ -181,7 +186,7 @@ def trigger_bot():
     entity = 0
     while True:
         try:
-            if ent.in_game():
+            if ent.in_game() and window_name == 'Counter-Strike: Global Offensive - Direct3D 9':
                 crosshair = lp.get_crosshair_id()
                 entity = lp.get_entity_by_crosshair()
                 if crosshair == 0 or entity == 0:
@@ -224,10 +229,8 @@ def bunny_hop():
                 while ctypes.windll.user32.GetAsyncKeyState(0x20):
                     if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
                         lp.force_jump(5)
-                        time.sleep(0.01)
                     else:
                         lp.force_jump(4)
-                        time.sleep(0.01)
         except Exception as err:
             pass
         time.sleep(0.001)
@@ -289,9 +292,9 @@ def fov_changer():
     while True:
         try:
             if ent.in_game():
-                if temp != dpg.get_value('s_foc'):
-                    lp.set_fov(dpg.get_value('s_foc'))
-                    temp = dpg.get_value('s_foc')
+                if temp != dpg.get_value('s_fov'):
+                    lp.set_fov(dpg.get_value('s_fov'))
+                    temp = dpg.get_value('s_fov')
         except Exception as err:
             pass
         time.sleep(0.1)
@@ -506,10 +509,14 @@ def convar_handler():
 def opengl_overlay():
     global overlay
     overlay = Overlay()
+    x1 = (ScreenSize.x / 2) + 1
+    y1 = (ScreenSize.y / 2) + 1
+    dx = (ScreenSize.x + 1) / 90 # TO DO: Don't hardcode player fov
+    dy = (ScreenSize.y + 1) / 90
 
     while True:
         try:
-            if ent.in_game() and overlay_state == True:
+            if ent.in_game() and ent.get_health(lp.local_player()) > 1 and window_name == 'Counter-Strike: Global Offensive - Direct3D 9':
                 view_matrix = ent.view_matrix()
                 for entity in ent.entity_list:
                     if entity[2] == 40:
@@ -517,7 +524,6 @@ def opengl_overlay():
                             continue
                         if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
                             continue
-                        
                         entity_position = ent.get_position(entity[1])
                         w2s_position = w2s(Vector3(entity_position.x, entity_position.y, entity_position.z), view_matrix)
                         bone_head = w2s(ent.get_head_position(entity[1]), view_matrix)
@@ -530,31 +536,38 @@ def opengl_overlay():
                         
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
-                            overlay.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0, 255, 0))
+                            overlay.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 255.0, 0.0))
 
                     # bomb indicator
-                    if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
+                    elif class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
                         c4_pos = ent.get_position(entity[1])
                         w2s_c4_pos = w2s(c4_pos, view_matrix)
                         
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
-                        overlay.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 20.0, 10, (255, 255, 0))
+                        overlay.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 20.0, 10, (255.0, 255.0, 0.0))
                         
-                    if dpg.get_value('c_sniper_crosshair'):
-                        if h.weapon_sniper(lp.active_weapon()):
-                            overlay.draw_line(ScreenSize.x/2, ScreenSize.y/2 + 10, ScreenSize.x/2, ScreenSize.y/2 - 10, 1, (255, 0, 0))
-                            overlay.draw_line(ScreenSize.x/2 + 10, ScreenSize.y/2, ScreenSize.x/2 - 10, ScreenSize.y/2, 1, (255, 0, 0))
+                if dpg.get_value('c_sniper_crosshair'):
+                    if h.weapon_sniper(lp.active_weapon()):
+                        overlay.draw_lines(x1, y1, 1)
+
+                # recoil crosshair
+                if dpg.get_value('c_recoil_crosshair'):
+                    punch_angle = ent.aim_punch_angle()
+                    if punch_angle.x != 0.0 and lp.get_shots_fired() >= 1:
+                        print(lp.get_shots_fired())
+                        crosshair_x = x1 - dx * punch_angle.y
+                        crosshair_y = y1 - dy * punch_angle.x
+                        overlay.draw_lines(crosshair_x, crosshair_y, 1)
                         
-                         
+            overlay.refresh()         
         except Exception as err:
             print(err)
-        overlay.refresh()
         time.sleep(0.001)
 
 def main():
     try:
-        gui.menu()
+        gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
         threading.Thread(target=entity_loop, name='entity_loop').start()
         threading.Thread(target=opengl_overlay, name='opengl_overlay').start()

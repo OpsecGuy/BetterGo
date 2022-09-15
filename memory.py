@@ -1,6 +1,6 @@
 from pymem import Pymem, process, exception, pattern
 from dataclasses import dataclass
-import os, time, threading, winsound, ctypes, win32process, win32con, win32event, sys, struct
+import os, time, threading, winsound, ctypes, win32process, win32api, win32con, win32event, win32gui, sys, struct
 
 # TO:DO : cleanup code
 try:
@@ -42,3 +42,4 @@ def execute_cmd(command: str, address: int):
     thread_handle = int(str(chat_spam_thread[0]).removesuffix('>').split(':')[1])
     kernel32.VirtualFreeEx(game_handle.process_handle, vchat_spam_buffer, sys.getsizeof(command) + 1, win32con.MEM_RELEASE)
     kernel32.CloseHandle(thread_handle)
+

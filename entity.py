@@ -13,7 +13,7 @@ class Entity(LocalPlayer):
             self.entity_list.clear()
             # 0 - world entity
             # 1 - 64 - reserved for players
-            for i in range(1, 1024):
+            for i in range(1, 512):
                 entity = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + i * 0x10)
                 
                 if entity != 0:
@@ -27,7 +27,7 @@ class Entity(LocalPlayer):
     def glow_objects_loop(self):
         try:
             self.glow_objects_list.clear()
-            for i in range(1, 1024):
+            for i in range(1, 512):
                 glow_object = self.mem.game_handle.read_uint(self.glow_object() + 0x38 * (i - 1) + 0x4)
                 
                 if glow_object != 0:

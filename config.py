@@ -3,26 +3,51 @@ from helper import config_example, ctypes
 
 class Config():
     def __init__(self):
-        pass
-    
-    def file_exist(self, file_name):
-        path = f'{os.getcwd()}\\'
-        config = path + file_name + '.json'
-        if os.path.exists(config):
-            return True
+        # Default config name
+        self.config_name = 'BetterGo_config'
+        # Get absolute directory
+        self.get_abs_dir = os.getcwd()
+        # Config folder name to set
+        self.get_cfg_dir = self.get_abs_dir + '\\' + self.config_name 
+        
+        # Check if config folder exists
+        if os.path.exists(self.get_cfg_dir):
+            pass
         else:
-            return False
-    
-    def save_file(self, file_name: str):
+            # Create folder with configs
+            os.mkdir(self.config_name)
+
+    def create_default_config(self, file_name):
         try:
-            with open(f'{file_name}.json', 'x') as file:
+            with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}', 'w+') as file:
+                file.flush()
                 file.write(json.dumps(config_example))
-        except FileExistsError as err:
-            ctypes.windll.user32.MessageBoxW(0, f'File {file_name}.json already exists!', 'Config Error', 0)
+
+        except Exception as err:
+            print(err)
+
+    def get_config_list(self):
+        buffer = []
+        list = os.listdir(self.get_cfg_dir)
+        for config in list:
+            if '.json' in config:
+                buffer.append(config.removesuffix('.json'))
+        return buffer
+
+    def create_config(self, file_name: str):
+        try:
+            if os.path.exists(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json'):
+                ctypes.windll.user32.MessageBoxW(0, 'Config file with the same name already exist!', 'Config Error', 0)
+            else:
+                with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json', 'w') as file:
+                    file.write(json.dumps(config_example))
+        except Exception as err:
+            print(err)
 
     def read_value(self, file_name: str, category: str, object: str):
-        if self.file_exist(file_name):
-            with open(f'{file_name}.json', 'r') as f:
+        try:
+            with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json', 'r') as f:
                 content = json.load(f)
                 return(content[category][object])
-        return
+        except Exception as err:
+            print(err)
