@@ -516,7 +516,7 @@ def opengl_overlay():
 
     while True:
         try:
-            if ent.in_game() and ent.get_health(lp.local_player()) > 1 and window_name == 'Counter-Strike: Global Offensive - Direct3D 9':
+            if ent.in_game() and window_name == 'Counter-Strike: Global Offensive - Direct3D 9':
                 view_matrix = ent.view_matrix()
                 for entity in ent.entity_list:
                     if entity[2] == 40:

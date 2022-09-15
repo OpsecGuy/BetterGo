@@ -6,7 +6,7 @@ import random, time, overlay
 
 class GUI(Config):
     def __init__(self) -> None:
-        self.v1 = self.get_random_string()
+        self.random_string = self.get_random_string()
         self.config = Config()
         
     def get_random_string(self) -> None:
@@ -21,7 +21,7 @@ class GUI(Config):
 
     def init_menu(self):
         dpg.create_context()
-        dpg.create_viewport(title=self.v1, decorated=True, width=380, height=450)
+        dpg.create_viewport(title=self.random_string, decorated=True, width=380, height=450)
         self.config.create_default_config('default_config.json')
         with dpg.window(tag='w_main'):
             with dpg.collapsing_header(label="Aimbot", tag='aimbot_header'):
