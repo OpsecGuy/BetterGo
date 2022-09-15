@@ -555,14 +555,13 @@ def opengl_overlay():
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() >= 1:
-                        print(lp.get_shots_fired())
                         crosshair_x = x1 - dx * punch_angle.y
                         crosshair_y = y1 - dy * punch_angle.x
                         overlay.draw_lines(crosshair_x, crosshair_y, 1)
                         
-            overlay.refresh()         
+            overlay.refresh()
         except Exception as err:
-            print(err)
+            pass
         time.sleep(0.001)
 
 def main():

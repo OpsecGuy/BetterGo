@@ -81,7 +81,7 @@ class GUI(Config):
                 dpg.add_button(label='Players Info', width=160, height=25, tag='b_pinfo', callback=lambda: dpg.show_item('w_players_dump'))
             with dpg.collapsing_header(label='Config', tag='config_header'):
                 dpg.add_input_text(label='Config name', default_value='default_config', width=140, tag='i_config_name')
-                dpg.add_button(label='Create', width=160, height=25, tag='b_create_config')
+                dpg.add_button(label='Create', width=160, height=25, callback=lambda: self.create_config(), tag='b_create_config')
                 dpg.add_combo(label='Select Config', items=tuple(self.config.get_config_list()), width=215, tag='c_config_list')
                 dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
                 dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
@@ -126,16 +126,23 @@ class GUI(Config):
                 dpg.hide_item('i_chat') if dpg.get_value('c_chat') == False else dpg.show_item('i_chat')
                 dpg.hide_item('s_fakelag_str') if dpg.get_value('c_fakelag') == False else dpg.show_item('s_fakelag_str')
                 dpg.hide_item('s_night_str') if dpg.get_value('c_night') == False else dpg.show_item('s_night_str')
-                
-                dpg.hide_item('b_create_config') if len(dpg.get_value('i_config_name')) <= 0 else dpg.show_item('b_create_config')
-                dpg.hide_item('b_load_config') if len(dpg.get_value('i_config_name')) <= 0 else dpg.show_item('b_load_config')
-                if dpg.is_item_visible('b_create_config') and dpg.is_item_clicked('b_create_config'):
-                    dpg.set_item_callback('b_create_config', self.config.create_config(dpg.get_value('i_config_name')))
                 dpg.configure_item('c_config_list', items=tuple(self.config.get_config_list()))
             except Exception as err:
                 pass
             time.sleep(0.01)
             
+    def create_config(self):
+        if dpg.get_value('i_config_name') != '':
+            config_file = f"{dpg.get_value('i_config_name')}"
+            path_to_config = f'{self.config.get_cfg_dir}\\'+ f'{config_file}'
+            try:
+                if os.path.exists(f'{path_to_config}.json'):
+                    ctypes.windll.user32.MessageBoxW(0, 'Config file with the same name already exist!', 'Config Error', 0)
+                else:
+                    with open(f'{path_to_config}.json', 'w+') as file:
+                        file.write(json.dumps(config_example))
+            except Exception as err:
+                pass
             
     def save_config(self):
         if dpg.get_value('c_config_list') != '':
@@ -195,6 +202,7 @@ class GUI(Config):
                 
                 with open(f'{path_to_config}', 'w') as f:
                     json.dump(content, f)
+
     # TO:DO Clean up
     def load_config(self):
         config = f"{dpg.get_value('c_config_list')}.json"

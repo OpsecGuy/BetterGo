@@ -34,16 +34,6 @@ class Config():
                 buffer.append(config.removesuffix('.json'))
         return buffer
 
-    def create_config(self, file_name: str):
-        try:
-            if os.path.exists(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json'):
-                ctypes.windll.user32.MessageBoxW(0, 'Config file with the same name already exist!', 'Config Error', 0)
-            else:
-                with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json', 'w') as file:
-                    file.write(json.dumps(config_example))
-        except Exception as err:
-            print(err)
-
     def read_value(self, file_name: str, category: str, object: str):
         try:
             with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json', 'r') as f:
