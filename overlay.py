@@ -104,13 +104,3 @@ class Overlay():
         glVertex2f(start_point_x, start_point_y)
         glVertex2f(end_point_x, end_point_y)
         glEnd()
-        
-    def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float):
-        glLineWidth(line_width)
-        glBegin(GL_LINES)
-        glColor4f(255.0, 0.0, 155.0, 255.0)
-        glVertex2f(start_point_x, start_point_y + 5)
-        glVertex2f(start_point_x, start_point_y - 5)
-        glVertex2f(start_point_x - 5, start_point_y)
-        glVertex2f(start_point_x + 5, start_point_y)
-        glEnd()
