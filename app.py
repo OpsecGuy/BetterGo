@@ -17,7 +17,7 @@ def entity_loop():
                 ent.entity_loop()
                 ent.glow_objects_loop()
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def glow_esp():
@@ -92,7 +92,7 @@ def glow_esp():
                             game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
                             
         except Exception as err:
-           pass
+           print(err)
         time.sleep(0.001)
 
 def aimbot():
@@ -143,7 +143,7 @@ def aimbot():
                                         ))
                                                
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def rcs(key: int):
@@ -168,7 +168,7 @@ def rcs(key: int):
                 else:
                     old_angle.x = old_angle.y = 0.0
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.01)
 
 def auto_pistol():
@@ -179,7 +179,7 @@ def auto_pistol():
                     lp.force_attack(6)
                     time.sleep(0.02)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.01)
 
 def trigger_bot():
@@ -219,7 +219,7 @@ def trigger_bot():
                                 lp.force_attack(6)
 
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.01)
 
 def bunny_hop():
@@ -232,7 +232,7 @@ def bunny_hop():
                     else:
                         lp.force_jump(4)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def auto_strafer():
@@ -248,7 +248,7 @@ def auto_strafer():
                         lp.force_right(6)
                     old_view_angle = current_angle
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def radar_hack():
@@ -259,11 +259,11 @@ def radar_hack():
                     if entity[2] == 40:
                         ent.set_spotted(entity[1], True)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def no_flash():
-    temp = 0
+    temp = 255.0
     while True:
         try:
             if dpg.get_value('c_noflash') and ent.in_game():
@@ -273,7 +273,7 @@ def no_flash():
             elif dpg.get_value('c_noflash') == False and temp != 255.0:
                 lp.set_flashbang_alpha(255.0)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def no_smoke():
@@ -284,7 +284,7 @@ def no_smoke():
                     if glow_object[2] == 157:
                         ent.set_position(glow_object[1], Vector3(0.0, 0.0, 0.0))
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def fov_changer():
@@ -296,7 +296,7 @@ def fov_changer():
                     lp.set_fov(dpg.get_value('s_fov'))
                     temp = dpg.get_value('s_fov')
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def fake_lag():
@@ -307,10 +307,10 @@ def fake_lag():
                 time.sleep(dpg.get_value('s_fakelag_str'))
                 lp.send_packets(True)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
-def hit_sound(filename: str):
+def hit_sound(file_name: str):
     shots_count = 0
     while True:
         try:
@@ -318,10 +318,10 @@ def hit_sound(filename: str):
                 shots_fired = lp.get_total_hits()
                 if shots_fired != shots_count:
                     if shots_count <= 255: # 255 - limit of shots_fired per round
-                        winsound.PlaySound(filename, winsound.SND_ASYNC)
+                        winsound.PlaySound(file_name, winsound.SND_ASYNC)
                     shots_count = shots_fired
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.01)
 
 def spectator_list():
@@ -352,7 +352,7 @@ def spectator_list():
             else:
                 dpg.set_value('spectator_list', '')
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.2)
 
 def player_infos():
@@ -372,7 +372,7 @@ def player_infos():
                 dpg.set_value('buffer_rank','\n'.join([i[2] for i in h.player_info_buffer]))
                 h.player_info_buffer.clear()
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def night_mode():
@@ -390,7 +390,7 @@ def night_mode():
                             temp = dpg.get_value('s_night_str')
 
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def chat_spam():
@@ -414,7 +414,7 @@ def chat_spam():
                 last_cmd_chat = current_cmd
 
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.1)
 
 def bomb_events():
@@ -441,7 +441,7 @@ def bomb_events():
                         print('Bomb defused!')
                         time.sleep(10)
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def exit():
@@ -461,7 +461,7 @@ def exit():
         dpg.destroy_context()
         process.close_handle(game_handle.process_handle)
     except exception.MemoryWriteError as err:
-        pass
+        print(err)
     os._exit(0)
 
 def convar_handler():
@@ -503,7 +503,7 @@ def convar_handler():
                     _temp3 = sky_state
 
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.01)
 
 def opengl_overlay():
@@ -529,7 +529,6 @@ def opengl_overlay():
                         bone_head = w2s(ent.get_head_position(entity[1]), view_matrix)
                         if w2s_position is None or bone_head is None:
                             continue
-                        
                         # line from local_player to entity
                         if dpg.get_value('c_snaplines'):
                             overlay.draw_line(ScreenSize.x/2, 0, w2s_position[0], w2s_position[1], 1, (0, 255, 0))
@@ -545,7 +544,7 @@ def opengl_overlay():
                         
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
-                        overlay.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 20.0, 10, (255.0, 255.0, 0.0))
+                        overlay.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (255.0, 255.0, 0.0))
                         
                 if dpg.get_value('c_sniper_crosshair'):
                     if h.weapon_sniper(lp.active_weapon()):
@@ -561,35 +560,35 @@ def opengl_overlay():
                         
             overlay.refresh()
         except Exception as err:
-            pass
+            print(err)
         time.sleep(0.001)
 
 def main():
     try:
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
-        threading.Thread(target=entity_loop, name='entity_loop').start()
-        threading.Thread(target=opengl_overlay, name='opengl_overlay').start()
-        threading.Thread(target=aimbot, name='aimbot').start()
-        threading.Thread(target=glow_esp, name='glow_esp').start()
-        threading.Thread(target=rcs, args=[0x01], name='rcs').start()
-        threading.Thread(target=auto_pistol, name='auto_pistol').start()
-        threading.Thread(target=trigger_bot, name='trigger_bot').start()
-        threading.Thread(target=bunny_hop, name='bunny_hop').start()
-        threading.Thread(target=auto_strafer, name='auto_strafer').start()
-        threading.Thread(target=radar_hack, name='radar_hack').start()
-        threading.Thread(target=no_flash, name='no_flash').start()
-        threading.Thread(target=no_smoke, name='no_smoke').start()
-        threading.Thread(target=fov_changer, name='fov_changer').start()
-        threading.Thread(target=fake_lag, name='fake_lag').start()
-        threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound').start()
-        # threading.Thread(target=spectator_list, name='spectator_list').start()
-        threading.Thread(target=player_infos, name='player_infos').start()
-        threading.Thread(target=night_mode, name='night_mode').start()
-        threading.Thread(target=chat_spam, name='cmd').start()
-        # threading.Thread(target=bomb_events, name='bomb_events').start()
-        threading.Thread(target=convar_handler, name='convar_controller').start()
-        threading.Thread(target=gui.make_interactive, name='interactive_gui').start()
+        threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
+        threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
+        threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
+        threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
+        threading.Thread(target=rcs, args=[0x01], name='rcs', daemon=True).start()
+        threading.Thread(target=auto_pistol, name='auto_pistol', daemon=True).start()
+        threading.Thread(target=trigger_bot, name='trigger_bot', daemon=True).start()
+        threading.Thread(target=bunny_hop, name='bunny_hop', daemon=True).start()
+        threading.Thread(target=auto_strafer, name='auto_strafer', daemon=True).start()
+        threading.Thread(target=radar_hack, name='radar_hack', daemon=True).start()
+        threading.Thread(target=no_flash, name='no_flash', daemon=True).start()
+        threading.Thread(target=no_smoke, name='no_smoke', daemon=True).start()
+        threading.Thread(target=fov_changer, name='fov_changer', daemon=True).start()
+        threading.Thread(target=fake_lag, name='fake_lag', daemon=True).start()
+        threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound', daemon=True).start()
+        # threading.Thread(target=spectator_list, name='spectator_list', daemon=True).start()
+        threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
+        threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
+        threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
+        # threading.Thread(target=bomb_events, name='bomb_events', daemon=True).start()
+        threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
+        threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
         
         dpg.start_dearpygui()
     except Exception as err:
