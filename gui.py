@@ -89,7 +89,7 @@ class GUI(Config):
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='b_unload')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
-            dpg.add_text('Version: 1.5.1')
+            dpg.add_text('Version: 1.5.2')
             dpg.add_text('Functions marked by (?)\nmay lower your trust factor', color=(255, 0, 0, 255))
         
         with dpg.window(label='Player info (?)', tag='w_players_dump', show=False, autosize=True):
@@ -202,7 +202,7 @@ class GUI(Config):
                 
                 with open(f'{path_to_config}', 'w') as f:
                     json.dump(content, f)
-
+        
     # TO:DO Clean up
     def load_config(self):
         config = f"{dpg.get_value('c_config_list')}.json"

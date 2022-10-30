@@ -75,7 +75,7 @@ class Entity(LocalPlayer):
         return self.mem.game_handle.read_bool(entity + offsets.m_bGunGameImmunity)
     
     def get_flag(self, entity: int):
-        return self.mem.game_handle.read_int(entity + offsets.m_fFlags)
+        return self.mem.game_handle.read_uint(entity + offsets.m_fFlags)
 
     def is_bomb_planted(self):
         return self.mem.game_handle.read_bool(

@@ -9,7 +9,7 @@ class LocalPlayer():
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwLocalPlayer)
 
     def get_current_state(self):
-        return self.mem.game_handle.read_int(self.mem.client_dll + offsets.dwForceJump)
+        return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwForceJump)
     
     def get_flashbang_duration(self):
         return self.mem.game_handle.read_float(self.local_player() + offsets.m_flFlashDuration)
@@ -21,7 +21,7 @@ class LocalPlayer():
         self.mem.game_handle.write_float(self.local_player() + offsets.m_flFlashMaxAlpha, value)
 
     def get_total_hits(self):
-        return self.mem.game_handle.read_uint(self.local_player() + 0x103f8) # m_totalHitsOnServer
+        return self.mem.game_handle.read_uint(self.local_player() + offsets.m_totalHitsOnServer)
     
     def get_shots_fired(self):
         return self.mem.game_handle.read_uint(self.local_player() + offsets.m_iShotsFired)
@@ -74,7 +74,7 @@ class LocalPlayer():
         )
 
     def get_move_type(self):
-        return self.mem.game_handle.read_int(self.local_player() + offsets.m_MoveType)
+        return self.mem.game_handle.read_uint(self.local_player() + offsets.m_MoveType)
     
     def get_view(self):
         return Vector3(self.mem.game_handle.read_float(self.local_player() + offsets.m_vecViewOffset),

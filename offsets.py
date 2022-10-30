@@ -43,12 +43,13 @@ try:
     # dwWeaponTable = memory.get_sig('client.dll', rb'\xB9....\x6A\x00\xFF\x50\x08\xC3', 0, 1)
     # dwWeaponTableIndex = memory.get_sig('client.dll', rb'\x39\x86....\x74\x06\x89\x86....\x8B\x86', 0, 2, False)
     interface_engine_cvar = memory.get_sig('vstdlib.dll', rb'\x8B\x0D....\xC7\x05', 0, 2)
-    is_c4_owner = 0x3C8110
+    is_c4_owner = 0x3E49A0
     m_flSpawnTime = 0x103C0
     dwbSendPackets = memory.get_sig('engine.dll', rb'\xB3\x01\x8B\x01\x8B\x40\x10\xFF\xD0\x84\xC0\x74\x0F\x80\xBF.....\x0F\x84', 1, 0, False, True)
-    Cmd_ExecuteCommand = memory.get_sig('engine.dll', rb'\x55\x8B\xEC\x8B\x0D....\x81\xF9....\x75\x0C\xA1....\x35....\xEB\x05\x8B\x01\xFF\x50\x34\x50', 0, 0, False, True) # 55 8B EC 8B 0D ? ? ? ? 81 F9 ? ? ? ? 75 0C A1 ? ? ? ? 35 ? ? ? ? EB 05 8B 01 FF 50 34 50 
+    Cmd_ExecuteCommand = memory.get_sig('engine.dll', rb'\x55\x8B\xEC\x8B\x55\x08\x33\xC9\x6A\x00\x6A\x00\xE8....\x83\xC4\x08\xE8', 0, 0, False, True) # 55 8B EC 8B 0D ? ? ? ? 81 F9 ? ? ? ? 75 0C A1 ? ? ? ? 35 ? ? ? ? EB 05 8B 01 FF 50 34 50 
     # netvars
-    dwGameRulesProxy = 0x52F90CC
+    m_totalHitsOnServer = 0x103f8
+    dwGameRulesProxy = 0x532B40C
     cs_gamerules_data = 0x0
     m_ArmorValue = 0x117CC
     m_Collision = 0x320
@@ -131,6 +132,7 @@ try:
     m_nFallbackSeed = 0x31DC
     m_nFallbackStatTrak = 0x31E4
     m_nForceBone = 0x268C
+    m_nModelIndex = 0x258
     m_nTickBase = 0x3440
     m_nViewModelIndex = 0x29D0
     m_rgflCoordinateFrame = 0x444

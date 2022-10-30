@@ -1,5 +1,5 @@
 import json, os
-from helper import config_example, ctypes
+from helper import config_example
 
 class Config():
     def __init__(self):
@@ -8,7 +8,7 @@ class Config():
         # Get absolute directory
         self.get_abs_dir = os.getcwd()
         # Config folder name to set
-        self.get_cfg_dir = self.get_abs_dir + '\\' + self.config_name 
+        self.get_cfg_dir = self.get_abs_dir + '\\' + self.config_name
         
         # Check if config folder exists
         if os.path.exists(self.get_cfg_dir):
