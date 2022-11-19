@@ -1,43 +1,53 @@
 import json, os
-from helper import config_example
+
+example_config = {
+    'test_server': {
+        'IP': '1.1.1.1',
+        'port': '22',
+        'username': 'root',
+        'password': 'pswd',
+    },
+    'test_server2': {
+        'IP': '1.1.1.2',
+        'port': '22',
+        'username': 'root',
+        'password': 'pswd',
+    },
+}
 
 class Config():
-    def __init__(self):
-        # Default config name
-        self.config_name = 'BetterGo_config'
-        # Get absolute directory
-        self.get_abs_dir = os.getcwd()
-        # Config folder name to set
-        self.get_cfg_dir = self.get_abs_dir + '\\' + self.config_name
+    def __init__(self) -> None:
+        print('Config initialization started.')
+        self.config_file = 'servers.json'
+        self.config_path = os.getcwd() + '\\' + self.config_file
         
-        # Check if config folder exists
-        if os.path.exists(self.get_cfg_dir):
-            pass
-        else:
-            # Create folder with configs
-            os.mkdir(self.config_name)
+        if os.path.exists(self.config_path) == False:
+            self.create_example()
+            print(f'Could not find {self.config_file}! New config has been created.')
+        
+    def create_example(self) -> None:
+        # Serializing json
+        json_object = json.dumps(example_config, indent=4)
+        with open(self.config_file, 'w') as file:
+            file.write(json_object)
+            return True
 
-    def create_default_config(self, file_name):
-        try:
-            with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}', 'w+') as file:
-                file.flush()
-                file.write(json.dumps(config_example))
 
-        except Exception as err:
-            print(err)
+    def load_config(self):
+        with open(self.config_file, 'r') as file:
+            return json.load(file)
 
-    def get_config_list(self):
-        buffer = []
-        list = os.listdir(self.get_cfg_dir)
-        for config in list:
-            if '.json' in config:
-                buffer.append(config.removesuffix('.json'))
-        return buffer
 
-    def read_value(self, file_name: str, category: str, object: str):
-        try:
-            with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json', 'r') as f:
-                content = json.load(f)
-                return(content[category][object])
-        except Exception as err:
-            print(err)
+    def get_servers(self):
+        file = self.load_config()
+        servers = [None]
+        for i in file:
+            servers.append(i)
+        return servers
+
+
+    def get_value(self, server: str, value: str):
+        file = self.load_config()
+        for i in file:
+            if i == server:
+                return file[i][value]
