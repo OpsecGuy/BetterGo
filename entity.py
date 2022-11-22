@@ -129,10 +129,14 @@ class Entity(LocalPlayer):
         )
 
     def get_view_angle(self):
-        return Vector3(self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles),
-                       self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4),
-                       self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8)
-        )
+        
+        bytes = self.mem.game_handle.read_bytes(self.engine_ptr() + offsets.dwClientState_ViewAngles, 0xC)
+        var = list(struct.unpack("3f", bytes))
+        return Vector3(*var)
+        #return Vector3(self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles),
+        #               self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4),
+        #               self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8)
+        # )
 
     def set_view_angle(self, angle: Vector3):
         Vector3(self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles, angle.x),

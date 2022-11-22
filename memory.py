@@ -2,9 +2,10 @@ from pymem import Pymem, process, exception, pattern
 from dataclasses import dataclass
 import os, time, threading, winsound, ctypes, win32process, win32api, win32con, win32event, win32gui, sys, struct
 
-# TO:DO : cleanup code
 try:
     kernel32 = ctypes.WinDLL('kernel32.dll')
+    ntdll = ctypes.WinDLL('ntdll.dll')
+    
     game_handle = Pymem('csgo.exe')
     client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
     client_dll_size = process.module_from_name(game_handle.process_handle, 'client.dll').SizeOfImage

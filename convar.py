@@ -12,7 +12,7 @@ class ConVar():
                 if name == game_handle.read_string(game_handle.read_uint(v2 + 0x0C)):
                     self.address = v2
                     return
-                # print(game_handle.read_string(game_handle.read_uint(a0 + 0x0C)))
+                # print(game_handle.read_string(game_handle.read_uint(v2 + 0x0C)))
                 v2 = game_handle.read_uint(v2 + 0x4)
         except Exception as err:
             print(err)
@@ -34,6 +34,16 @@ class ConVar():
 
     def get_int(self):
         return game_handle.read_uint(self.address + 0x30) ^ self.address
+    
+    def get_float(self):
+        pack = game_handle.read_int(self.address + 0x2C) ^ self.address
+        unpack = struct.pack("i", pack)
+        return struct.unpack("f", unpack)[0]
+    
+    def set_float(self, value: float):
+        pack = struct.pack("f", value)
+        unpack = struct.unpack("i", pack)[0]
+        game_handle.write_int(self.address + 0x2C, unpack ^ self.address)
     
     def get_string(self):
         return game_handle.read_string(game_handle.read_uint(self.address + 0x24))
