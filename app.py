@@ -391,7 +391,7 @@ def night_mode():
 
         except Exception as err:
             pass
-        time.sleep(0.1)
+        time.sleep(0.01)
 
 def chat_spam():
     global last_cmd_chat, free_chat_vmem, close_chat_handle
@@ -415,34 +415,7 @@ def chat_spam():
 
         except Exception as err:
             pass
-        time.sleep(0.1)
-
-def bomb_events():
-    # works just fine, but currently unused.
-    # TO:DO : cleanup code
-    while True:
-        try:
-            cur_time = game_handle.read_float(mem.engine_dll + offsets.dwGlobalVars + 0x10)
-            has_defuser = game_handle.read_bool(lp.local_player() + 0x117DC)
-            # print(t)
-            for entity in ent.glow_objects_list:
-                bomb_defused = game_handle.read_bool(entity[1] + 0x29c0)
-                
-                if entity[2] == 129:
-                    bomb = game_handle.read_float(entity[1] + 0x29a0)
-                    time_to_explode = bomb - cur_time
-
-                    time_to_defuse = bomb - cur_time - (5 if has_defuser == True else 10)
-                    # print(time_to_explode, time_to_defuse)
-                    if (time_to_explode) <= 0:
-                        print('Bomb exploaded!')
-                        time.sleep(10)
-                    elif (bomb_defused == True):
-                        print('Bomb defused!')
-                        time.sleep(10)
-        except Exception as err:
-            pass
-        time.sleep(0.001)
+        time.sleep(1)
 
 def exit():
     try:
@@ -465,22 +438,17 @@ def exit():
     os._exit(0)
 
 def convar_handler():
-    global showfps, grenade_preview, sky_name, visual_punch, visual_punch
+    global showfps, grenade_preview, sky_name
     showfps = ConVar('cl_showfps')
     grenade_preview = ConVar('cl_grenadepreview')
     sky_name = ConVar('sv_skyname')
-    third_person = ConVar('cam_idealdist')
-    visual_punch = ConVar('weapon_recoil_view_punch_extra')
-    _temp1, _temp2, _temp3, _temp4, _temp5 = 0, 0, '', 120.0, 0.0
+    _temp1, _temp2, _temp3 = 0, 0, ''
 
     while True:
         try:
             fps_state = int(dpg.get_value('c_fps'))
             gre_state = int(dpg.get_value('c_gre_line'))
             sky_state = dpg.get_value('d_sky')
-            third_person_state = int(dpg.get_value('c_thirdperson'))
-            visual_punch_state = dpg.get_value('view_extra_punch') #TODO: FIX ME
-            # print(visual_punch_state)
             if fps_state != _temp1:
                 if (dpg.get_value('c_fps')):
                         showfps.set_int(fps_state)
@@ -504,23 +472,6 @@ def convar_handler():
                 else:
                     sky_name.set_string(sky_state)
                     _temp3 = sky_state
-
-            elif third_person_state != _temp4:
-                if (dpg.get_value('c_thirdperson')):
-                        third_person.set_float(third_person_state)
-                        _temp4 = third_person
-                else:
-                    third_person.set_float(third_person_state)
-                    _temp4 = third_person_state
-
-            elif visual_punch_state != _temp5:
-                if (dpg.get_value('view_extra_punch')):
-                        visual_punch.set_float(visual_punch_state)
-                        _temp5 = visual_punch
-                else:
-                    visual_punch.set_float(visual_punch_state)
-                    _temp5 = visual_punch
-
         except Exception as err:
             pass
         time.sleep(0.01)
@@ -528,33 +479,45 @@ def convar_handler():
 def opengl_overlay():
     global overlay
     overlay = Overlay()
+    
+    # TO:DO Get window size instead
     x1 = (ScreenSize.x / 2) + 1
     y1 = (ScreenSize.y / 2) + 1
     dx = (ScreenSize.x + 1) / lp.get_fov()
     dy = (ScreenSize.y + 1) / lp.get_fov()
-
+    
     while True:
         try:
             if ent.in_game() and window_name:
                 view_matrix = ent.view_matrix()
+                overlay.draw_text(f'github.com/OpsecGuy', 50, 100)
                 for entity in ent.entity_list:
                     if entity[2] == 40:
                         if entity[1] == lp.local_player() or ent.get_team(lp.local_player()) == ent.get_team(entity[1]):
                             continue
                         if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
                             continue
+
                         entity_position = ent.get_position(entity[1])
                         w2s_position = w2s(Vector3(entity_position.x, entity_position.y, entity_position.z), view_matrix)
-                        bone_head = w2s(ent.get_head_position(entity[1]), view_matrix)
+                        bone_head = w2s(ent.get_bone_position(entity[1], 8), view_matrix)
                         if w2s_position is None or bone_head is None:
                             continue
                         # line from local_player to entity
                         if dpg.get_value('c_snaplines'):
-                            legs_pos = w2s(ent.get_position(lp.local_player()), view_matrix)
-                            if w2s_position is None or legs_pos is None:
+                            if w2s_position is None:
                                 continue
-                            overlay.draw_line(legs_pos[0], legs_pos[1], w2s_position[0], w2s_position[1], 1, (0, 255, 0))
-                        
+                            overlay.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0, 255, 0))
+
+                        if dpg.get_value('c_box_esp') :
+                            if w2s_position is None or bone_head is None:
+                                continue
+                            head = bone_head[1] - w2s_position[1]
+                            width = head / 2
+                            center = width / -2
+                            overlay.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2)
+                            overlay.draw_text(f'GUN ID:\n{lp.active_weapon()}', bone_head[0], bone_head[1])
+                            
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
                             overlay.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 255.0, 0.0))
@@ -585,27 +548,12 @@ def opengl_overlay():
             pass
         time.sleep(0.001)
 
-def test():
-    while True:
-        try:
-            if window_name:
-                eye_pos = ent.get_view_angle()
-                game_handle.write_bool(client_dll + offsets.dwInput + 0x9D, True) 
-                third_person_state = dpg.get_value('c_thirdperson')
-                to_write = struct.pack("3f", eye_pos.x, eye_pos.y, third_person_state)
-                game_handle.write_bytes(client_dll + offsets.dwInput + 0xAC, to_write, 0xC) 
-        except Exception as err:
-            print(err)
-            
-        time.sleep(0.001)
-
 def main():
     try:
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
         threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
         threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
-        threading.Thread(target=test, name='test', daemon=True).start()
         threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
         threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
         threading.Thread(target=rcs, args=[0x01], name='rcs', daemon=True).start()
@@ -623,9 +571,8 @@ def main():
         threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
         threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
         threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
-        # threading.Thread(target=bomb_events, name='bomb_events', daemon=True).start()
         threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
-        # threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
+        threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
         
         dpg.start_dearpygui()
     except Exception as err:

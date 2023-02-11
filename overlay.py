@@ -1,6 +1,8 @@
 from OpenGL.GL import glPushAttrib, glMatrixMode, glLoadIdentity, glOrtho, glDisable, glEnable, glBlendFunc, glClear, \
     glLineWidth, glBegin, glColor4f, glVertex2f, glEnd, glPointSize, GL_ALL_ATTRIB_BITS, GL_PROJECTION, GL_DEPTH_TEST, \
-    GL_TEXTURE_2D, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT, GL_LINE_LOOP, GL_POINTS, GL_LINES
+    GL_TEXTURE_2D, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT, GL_LINE_LOOP, GL_POINTS, GL_LINES, \
+    glGenTextures, glBindTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR, GL_CLAMP, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, \
+    GL_TEXTURE_MAG_FILTER, GL_RGBA, GL_UNSIGNED_BYTE, glTexParameteri, glTexImage2D, glRasterPos2f, glFlush, glRasterPos3f, GL_MODELVIEW
 
 from glfw import init, window_hint, create_window, set_input_mode, make_context_current, swap_interval, swap_buffers, \
     poll_events, set_window_should_close, window_should_close, destroy_window, FLOATING, DECORATED, RESIZABLE, \
@@ -11,14 +13,14 @@ from win32gui import FindWindow, GetWindowLong, SetWindowLong
 from math import tan, cos, pi
 from helper import ScreenSize, Vector3
 from memory import kernel32, win32gui
-
-overlay_state = True
+import OpenGL.GLUT as glut
 
 class Overlay():
     def __init__(self, target='Counter-Strike: Global Offensive - Direct3D 9'):
         # init glfw
+        self.overlay_state = True
         init()
-        
+        glut.glutInit()
         # set window hints
         window_hint(FLOATING, True)
         window_hint(DECORATED, False)
@@ -58,7 +60,7 @@ class Overlay():
     def close(self):
         set_window_should_close(self.window, True)
         if window_should_close(self.window) == 1:
-            overlay_state = False
+            self.overlay_state = False
             destroy_window(self.window)
             kernel32.CloseHandle(self.handle)
     
@@ -68,7 +70,6 @@ class Overlay():
         poll_events()
     
     def draw_empty_circle(self, cx: float, cy: float, r: float, points: int, color: Vector3):
-        # credits to https://stackoverflow.com/, I just edited it for my needs
         glColor4f(*color, 255)
         theta = pi * 2 / float(points)
         tangetial_factor = tan(theta)
@@ -96,6 +97,7 @@ class Overlay():
         glColor4f(color[0], color[1], color[2], 255)
         glVertex2f(start_point_x, start_point_y)
         glEnd()
+        glFlush()
         
     def draw_line(self, start_point_x: float, start_point_y: float, end_point_x: float, end_point_y: float, line_width: float, color: Vector3):
         glLineWidth(line_width)
@@ -104,6 +106,7 @@ class Overlay():
         glVertex2f(start_point_x, start_point_y)
         glVertex2f(end_point_x, end_point_y)
         glEnd()
+        glFlush()
         
     def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float):
         glLineWidth(line_width)
@@ -114,3 +117,30 @@ class Overlay():
         glVertex2f(start_point_x - 5, start_point_y)
         glVertex2f(start_point_x + 5, start_point_y)
         glEnd()
+        glFlush()
+        
+    def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float):
+        glLineWidth(line_width)
+        glBegin(GL_LINE_LOOP)
+        glColor4f(0.0, 255.0, 0.0, 255.0)
+        glVertex2f(start_point_x, start_point_y)
+        glVertex2f(start_point_x + width, start_point_y)
+        glVertex2f(start_point_x + width, start_point_y + height)
+        glVertex2f(start_point_x, start_point_y + height)
+        glEnd()
+        glFlush()
+
+    def draw_text(self, text: str, x: int, y: int, font=glut.GLUT_BITMAP_9_BY_15):
+        glColor4f(0.0, 1.0, 0.0, 255.0)
+        lines = text.split("\n")
+        line_height = 24
+
+        for i, line in enumerate(lines):
+            y = y - i * line_height / 1.2
+            z = 0
+            glRasterPos3f(x, y, z)
+
+            for c in line:
+                glut.glutBitmapCharacter(font, ord(c))
+
+        glFlush()

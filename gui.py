@@ -25,7 +25,7 @@ class GUI(Config):
         self.config.create_default_config('default_config.json')
         with dpg.window(tag='w_main'):
             with dpg.collapsing_header(label="Aimbot", tag='aimbot_header'):
-                dpg.add_checkbox(label='Aimbot (?)', tag='c_aimbot')
+                dpg.add_checkbox(label='Aimbot', tag='c_aimbot')
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 5', width=215, tag='k_aimbot')
                 dpg.add_slider_float(label='Aimbot FOV', default_value=5.0, min_value=1.0, max_value=359.9, clamped=True, width=215, tag='s_aimbot_fov')
                 dpg.add_slider_float(label='Aimbot Smooth', default_value=3.0, min_value=1.0, max_value=30.0, clamped=True, width=215, tag='s_aimbot_smooth')
@@ -33,7 +33,7 @@ class GUI(Config):
                 dpg.add_checkbox(label='Visible Only (?)', tag='c_aimbot_vis')
                 dpg.add_checkbox(label='Attack Team', tag='c_aimbot_team')
                 dpg.add_separator()
-                dpg.add_checkbox(label='Standalone RCS (?)', tag='c_rcs')
+                dpg.add_checkbox(label='Standalone RCS', tag='c_rcs')
                 dpg.add_slider_float(label='RCS Strength', default_value=0.0, min_value=0.0, max_value=2.0, clamped=True, width=215, tag='s_rcs_str')
                 dpg.add_slider_int(label='Shot After x Bullets', default_value=0, min_value=0, max_value=30, clamped=True, width=215, tag='s_rcs_min_bullets')
                 dpg.add_separator()
@@ -41,6 +41,7 @@ class GUI(Config):
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 4', width=215, tag='k_tbot')
                 dpg.add_checkbox(label='Humanization', tag='c_tbot_legit')
                 dpg.add_slider_float(label='TriggerBot Delay', default_value=0.025, min_value=0.01, max_value=0.2, clamped=True, width=215, tag='s_tbot_delay')
+
             with dpg.collapsing_header(label='Visuals', tag='visuals_header'):
                 dpg.add_checkbox(label='Player ESP (?)', tag='c_esp')
                 dpg.add_checkbox(label='Team Check', tag='c_esp_team')
@@ -56,9 +57,9 @@ class GUI(Config):
                 dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, clamped=True, width=215, tag='s_fov')
                 dpg.add_combo(label='Sky', items=list(h.sky_list), default_value='', width=215, tag='d_sky')
                 dpg.add_separator()
-                
-                
+
             with dpg.collapsing_header(label='Overlay', tag='overlay_header'):
+                dpg.add_checkbox(label='Box ESP', tag='c_box_esp')
                 dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
                 dpg.add_checkbox(label='Head Indicator', tag='c_head_indicator')
                 dpg.add_checkbox(label='Bomb Indicator', tag='c_bomb_indicator')
@@ -66,6 +67,7 @@ class GUI(Config):
                 dpg.add_checkbox(label='Sniper Crosshair', tag='c_sniper_crosshair')
                 dpg.add_checkbox(label='Recoil Crosshair', tag='c_recoil_crosshair')
                 dpg.add_separator()
+
             with dpg.collapsing_header(label='Misc', tag='misc_header'):
                 dpg.add_checkbox(label='Auto Pistol', tag='c_autopistol', default_value=True)
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='LEFT MOUSE', width=215, tag='k_autopistol')
@@ -82,23 +84,26 @@ class GUI(Config):
                 dpg.add_checkbox(label='Fake Lag', tag='c_fakelag')
                 dpg.add_slider_float(label='Fake Lag Strength', default_value=0.001, min_value=0.001, max_value=0.016, clamped=True, width=215, tag='s_fakelag_str')
                 dpg.add_button(label='Players Info', width=160, height=25, tag='b_pinfo', callback=lambda: dpg.show_item('w_players_dump'))
+
             with dpg.collapsing_header(label='Config', tag='config_header'):
                 dpg.add_input_text(label='Config name', default_value='default_config', width=140, tag='i_config_name')
                 dpg.add_button(label='Create', width=160, height=25, callback=lambda: self.create_config(), tag='b_create_config')
                 dpg.add_combo(label='Select Config', items=tuple(self.config.get_config_list()), width=215, tag='c_config_list')
                 dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
                 dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
-                
+
+            # with dpg.drawlist(100, 100, tag='draw_list_1'):
+            #     dpg.draw_line([0.0, 1.0], [50.0, 50.0])
+            #     dpg.draw_text([50.0, 50.0], 'lololo')
+            
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='b_unload')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
-            dpg.add_text('Version: 1.5.3')
+            dpg.add_text('Version: 1.5.5')
             dpg.add_text('Functions marked by (?)\nmay lower your trust factor', color=(255, 0, 0, 255))
-            dpg.add_slider_float(label='Third Person View', default_value=150.0, min_value=100.0, max_value=200.0, width=215, tag='c_thirdperson')
-            dpg.add_slider_float(label='Extra Punch', default_value=0.055, min_value=0.0, max_value=1.0, width=215, tag='view_extra_punch')
-            
-            
-        with dpg.window(label='Player info (?)', tag='w_players_dump', show=False, autosize=True):
+
+
+        with dpg.window(label='Player info', tag='w_players_dump', show=False, autosize=True):
             with dpg.group(horizontal=True):
                 dpg.add_text('', tag='buffer_name')
                 dpg.add_text('', tag='buffer_wins')
@@ -107,7 +112,7 @@ class GUI(Config):
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.set_primary_window("w_main", True)
-        
+
     def make_interactive(self):
         while True:
             try:
@@ -136,7 +141,7 @@ class GUI(Config):
             except Exception as err:
                 pass
             time.sleep(0.01)
-            
+
     def create_config(self):
         if dpg.get_value('i_config_name') != '':
             config_file = f"{dpg.get_value('i_config_name')}"
@@ -149,7 +154,7 @@ class GUI(Config):
                         file.write(json.dumps(config_example))
             except Exception as err:
                 pass
-            
+
     def save_config(self):
         if dpg.get_value('c_config_list') != '':
             config_file = f"{dpg.get_value('c_config_list')}.json"
@@ -166,16 +171,16 @@ class GUI(Config):
                 content['aimbot']['bone'] = dpg.get_value('c_aimbot_bone')
                 content['aimbot']['visible_only'] = dpg.get_value('c_aimbot_vis')
                 content['aimbot']['attack_team'] = dpg.get_value('c_aimbot_team')
-                
+
                 content['standalone_rcs']['switch'] = dpg.get_value('c_rcs')
                 content['standalone_rcs']['strength'] = dpg.get_value('s_rcs_str')
                 content['standalone_rcs']['min_bullets'] = dpg.get_value('s_rcs_min_bullets')
-                
+
                 content['triggerbot']['switch'] = dpg.get_value('c_tbot')
                 content['triggerbot']['key'] = dpg.get_value('k_tbot')
                 content['triggerbot']['humanization'] = dpg.get_value('c_tbot_legit')
                 content['triggerbot']['delay'] = dpg.get_value('s_tbot_delay')
-                
+
                 content['visuals']['player_esp'] = dpg.get_value('c_esp')
                 content['visuals']['glow_team'] = dpg.get_value('c_esp_team')
                 content['visuals']['health_mode'] = dpg.get_value('c_esp_health')
@@ -185,14 +190,15 @@ class GUI(Config):
                 content['visuals']['noflash'] = dpg.get_value('c_noflash')
                 content['visuals']['noflash_strength'] = dpg.get_value('s_noflash_str')
                 content['visuals']['player_fov'] = dpg.get_value('s_fov')
-                
+
+                content['overlay']['box_esp'] = dpg.get_value('c_box_esp')
                 content['overlay']['snap_lines'] = dpg.get_value('c_snaplines')
                 content['overlay']['head_indicator'] = dpg.get_value('c_head_indicator')
                 content['overlay']['bomb_indicator'] = dpg.get_value('c_bomb_indicator')
                 content['overlay']['grenade_traces'] = dpg.get_value('c_gre_line')
                 content['overlay']['sniper_crosshair'] = dpg.get_value('c_sniper_crosshair')
                 content['overlay']['recoil_crosshair'] = dpg.get_value('c_recoil_crosshair')
-                
+
                 content['misc']['auto_pistol'] = dpg.get_value('c_autopistol')
                 content['misc']['auto_pistol_key'] = dpg.get_value('k_autopistol')
                 content['misc']['radar_hack'] = dpg.get_value('c_radar')
@@ -208,7 +214,7 @@ class GUI(Config):
                 
                 with open(f'{path_to_config}', 'w') as f:
                     json.dump(content, f)
-        
+
     # TO:DO Clean up
     def load_config(self):
         config = f"{dpg.get_value('c_config_list')}.json"
@@ -225,16 +231,16 @@ class GUI(Config):
             dpg.set_value('c_aimbot_bone', self.config.read_value(config_name, 'aimbot','bone'))
             dpg.set_value('c_aimbot_vis', self.config.read_value(config_name, 'aimbot','visible_only'))
             dpg.set_value('c_aimbot_team', self.config.read_value(config_name, 'aimbot','attack_team'))
-                    
+
             dpg.set_value('c_rcs', self.config.read_value(config_name, 'standalone_rcs','switch'))
             if self.config.read_value(config_name, 'standalone_rcs','strength') <= dpg.get_item_configuration('s_rcs_str')['max_value']: dpg.set_value('s_rcs_str', self.config.read_value(config_name, 'standalone_rcs','strength'))
             if self.config.read_value(config_name, 'standalone_rcs','min_bullets') <= dpg.get_item_configuration('s_rcs_min_bullets')['max_value']: dpg.set_value('s_rcs_str', self.config.read_value(config_name, 'standalone_rcs','min_bullets'))
-            
+
             dpg.set_value('c_tbot', self.config.read_value(config_name, 'triggerbot','switch'))
             dpg.set_value('k_tbot', self.config.read_value(config_name, 'triggerbot','key'))
             dpg.set_value('c_tbot_legit', self.config.read_value(config_name, 'triggerbot','humanization'))
             dpg.set_value('s_tbot_delay', self.config.read_value(config_name, 'triggerbot','delay')) if self.config.read_value(config_name, 'triggerbot','delay') <= dpg.get_item_configuration('s_tbot_delay')['max_value'] else None
-            
+
             dpg.set_value('c_esp', self.config.read_value(config_name, 'visuals','player_esp'))
             dpg.set_value('c_esp_team', self.config.read_value(config_name, 'visuals','glow_team'))
             dpg.set_value('c_esp_health', self.config.read_value(config_name, 'visuals','health_mode'))
@@ -245,14 +251,15 @@ class GUI(Config):
             if self.config.read_value(config_name, 'visuals','noflash_strength') <= dpg.get_item_configuration('s_noflash_str')['max_value']: dpg.set_value('s_noflash_str', self.config.read_value(config_name, 'visuals','noflash_strength'))
             dpg.set_value('s_fov', self.config.read_value(config_name, 'visuals','player_fov')) if self.config.read_value(config_name, 'visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value'] else None
             if self.config.read_value(config_name, 'visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value']: dpg.set_value('s_fov', self.config.read_value(config_name, 'visuals','player_fov'))
-            
+
+            dpg.set_value('c_box_esp', self.config.read_value(config_name, 'overlay','box_esp'))
             dpg.set_value('c_snaplines', self.config.read_value(config_name, 'overlay','snap_lines'))
             dpg.set_value('c_head_indicator', self.config.read_value(config_name, 'overlay','head_indicator'))
             dpg.set_value('c_bomb_indicator', self.config.read_value(config_name, 'overlay','bomb_indicator'))
             dpg.set_value('c_gre_line', self.config.read_value(config_name, 'overlay','grenade_traces'))
             dpg.set_value('c_sniper_crosshair', self.config.read_value(config_name, 'overlay','sniper_crosshair'))
             dpg.set_value('c_recoil_crosshair', self.config.read_value(config_name, 'overlay','recoil_crosshair'))
-            
+
             dpg.set_value('c_autopistol', self.config.read_value(config_name, 'misc','auto_pistol'))
             dpg.set_value('k_autopistol', self.config.read_value(config_name, 'misc','auto_pistol_key'))
             dpg.set_value('c_radar', self.config.read_value(config_name, 'misc','radar_hack'))
@@ -265,6 +272,6 @@ class GUI(Config):
             dpg.set_value('c_fps', self.config.read_value(config_name, 'misc','show_fps'))
             dpg.set_value('c_fakelag', self.config.read_value(config_name, 'misc','fake_lag'))
             if self.config.read_value(config_name, 'misc','lag_strength') <= dpg.get_item_configuration('s_fakelag_str')['max_value']: dpg.set_value('s_fakelag_str',self.config.read_value(config_name, 'misc','lag_strength'))
-        
+
     def key_handler(self, key: str):
         return h.gui_keys_list.get(dpg.get_value(key))

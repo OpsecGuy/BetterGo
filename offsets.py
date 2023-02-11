@@ -21,20 +21,19 @@ try:
     dwClientState_State = memory.get_sig('engine.dll', rb'\x83\xB8.....\x0F\x94\xC0\xC3', 0, 2, False)
     dwClientState_ViewAngles = memory.get_sig('engine.dll', rb'\xF3\x0F\x11\x86....\xF3\x0F\x10\x44\x24.\xF3\x0F\x11\x86', 0, 4, False)
     dwEntityList = memory.get_sig('client.dll', rb'\xBB....\x83\xFF\x01\x0F\x8C....\x3B\xF8', 0, 1)
-    # dwGameRulesProxy = memory.get_sig('client.dll', rb'\xA1....\x85\xC0\x0F\x84....\x80\xB8.....\x74\x7A', 0, 1)
+    dwGameRulesProxy = 0x532F4AC
     dwGlobalVars = memory.get_sig('engine.dll', rb'\x68....\x68....\xFF\x50\x08\x85\xC0', 0, 1)
     dwInput = memory.get_sig('client.dll', rb'\xB9....\xF3\x0F\x11\x04\x24\xFF\x50\x10', 0, 1)
     dwLocalPlayer = memory.get_sig('client.dll', rb'\x8D\x34\x85....\x89\x15....\x8B\x41\x08\x8B\x48\x04\x83\xF9\xFF', 4, 3)
     dwPlayerResource = memory.get_sig('client.dll', rb'\x8B\x3D....\x85\xFF\x0F\x84....\x81\xC7', 0, 2)
     dwViewMatrix = memory.get_sig('client.dll', rb'\x0F\x10\x05....\x8D\x85....\xB9', 176, 3)
     interface_engine_cvar = memory.get_sig('vstdlib.dll', rb'\x8B\x0D....\xC7\x05', 0, 2)
-    is_c4_owner = 0x3E49A0
+    is_c4_owner = 0x3E69E0
     m_flSpawnTime = 0x103C0
     dwbSendPackets = memory.get_sig('engine.dll', rb'\xB3\x01\x8B\x01\x8B\x40\x10\xFF\xD0\x84\xC0\x74\x0F\x80\xBF.....\x0F\x84', 1, 0, False, True)
     Cmd_ExecuteCommand = memory.get_sig('engine.dll', rb'\x55\x8B\xEC\x8B\x55\x08\x33\xC9\x6A\x00\x6A\x00\xE8....\x83\xC4\x08\xE8', 0, 0, False, True) # 55 8B EC 8B 0D ? ? ? ? 81 F9 ? ? ? ? 75 0C A1 ? ? ? ? 35 ? ? ? ? EB 05 8B 01 FF 50 34 50 
     # netvars
     m_totalHitsOnServer = 0x103f8
-    dwGameRulesProxy = 0x532B40C
     cs_gamerules_data = 0x0
     m_ArmorValue = 0x117CC
     m_Collision = 0x320

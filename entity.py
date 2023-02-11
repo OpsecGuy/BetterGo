@@ -144,14 +144,6 @@ class Entity(LocalPlayer):
                 self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8, angle.z),
         )
 
-    def get_head_position(self, entity):
-        bone_matrix = self.mem.game_handle.read_uint(entity + offsets.m_dwBoneMatrix)
-        bytes = self.mem.game_handle.read_bytes(bone_matrix, 432)
-        var  = struct.unpack("99if3if3if", bytes)
-        # var[99] # 103 107
-        return Vector3(var[99], var[103], var[107])
-                
-
     def get_bone_position(self, entity, bone_id: int):
         bone_matrix = self.mem.game_handle.read_uint(entity + offsets.m_dwBoneMatrix)
         return Vector3(self.mem.game_handle.read_float(bone_matrix + 0x30 * bone_id + 0x0c),
