@@ -516,7 +516,6 @@ def opengl_overlay():
                             width = head / 2
                             center = width / -2
                             overlay.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2)
-                            overlay.draw_text(f'GUN ID:\n{lp.active_weapon()}', bone_head[0], bone_head[1])
                             
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
