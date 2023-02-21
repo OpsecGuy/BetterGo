@@ -521,7 +521,7 @@ def convar_handler():
 def opengl_overlay():
     global ov
     ov = Overlay()
-    c = GetWindowRect(ov.overlay_handle)
+    c = GetWindowRect(FindWindow(None, ov.csgo_window_title))
 
     x1 = (c[2] / 2) + 1
     y1 = (c[3] / 2) + 1
