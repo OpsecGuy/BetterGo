@@ -3,7 +3,7 @@ import OpenGL.GLUT as glut
 import glfw
 
 from win32con import WS_EX_LAYERED, GWL_EXSTYLE, WS_EX_TRANSPARENT
-from win32gui import FindWindow, GetWindowLong, SetWindowLong, GetWindowRect, GetForegroundWindow, GetWindowText
+from win32gui import FindWindow, GetWindowLong, SetWindowLong, GetWindowRect, GetForegroundWindow, GetWindowText, GetActiveWindow
 from math import tan, cos, pi
 from helper import ScreenSize, Vector3
 from memory import kernel32
@@ -25,14 +25,14 @@ class Overlay():
         glfw.window_hint(glfw.SAMPLES, 2)
 
         self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:='BG_Overlay', None, None)
-        # get handle to created window
+        # Get handle to the created window
         self.handle = FindWindow(None, title)
 
         glfw.set_input_mode(self.window, glfw.CURSOR, glfw.CURSOR_DISABLED)
         glfw.make_context_current(self.window)
         glfw.swap_interval(0)
         
-        # set window attributes
+        # Set window attributes
         gl.glPushAttrib(gl.GL_ALL_ATTRIB_BITS)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
@@ -42,33 +42,28 @@ class Overlay():
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
-        # make window transparent
-        self.overlay_handle = self.window_handle()
-        exstyle = GetWindowLong(self.overlay_handle, GWL_EXSTYLE)
+        # Make window transparent
+        exstyle = GetWindowLong(self.handle, GWL_EXSTYLE)
         exstyle |= WS_EX_LAYERED
         exstyle |= WS_EX_TRANSPARENT
-        SetWindowLong(self.overlay_handle, GWL_EXSTYLE, exstyle)
-        SetWindowLong(self.overlay_handle, GWL_EXSTYLE,
+        SetWindowLong(self.handle, GWL_EXSTYLE, exstyle)
+        SetWindowLong(self.handle, GWL_EXSTYLE,
                             exstyle | WS_EX_LAYERED)
 
     def close(self):
         glfw.set_window_should_close(self.window, True)
         if glfw.window_should_close(self.window) == 1:
             self.overlay_state = False
-            kernel32.CloseHandle(self.overlay_handle)
+            kernel32.CloseHandle(self.handle)
             glfw.destroy_window(self.window)
     
     def window_focused(self):
         return GetWindowText(GetForegroundWindow()) == self.csgo_window_title
-
-    def window_handle(self):
-        return FindWindow(None, 'BG_Overlay')
     
     def refresh(self):
         glfw.swap_buffers(self.window)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         glfw.poll_events()
-        gl.glFlush()
     
     def draw_empty_circle(self, cx: float, cy: float, r: float, points: int, color: Vector3):
         gl.glColor4f(*color, 1.0)
@@ -91,6 +86,7 @@ class Overlay():
             x *= radial_factor
             y *= radial_factor
         gl.glEnd()
+        gl.glFlush()
 
     def draw_filled_dot(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
         gl.glPointSize(line_width)
@@ -107,6 +103,7 @@ class Overlay():
         gl.glVertex2f(start_point_x, start_point_y)
         gl.glVertex2f(end_point_x, end_point_y)
         gl.glEnd()
+        gl.glFlush()
 
     def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
         gl.glLineWidth(line_width)
@@ -117,6 +114,7 @@ class Overlay():
         gl.glVertex2f(start_point_x - 5, start_point_y)
         gl.glVertex2f(start_point_x + 5, start_point_y)
         gl.glEnd()
+        gl.glFlush()
 
     def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float, color: Vector3):
         gl.glLineWidth(line_width)
@@ -127,6 +125,7 @@ class Overlay():
         gl.glVertex2f(start_point_x + width, start_point_y + height)
         gl.glVertex2f(start_point_x, start_point_y + height)
         gl.glEnd()
+        gl.glFlush()
 
     def draw_text(self, text: str, x: int, y: int, font=glut.GLUT_BITMAP_9_BY_15):
         gl.glRasterPos2f(x, y)

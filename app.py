@@ -182,7 +182,7 @@ def rcs(key: int):
 def auto_pistol():
     while True:
         try:
-            if dpg.get_value('c_autopistol') and ent.in_game() and ov.window_focused():
+            if dpg.get_value('c_autopistol') and ent.get_health(lp.local_player()) > 0 and ov.window_focused():
                 if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):    
                     lp.force_attack(6)
                     time.sleep(0.02)
@@ -196,7 +196,7 @@ def trigger_bot():
     entity = 0
     while True:
         try:
-            if ent.in_game() and ov.window_focused() and ent.get_health(lp.local_player()) > 0:
+            if ov.window_focused() and ent.get_health(lp.local_player()) > 0:
                 crosshair = lp.get_crosshair_id()
                 entity = lp.get_entity_by_crosshair()
                 if crosshair == 0 or entity == 0:
@@ -237,13 +237,12 @@ def trigger_bot():
 def bunny_hop():
     while True:
         try:
-            if dpg.get_value('c_bh'):
-                if lp.get_current_state() == 5:
-                    while ctypes.windll.user32.GetAsyncKeyState(0x20):
-                        if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
-                            lp.force_jump(5)
-                        else:
-                            lp.force_jump(4)
+            if dpg.get_value('c_bh') and lp.get_current_state() == 5:
+                while ctypes.windll.user32.GetAsyncKeyState(0x20):
+                    if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
+                        lp.force_jump(5)
+                    else:
+                        lp.force_jump(4)
         except Exception as err:
             if DEBUG_MODE == True:
                 print(bunny_hop.__name__, err)
@@ -266,7 +265,7 @@ def auto_strafer():
             if DEBUG_MODE == True:
                 print(auto_strafer.__name__, err)
             pass
-        time.sleep(0.01)
+        time.sleep(0.001)
 
 def radar_hack():
     while True:
@@ -355,37 +354,35 @@ def hit_sound(file_name: str):
 
 def spectator_list():
     spectators = []
-    while True:
-        try:
-            spectators.clear()
-            if ent.in_game():
-                if ent.get_health(lp.local_player()) <= 0:
-                    spectators.clear()
+    try:
+        spectators.clear()
+        if ent.in_game():
+            if ent.get_health(lp.local_player()) <= 0:
+                spectators.clear()
 
-                for entity in ent.entity_list:
-                    if entity[2] == 40:
-                        player_name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
+            for entity in ent.entity_list:
+                if entity[2] == 40:
+                    player_name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
+
+                    if player_name == None or player_name == 'GOTV':
+                        continue
+
+                    if ent.get_team(entity[1]) == ent.get_team(lp.local_player()):
+                        observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
+                        spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
                         
-                        if player_name == None or player_name == 'GOTV':
-                            continue
+                        if spectated == lp.local_player():
+                            spectators.append(player_name)
+            
+            if len(spectators) > 0:
+                return 'You are spectated'
+            else:
+                return ''
 
-                        if ent.get_team(entity[1]) == ent.get_team(lp.local_player()):
-                            observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
-                            spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
-                            
-                            if spectated == lp.local_player():
-                                spectators.append(player_name)
-                
-                if len(spectators) > 0:
-                    return 'You are spectated'
-                else:
-                    return ''
-
-        except Exception as err:
-            if DEBUG_MODE == True:
-                print(hit_sound.__name__, err)
-            pass
-        time.sleep(0.1)
+    except Exception as err:
+        if DEBUG_MODE == True:
+            print(hit_sound.__name__, err)
+        pass
 
 def player_infos():
     while True:
@@ -470,7 +467,7 @@ def exit():
         ent.force_update()
         ov.close()
         dpg.destroy_context()
-        process.close_handle(game_handle.process_handle)
+        os._exit(0)
     except exception.MemoryWriteError as err:
         if DEBUG_MODE == True:
             print(exit.__name__, err)
@@ -521,18 +518,18 @@ def convar_handler():
 def opengl_overlay():
     global ov
     ov = Overlay()
-    c = GetWindowRect(FindWindow(None, ov.csgo_window_title))
+    c = GetWindowRect(ov.handle)
     x1 = (c[2] / 2) + 1
     y1 = (c[3] / 2) + 1
-    
+
     while True:
         try:
             ov.draw_text(f'github.com/OpsecGuy', 420, 20)
 
-            if ent.in_game() and ov.window_focused():
+            if ent.in_game():
                 view_matrix = ent.view_matrix()
 
-                if dpg.get_value('c_spec_alert') and ent.get_health(lp.local_player()) > 0:
+                if dpg.get_value('c_spec_alert'):
                     ov.draw_text(f'{spectator_list()}', x1 - 75, y1 + 200)
 
                 for entity in ent.entity_list:
@@ -559,7 +556,7 @@ def opengl_overlay():
                             center = width / -2
                             ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
                             ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 255.0, 0.0))
-                            
+
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
                             ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 255.0, 0.0))
@@ -568,11 +565,11 @@ def opengl_overlay():
                     elif class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
                         c4_pos = ent.get_position(entity[1])
                         w2s_c4_pos = w2s(c4_pos, view_matrix)
-                        
+
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
                         ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (255.0, 255.0, 0.0))
-                        
+
                 if dpg.get_value('c_sniper_crosshair'):
                     if h.weapon_sniper(lp.active_weapon()):
                         ov.draw_lines(x1, y1, 1, (255.0, 0.0, 0.0))
@@ -580,8 +577,8 @@ def opengl_overlay():
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() > 1:
-                        dx = (c[2] + 1) / lp.get_fov()
-                        dy = (c[3] + 1) / lp.get_fov()
+                        dx = c[2] / lp.get_fov()
+                        dy = c[3] / lp.get_fov()
                         crosshair_x = x1 - dx * punch_angle.y
                         crosshair_y = y1 - dy * punch_angle.x
                         if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
@@ -616,13 +613,11 @@ def main():
         threading.Thread(target=fov_changer, name='fov_changer', daemon=True).start()
         threading.Thread(target=fake_lag, name='fake_lag', daemon=True).start()
         threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound', daemon=True).start()
-        threading.Thread(target=spectator_list, name='spectator_list', daemon=True).start()
         threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
         threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
         threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
         threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
         threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
-        
         dpg.start_dearpygui()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
