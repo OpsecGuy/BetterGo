@@ -5,7 +5,7 @@ import os, time, threading, winsound, ctypes, win32process, win32api, win32con, 
 try:
     kernel32 = ctypes.WinDLL('kernel32.dll')
     ntdll = ctypes.WinDLL('ntdll.dll')
-    
+
     game_handle = Pymem('csgo.exe')
     client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
     client_dll_size = process.module_from_name(game_handle.process_handle, 'client.dll').SizeOfImage
@@ -20,7 +20,6 @@ class Memory:
     client_dll: process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
     client_dll_size: process.module_from_name(game_handle.process_handle, 'client.dll').SizeOfImage
     engine_dll: process.module_from_name(game_handle.process_handle, 'engine.dll').lpBaseOfDll
-
 
 def get_sig(module_name, _pattern, extra = 0, offset = 0, relative = True, deref = False):
     module = process.module_from_name(game_handle.process_handle, module_name)

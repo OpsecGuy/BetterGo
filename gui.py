@@ -59,13 +59,14 @@ class GUI(Config):
                 dpg.add_separator()
 
             with dpg.collapsing_header(label='Overlay', tag='overlay_header'):
-                dpg.add_checkbox(label='Box ESP', tag='c_box_esp')
+                dpg.add_checkbox(label='Box ESP + HP Text', tag='c_box_esp')
                 dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
                 dpg.add_checkbox(label='Head Indicator', tag='c_head_indicator')
                 dpg.add_checkbox(label='Bomb Indicator', tag='c_bomb_indicator')
                 dpg.add_checkbox(label='Grenade Trajectory', tag='c_gre_line')
                 dpg.add_checkbox(label='Sniper Crosshair', tag='c_sniper_crosshair')
                 dpg.add_checkbox(label='Recoil Crosshair', tag='c_recoil_crosshair')
+                dpg.add_combo(label='Crosshair Style', items=['Crosshair', 'Circle'], default_value='Crosshair', width=215, tag='c_recoil_crosshair_mode')
                 dpg.add_separator()
 
             with dpg.collapsing_header(label='Misc', tag='misc_header'):
@@ -77,6 +78,7 @@ class GUI(Config):
                 dpg.add_checkbox(label='Auto Strafer', tag='c_strafer')
                 dpg.add_checkbox(label='Auto Zeus', tag='c_zeus')
                 dpg.add_checkbox(label='Knife Bot', tag='c_knifebot')
+                dpg.add_checkbox(label='Spectator Alert', tag='c_spec_alert')
                 dpg.add_checkbox(label='No Smoke', tag='c_nosmoke')
                 dpg.add_checkbox(label='Show FPS', tag='c_fps')
                 dpg.add_checkbox(label='Chat Spam (?)', tag='c_chat')
@@ -89,19 +91,16 @@ class GUI(Config):
                 dpg.add_input_text(label='Config name', default_value='default_config', width=140, tag='i_config_name')
                 dpg.add_button(label='Create', width=160, height=25, callback=lambda: self.create_config(), tag='b_create_config')
                 dpg.add_combo(label='Select Config', items=tuple(self.config.get_config_list()), width=215, tag='c_config_list')
-                dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
-                dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
-
-            # with dpg.drawlist(100, 100, tag='draw_list_1'):
-            #     dpg.draw_line([0.0, 1.0], [50.0, 50.0])
-            #     dpg.draw_text([50.0, 50.0], 'lololo')
+                
+                with dpg.group(horizontal=True):
+                    dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
+                    dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
             
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='b_unload')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
-            dpg.add_text('Version: 1.5.5')
+            dpg.add_text('Version: 1.5.6')
             dpg.add_text('Functions marked by (?)\nmay lower your trust factor', color=(255, 0, 0, 255))
-
 
         with dpg.window(label='Player info', tag='w_players_dump', show=False, autosize=True):
             with dpg.group(horizontal=True):
@@ -130,6 +129,7 @@ class GUI(Config):
                 dpg.hide_item('c_esp_team') if dpg.get_value('c_esp') == False else dpg.show_item('c_esp_team')
                 dpg.hide_item('e_esp_enemy') if dpg.get_value('c_esp') == False else dpg.show_item('e_esp_enemy')
                 dpg.hide_item('e_esp_team') if dpg.get_value('c_esp') == False else dpg.show_item('e_esp_team')
+                dpg.hide_item('c_recoil_crosshair_mode') if dpg.get_value('c_recoil_crosshair') == False else dpg.show_item('c_recoil_crosshair_mode')
                 dpg.hide_item('c_esp_health') if dpg.get_value('c_esp') == False else dpg.show_item('c_esp_health')
                 dpg.hide_item('s_noflash_str') if dpg.get_value('c_noflash') == False else dpg.show_item('s_noflash_str')
                 dpg.hide_item('k_autopistol') if dpg.get_value('c_autopistol') == False else dpg.show_item('k_autopistol')
@@ -161,8 +161,6 @@ class GUI(Config):
             path_to_config = (f'{self.config.get_cfg_dir}\\'+ f'{config_file}')
             with open(f'{path_to_config}', 'r+') as f:
                 content = json.load(f)
-                # os.system('cls')
-                # print(path_to_config, '\n', content)
                 # save new values
                 content['aimbot']['switch'] = dpg.get_value('c_aimbot')
                 content['aimbot']['key'] = dpg.get_value('k_aimbot')
@@ -198,6 +196,7 @@ class GUI(Config):
                 content['overlay']['grenade_traces'] = dpg.get_value('c_gre_line')
                 content['overlay']['sniper_crosshair'] = dpg.get_value('c_sniper_crosshair')
                 content['overlay']['recoil_crosshair'] = dpg.get_value('c_recoil_crosshair')
+                content['overlay']['crosshair_style'] = dpg.get_value('c_recoil_crosshair_mode')
 
                 content['misc']['auto_pistol'] = dpg.get_value('c_autopistol')
                 content['misc']['auto_pistol_key'] = dpg.get_value('k_autopistol')
@@ -208,6 +207,7 @@ class GUI(Config):
                 content['misc']['auto_zeus'] = dpg.get_value('c_zeus')
                 content['misc']['knife_bot'] = dpg.get_value('c_knifebot')
                 content['misc']['no_smoke'] = dpg.get_value('c_nosmoke')
+                content['misc']['spec_alert'] = dpg.get_value('c_spec_alert')
                 content['misc']['show_fps'] = dpg.get_value('c_fps')
                 content['misc']['fake_lag'] = dpg.get_value('c_fakelag')
                 content['misc']['lag_strength'] = dpg.get_value('s_fakelag_str')
@@ -234,7 +234,7 @@ class GUI(Config):
 
             dpg.set_value('c_rcs', self.config.read_value(config_name, 'standalone_rcs','switch'))
             if self.config.read_value(config_name, 'standalone_rcs','strength') <= dpg.get_item_configuration('s_rcs_str')['max_value']: dpg.set_value('s_rcs_str', self.config.read_value(config_name, 'standalone_rcs','strength'))
-            if self.config.read_value(config_name, 'standalone_rcs','min_bullets') <= dpg.get_item_configuration('s_rcs_min_bullets')['max_value']: dpg.set_value('s_rcs_str', self.config.read_value(config_name, 'standalone_rcs','min_bullets'))
+            if self.config.read_value(config_name, 'standalone_rcs','min_bullets') <= dpg.get_item_configuration('s_rcs_min_bullets')['max_value']: dpg.set_value('s_rcs_min_bullets', self.config.read_value(config_name, 'standalone_rcs','min_bullets'))
 
             dpg.set_value('c_tbot', self.config.read_value(config_name, 'triggerbot','switch'))
             dpg.set_value('k_tbot', self.config.read_value(config_name, 'triggerbot','key'))
@@ -259,6 +259,7 @@ class GUI(Config):
             dpg.set_value('c_gre_line', self.config.read_value(config_name, 'overlay','grenade_traces'))
             dpg.set_value('c_sniper_crosshair', self.config.read_value(config_name, 'overlay','sniper_crosshair'))
             dpg.set_value('c_recoil_crosshair', self.config.read_value(config_name, 'overlay','recoil_crosshair'))
+            dpg.set_value('c_recoil_crosshair_mode', self.config.read_value(config_name, 'overlay','crosshair_style'))
 
             dpg.set_value('c_autopistol', self.config.read_value(config_name, 'misc','auto_pistol'))
             dpg.set_value('k_autopistol', self.config.read_value(config_name, 'misc','auto_pistol_key'))
@@ -268,6 +269,7 @@ class GUI(Config):
             dpg.set_value('c_strafer', self.config.read_value(config_name, 'misc','auto_strafe'))
             dpg.set_value('c_zeus', self.config.read_value(config_name, 'misc','auto_zeus'))
             dpg.set_value('c_knifebot', self.config.read_value(config_name, 'misc','knife_bot'))
+            dpg.set_value('c_spec_alert', self.config.read_value(config_name, 'misc', 'spec_alert'))
             dpg.set_value('c_nosmoke', self.config.read_value(config_name, 'misc','no_smoke'))
             dpg.set_value('c_fps', self.config.read_value(config_name, 'misc','show_fps'))
             dpg.set_value('c_fakelag', self.config.read_value(config_name, 'misc','fake_lag'))

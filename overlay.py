@@ -1,86 +1,86 @@
-from OpenGL.GL import glPushAttrib, glMatrixMode, glLoadIdentity, glOrtho, glDisable, glEnable, glBlendFunc, glClear, \
-    glLineWidth, glBegin, glColor4f, glVertex2f, glEnd, glPointSize, GL_ALL_ATTRIB_BITS, GL_PROJECTION, GL_DEPTH_TEST, \
-    GL_TEXTURE_2D, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT, GL_LINE_LOOP, GL_POINTS, GL_LINES, \
-    glGenTextures, glBindTexture, GL_TEXTURE_MIN_FILTER, GL_LINEAR, GL_CLAMP, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, \
-    GL_TEXTURE_MAG_FILTER, GL_RGBA, GL_UNSIGNED_BYTE, glTexParameteri, glTexImage2D, glRasterPos2f, glFlush, glRasterPos3f, GL_MODELVIEW
-
-from glfw import init, window_hint, create_window, set_input_mode, make_context_current, swap_interval, swap_buffers, \
-    poll_events, set_window_should_close, window_should_close, destroy_window, FLOATING, DECORATED, RESIZABLE, \
-    TRANSPARENT_FRAMEBUFFER, SAMPLES, CURSOR, CURSOR_DISABLED
+import OpenGL.GL as gl
+import OpenGL.GLUT as glut
+import glfw
 
 from win32con import WS_EX_LAYERED, GWL_EXSTYLE, WS_EX_TRANSPARENT
-from win32gui import FindWindow, GetWindowLong, SetWindowLong
+from win32gui import FindWindow, GetWindowLong, SetWindowLong, GetWindowRect, GetForegroundWindow, GetWindowText
 from math import tan, cos, pi
 from helper import ScreenSize, Vector3
-from memory import kernel32, win32gui
-import OpenGL.GLUT as glut
+from memory import kernel32
 
 class Overlay():
-    def __init__(self, target='Counter-Strike: Global Offensive - Direct3D 9'):
-        # init glfw
-        self.overlay_state = True
-        init()
-        glut.glutInit()
-        # set window hints
-        window_hint(FLOATING, True)
-        window_hint(DECORATED, False)
-        window_hint(RESIZABLE, False)
-        window_hint(TRANSPARENT_FRAMEBUFFER, True)
-        window_hint(SAMPLES, 8)
+    def __init__(self):
+        self.csgo_window_title = 'Counter-Strike: Global Offensive - Direct3D 9'
+        # Initialize GLFW and GLUT
+        if not glfw.init() or not glut.glutInit():
+            return
 
-        if target == 'Counter-Strike: Global Offensive - Direct3D 9':
-            self.window = create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:='Overlay', None, None)
-            
-            set_input_mode(self.window, CURSOR, CURSOR_DISABLED)
-            make_context_current(self.window)
-            swap_interval(1)
-            
-            # set window attributes
-            glPushAttrib(GL_ALL_ATTRIB_BITS)
-            glMatrixMode(GL_PROJECTION)
-            glLoadIdentity()
-            glOrtho(0, ScreenSize.x - 1, 0, ScreenSize.y - 1, -1, 1)
-            glDisable(GL_DEPTH_TEST)
-            glDisable(GL_TEXTURE_2D)
-            glEnable(GL_BLEND)
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            # get handle to created window
-            self.handle = FindWindow(None, title)
-            self.game_window = FindWindow(None, 'Counter-Strike: Global Offensive - Direct3D 9')
-            # self.game_window_size = win32gui.GetClientRect(self.game_window)
-            # print(self.game_window_size)
-            # make window transparent
-            exstyle = GetWindowLong(self.handle, GWL_EXSTYLE)
-            exstyle |= WS_EX_LAYERED
-            exstyle |= WS_EX_TRANSPARENT
-            SetWindowLong(self.handle, GWL_EXSTYLE, exstyle)
-            SetWindowLong(self.handle, GWL_EXSTYLE,
-                                exstyle | WS_EX_LAYERED)
+        self.overlay_state = True
+
+        # Window hints - set before creating a window
+        glfw.window_hint(glfw.FLOATING, True)
+        glfw.window_hint(glfw.DECORATED, False)
+        glfw.window_hint(glfw.RESIZABLE, False)
+        glfw.window_hint(glfw.TRANSPARENT_FRAMEBUFFER, True)
+        glfw.window_hint(glfw.SAMPLES, 2)
+
+        self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:='BG_Overlay', None, None)
+        # get handle to created window
+        self.handle = FindWindow(None, title)
+
+        glfw.set_input_mode(self.window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+        glfw.make_context_current(self.window)
+        glfw.swap_interval(0)
+        
+        # set window attributes
+        gl.glPushAttrib(gl.GL_ALL_ATTRIB_BITS)
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
+        gl.glOrtho(0, ScreenSize.x - 1, 0, ScreenSize.y - 1, -1, 1)
+        gl.glDisable(gl.GL_DEPTH_TEST)
+        gl.glDisable(gl.GL_TEXTURE_2D)
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
+        # make window transparent
+        exstyle = GetWindowLong(self.window_handle(), GWL_EXSTYLE)
+        exstyle |= WS_EX_LAYERED
+        exstyle |= WS_EX_TRANSPARENT
+        SetWindowLong(self.window_handle(), GWL_EXSTYLE, exstyle)
+        SetWindowLong(self.window_handle(), GWL_EXSTYLE,
+                            exstyle | WS_EX_LAYERED)
 
     def close(self):
-        set_window_should_close(self.window, True)
-        if window_should_close(self.window) == 1:
+        glfw.set_window_should_close(self.window, True)
+        if glfw.window_should_close(self.window) == 1:
             self.overlay_state = False
-            destroy_window(self.window)
-            kernel32.CloseHandle(self.handle)
+            kernel32.CloseHandle(self.window_handle())
+            glfw.destroy_window(self.window)
+    
+    def window_focused(self):
+        return GetWindowText(GetForegroundWindow()) == self.csgo_window_title
+
+    def window_handle(self):
+        return FindWindow(None, 'BG_Overlay')
     
     def refresh(self):
-        swap_buffers(self.window)
-        glClear(GL_COLOR_BUFFER_BIT)
-        poll_events()
+        glfw.swap_buffers(self.window)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        glfw.poll_events()
+        gl.glFlush()
     
     def draw_empty_circle(self, cx: float, cy: float, r: float, points: int, color: Vector3):
-        glColor4f(*color, 255)
+        gl.glColor4f(*color, 1.0)
         theta = pi * 2 / float(points)
         tangetial_factor = tan(theta)
         radial_factor = cos(theta)
         x = r
         y = 0
-        glLineWidth(1)
-        glBegin(GL_LINE_LOOP)
+        gl.glLineWidth(1)
+        gl.glBegin(gl.GL_LINE_LOOP)
         
         for i in range(points):
-            glVertex2f(x + cx, y + cy)
+            gl.glVertex2f(x + cx, y + cy)
             tx = -y
             ty = x
 
@@ -89,58 +89,53 @@ class Overlay():
 
             x *= radial_factor
             y *= radial_factor
-        glEnd()
-        
+        gl.glEnd()
+
     def draw_filled_dot(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
-        glPointSize(line_width)
-        glBegin(GL_POINTS)
-        glColor4f(color[0], color[1], color[2], 255)
-        glVertex2f(start_point_x, start_point_y)
-        glEnd()
-        glFlush()
-        
+        gl.glPointSize(line_width)
+        gl.glBegin(gl.GL_POINTS)
+        gl.glColor4f(*color, 1.0)
+        gl.glVertex2f(start_point_x, start_point_y)
+        gl.glEnd()
+        gl.glFlush()
+
     def draw_line(self, start_point_x: float, start_point_y: float, end_point_x: float, end_point_y: float, line_width: float, color: Vector3):
-        glLineWidth(line_width)
-        glBegin(GL_LINES)
-        glColor4f(color[0], color[1], color[2], 255)
-        glVertex2f(start_point_x, start_point_y)
-        glVertex2f(end_point_x, end_point_y)
-        glEnd()
-        glFlush()
-        
-    def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float):
-        glLineWidth(line_width)
-        glBegin(GL_LINES)
-        glColor4f(255.0, 0.0, 155.0, 255.0)
-        glVertex2f(start_point_x, start_point_y + 5)
-        glVertex2f(start_point_x, start_point_y - 5)
-        glVertex2f(start_point_x - 5, start_point_y)
-        glVertex2f(start_point_x + 5, start_point_y)
-        glEnd()
-        glFlush()
-        
-    def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float):
-        glLineWidth(line_width)
-        glBegin(GL_LINE_LOOP)
-        glColor4f(0.0, 255.0, 0.0, 255.0)
-        glVertex2f(start_point_x, start_point_y)
-        glVertex2f(start_point_x + width, start_point_y)
-        glVertex2f(start_point_x + width, start_point_y + height)
-        glVertex2f(start_point_x, start_point_y + height)
-        glEnd()
-        glFlush()
+        gl.glLineWidth(line_width)
+        gl.glBegin(gl.GL_LINES)
+        gl.glColor4f(*color, 1.0)
+        gl.glVertex2f(start_point_x, start_point_y)
+        gl.glVertex2f(end_point_x, end_point_y)
+        gl.glEnd()
+
+    def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
+        gl.glLineWidth(line_width)
+        gl.glBegin(gl.GL_LINES)
+        gl.glColor4f(*color, 1.0)
+        gl.glVertex2f(start_point_x, start_point_y + 5)
+        gl.glVertex2f(start_point_x, start_point_y - 5)
+        gl.glVertex2f(start_point_x - 5, start_point_y)
+        gl.glVertex2f(start_point_x + 5, start_point_y)
+        gl.glEnd()
+
+    def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float, color: Vector3):
+        gl.glLineWidth(line_width)
+        gl.glBegin(gl.GL_LINE_LOOP)
+        gl.glColor4f(*color, 1.0)
+        gl.glVertex2f(start_point_x, start_point_y)
+        gl.glVertex2f(start_point_x + width, start_point_y)
+        gl.glVertex2f(start_point_x + width, start_point_y + height)
+        gl.glVertex2f(start_point_x, start_point_y + height)
+        gl.glEnd()
 
     def draw_text(self, text: str, x: int, y: int, font=glut.GLUT_BITMAP_9_BY_15):
-        glColor4f(0.0, 1.0, 0.0, 255.0)
+        gl.glRasterPos2f(x, y)
+        gl.glColor4f(0.0, 1.0, 0.0, 1.0)
         lines = text.split("\n")
         line_height = 24
-
+        
         for i, line in enumerate(lines):
             y = y - i * line_height / 1.2
-            z = 0
-            glRasterPos3f(x, y, z)
 
             for c in line:
                 glut.glutBitmapCharacter(font, ord(c))
 
-        glFlush()

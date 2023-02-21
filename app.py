@@ -8,15 +8,17 @@ from helper import *
 from convar import *
 from overlay import *
 
+DEBUG_MODE = True
+
 def entity_loop():
-    global window_name
-    window_name = win32gui.GetWindowText(win32gui.GetForegroundWindow())
     while True:
         try:
-            if ent.in_game() and window_name:
+            if ent.in_game() and ov.window_focused():
                 ent.entity_loop()
                 ent.glow_objects_loop()
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(entity_loop.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -92,7 +94,9 @@ def glow_esp():
                             game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
                             
         except Exception as err:
-           pass
+            if DEBUG_MODE == True:
+                print(glow_esp.__name__, err)
+            pass
         time.sleep(0.001)
 
 def aimbot():
@@ -100,7 +104,7 @@ def aimbot():
     fov = 0
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game() and ent.get_health(lp.local_player()) > 1:
+            if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_aimbot')) and dpg.get_value('c_aimbot') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
                 best_angle = Vector3(0.0, 0.0, 0.0)
                 best_fov = dpg.get_value('s_aimbot_fov')
                 local_origin = ent.get_position(lp.local_player())
@@ -143,6 +147,8 @@ def aimbot():
                                         ))
                                                
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(aimbot.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -168,17 +174,21 @@ def rcs(key: int):
                 else:
                     old_angle.x = old_angle.y = 0.0
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(rcs.__name__, err)
             pass
         time.sleep(0.01)
 
 def auto_pistol():
     while True:
         try:
-            if dpg.get_value('c_autopistol') and ent.in_game() and window_name:
+            if dpg.get_value('c_autopistol') and ent.in_game() and ov.window_focused():
                 if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):    
                     lp.force_attack(6)
                     time.sleep(0.02)
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(auto_pistol.__name__, err)
             pass
         time.sleep(0.01)
 
@@ -186,7 +196,7 @@ def trigger_bot():
     entity = 0
     while True:
         try:
-            if ent.in_game() and window_name:
+            if ent.in_game() and ov.window_focused() and ent.get_health(lp.local_player()) > 0:
                 crosshair = lp.get_crosshair_id()
                 entity = lp.get_entity_by_crosshair()
                 if crosshair == 0 or entity == 0:
@@ -219,19 +229,24 @@ def trigger_bot():
                                 lp.force_attack(6)
 
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(trigger_bot.__name__, err)
             pass
         time.sleep(0.01)
 
 def bunny_hop():
     while True:
         try:
-            if dpg.get_value('c_bh') and lp.get_current_state() == 5:
-                while ctypes.windll.user32.GetAsyncKeyState(0x20):
-                    if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
-                        lp.force_jump(5)
-                    else:
-                        lp.force_jump(4)
+            if dpg.get_value('c_bh'):
+                if lp.get_current_state() == 5:
+                    while ctypes.windll.user32.GetAsyncKeyState(0x20):
+                        if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
+                            lp.force_jump(5)
+                        else:
+                            lp.force_jump(4)
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(bunny_hop.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -239,8 +254,8 @@ def auto_strafer():
     old_view_angle = Vector3(0.0, 0.0, 0.0)
     while True:
         try:
-            if ctypes.windll.user32.GetAsyncKeyState(0x20) and dpg.get_value('c_bh') and dpg.get_value('c_strafer'):
-                if ent.get_flag(lp.local_player()) != 257 and lp.get_move_type() != 9: # 9 - player on ladder
+            if dpg.get_value('c_bh') and dpg.get_value('c_strafer'):
+                if ctypes.windll.user32.GetAsyncKeyState(0x20) and ent.get_flag(lp.local_player()) != 257 and lp.get_move_type() != 9: # 9 - player on ladder
                     current_angle = ent.get_view_angle()
                     if current_angle.y > old_view_angle.y:
                         lp.force_left(6)
@@ -248,8 +263,10 @@ def auto_strafer():
                         lp.force_right(6)
                     old_view_angle = current_angle
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(auto_strafer.__name__, err)
             pass
-        time.sleep(0.001)
+        time.sleep(0.01)
 
 def radar_hack():
     while True:
@@ -259,6 +276,8 @@ def radar_hack():
                     if entity[2] == 40:
                         ent.set_spotted(entity[1], True)
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(radar_hack.__name__, err)
             pass
         time.sleep(0.1)
 
@@ -273,6 +292,8 @@ def no_flash():
             elif dpg.get_value('c_noflash') == False and temp != 255.0:
                 lp.set_flashbang_alpha(255.0)
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(no_flash.__name__, err)
             pass
         time.sleep(0.1)
 
@@ -284,6 +305,8 @@ def no_smoke():
                     if glow_object[2] == 157:
                         ent.set_position(glow_object[1], Vector3(0.0, 0.0, 0.0))
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(no_smoke.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -296,6 +319,8 @@ def fov_changer():
                     lp.set_fov(dpg.get_value('s_fov'))
                     temp = dpg.get_value('s_fov')
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(fov_changer.__name__, err)
             pass
         time.sleep(0.1)
 
@@ -307,6 +332,8 @@ def fake_lag():
                 time.sleep(dpg.get_value('s_fakelag_str'))
                 lp.send_packets(True)
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(fake_lag.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -321,6 +348,8 @@ def hit_sound(file_name: str):
                         winsound.PlaySound(file_name, winsound.SND_ASYNC)
                     shots_count = shots_fired
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(hit_sound.__name__, err)
             pass
         time.sleep(0.01)
 
@@ -330,30 +359,33 @@ def spectator_list():
         try:
             spectators.clear()
             if ent.in_game():
-                    if ent.get_health(lp.local_player()) <= 0:
-                        spectators.clear()
+                if ent.get_health(lp.local_player()) <= 0:
+                    spectators.clear()
 
-                    for entity in ent.entity_list:
-                        if entity[2] == 40:
-                            player_name = ent.get_name(entity[0])
-                            if player_name == None or player_name == 'GOTV':
-                                continue
+                for entity in ent.entity_list:
+                    if entity[2] == 40:
+                        player_name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
+                        
+                        if player_name == None or player_name == 'GOTV':
+                            continue
 
-                            if ent.get_team(entity[1]) == ent.get_team(lp.local_player()):
-                                observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
-                                spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
-                                
-                                if spectated == lp.local_player():
-                                    spectators.append(ent.get_name(entity[0]))
+                        if ent.get_team(entity[1]) == ent.get_team(lp.local_player()):
+                            observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
+                            spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
+                            
+                            if spectated == lp.local_player():
+                                spectators.append(player_name)
                 
-                    if len(spectators) > 0:
-                        format = '\n'.join(spectators)
-                        dpg.set_value('spectator_list', format)
-            else:
-                dpg.set_value('spectator_list', '')
+                if len(spectators) > 0:
+                    return 'You are spectated'
+                else:
+                    return ''
+
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(hit_sound.__name__, err)
             pass
-        time.sleep(0.2)
+        time.sleep(0.1)
 
 def player_infos():
     while True:
@@ -372,6 +404,8 @@ def player_infos():
                 dpg.set_value('buffer_rank','\n'.join([i[2] for i in h.player_info_buffer]))
                 h.player_info_buffer.clear()
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(player_infos.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -390,6 +424,8 @@ def night_mode():
                             temp = dpg.get_value('s_night_str')
 
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(night_mode.__name__, err)
             pass
         time.sleep(0.01)
 
@@ -414,13 +450,14 @@ def chat_spam():
                 last_cmd_chat = current_cmd
 
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(chat_spam.__name__, err)
             pass
         time.sleep(1)
 
 def exit():
     try:
         print('Exiting...')
-        overlay.close()
         lp.send_packets(True)
         if last_cmd_chat != '':
             free_chat_vmem
@@ -431,9 +468,12 @@ def exit():
         lp.set_fov(90)
         lp.set_flashbang_alpha(255.0)
         ent.force_update()
+        ov.close()
         dpg.destroy_context()
         process.close_handle(game_handle.process_handle)
     except exception.MemoryWriteError as err:
+        if DEBUG_MODE == True:
+            print(exit.__name__, err)
         pass
     os._exit(0)
 
@@ -473,24 +513,31 @@ def convar_handler():
                     sky_name.set_string(sky_state)
                     _temp3 = sky_state
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(convar_handler.__name__, err)
             pass
         time.sleep(0.01)
 
 def opengl_overlay():
-    global overlay
-    overlay = Overlay()
-    
-    # TO:DO Get window size instead
-    x1 = (ScreenSize.x / 2) + 1
-    y1 = (ScreenSize.y / 2) + 1
-    dx = (ScreenSize.x + 1) / lp.get_fov()
-    dy = (ScreenSize.y + 1) / lp.get_fov()
+    global ov
+    ov = Overlay()
+    c = GetWindowRect(ov.window_handle())
+
+    x1 = (c[2] / 2) + 1
+    y1 = (c[3] / 2) + 1
+    dx = (c[2] + 1) / lp.get_fov()
+    dy = (c[3] + 1) / lp.get_fov()
     
     while True:
         try:
-            if ent.in_game() and window_name:
+            ov.draw_text(f'github.com/OpsecGuy', 420, 20)
+
+            if ent.in_game() and ov.window_focused():
                 view_matrix = ent.view_matrix()
-                overlay.draw_text(f'github.com/OpsecGuy', 50, 100)
+
+                if dpg.get_value('c_spec_alert') and ent.get_health(lp.local_player()) > 0:
+                    ov.draw_text(f'{spectator_list()}', x1 - 75, y1 + 200)
+
                 for entity in ent.entity_list:
                     if entity[2] == 40:
                         if entity[1] == lp.local_player() or ent.get_team(lp.local_player()) == ent.get_team(entity[1]):
@@ -501,25 +548,24 @@ def opengl_overlay():
                         entity_position = ent.get_position(entity[1])
                         w2s_position = w2s(Vector3(entity_position.x, entity_position.y, entity_position.z), view_matrix)
                         bone_head = w2s(ent.get_bone_position(entity[1], 8), view_matrix)
+
                         if w2s_position is None or bone_head is None:
                             continue
+
                         # line from local_player to entity
                         if dpg.get_value('c_snaplines'):
-                            if w2s_position is None:
-                                continue
-                            overlay.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0, 255, 0))
+                            ov.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0, 255, 0))
 
-                        if dpg.get_value('c_box_esp') :
-                            if w2s_position is None or bone_head is None:
-                                continue
+                        if dpg.get_value('c_box_esp'):
                             head = bone_head[1] - w2s_position[1]
                             width = head / 2
                             center = width / -2
-                            overlay.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2)
+                            ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
+                            ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 255.0, 0.0))
                             
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
-                            overlay.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 255.0, 0.0))
+                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 255.0, 0.0))
 
                     # bomb indicator
                     elif class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
@@ -528,22 +574,26 @@ def opengl_overlay():
                         
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
-                        overlay.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (255.0, 255.0, 0.0))
+                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (255.0, 255.0, 0.0))
                         
                 if dpg.get_value('c_sniper_crosshair'):
                     if h.weapon_sniper(lp.active_weapon()):
-                        overlay.draw_lines(x1, y1, 1)
+                        ov.draw_lines(x1, y1, 1, (255.0, 0.0, 0.0))
 
-                # recoil crosshair
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() > 1:
                         crosshair_x = x1 - dx * punch_angle.y
                         crosshair_y = y1 - dy * punch_angle.x
-                        overlay.draw_lines(crosshair_x, crosshair_y, 1)
+                        if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
+                            ov.draw_lines(crosshair_x, crosshair_y, 1, (255.0, 0.0, 0.0))
+                        elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
+                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (255.0, 255.0, 0.0))
                         
-            overlay.refresh()
+            ov.refresh()
         except Exception as err:
+            if DEBUG_MODE == True:
+                print(opengl_overlay.__name__, err)
             pass
         time.sleep(0.001)
 
@@ -551,8 +601,9 @@ def main():
     try:
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
-        threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
         threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
+        time.sleep(0.5)
+        threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
         threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
         threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
         threading.Thread(target=rcs, args=[0x01], name='rcs', daemon=True).start()
@@ -580,6 +631,7 @@ def main():
 
 if __name__ == '__main__':
     try:
+        print(f'Debug: {DEBUG_MODE}')
         mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
         lp = LocalPlayer(mem)
         ent = Entity(mem)
