@@ -43,18 +43,19 @@ class Overlay():
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
         # make window transparent
-        exstyle = GetWindowLong(self.window_handle(), GWL_EXSTYLE)
+        self.overlay_handle = self.window_handle()
+        exstyle = GetWindowLong(self.overlay_handle, GWL_EXSTYLE)
         exstyle |= WS_EX_LAYERED
         exstyle |= WS_EX_TRANSPARENT
-        SetWindowLong(self.window_handle(), GWL_EXSTYLE, exstyle)
-        SetWindowLong(self.window_handle(), GWL_EXSTYLE,
+        SetWindowLong(self.overlay_handle, GWL_EXSTYLE, exstyle)
+        SetWindowLong(self.overlay_handle, GWL_EXSTYLE,
                             exstyle | WS_EX_LAYERED)
 
     def close(self):
         glfw.set_window_should_close(self.window, True)
         if glfw.window_should_close(self.window) == 1:
             self.overlay_state = False
-            kernel32.CloseHandle(self.window_handle())
+            kernel32.CloseHandle(self.overlay_handle)
             glfw.destroy_window(self.window)
     
     def window_focused(self):

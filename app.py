@@ -13,7 +13,7 @@ DEBUG_MODE = True
 def entity_loop():
     while True:
         try:
-            if ent.in_game() and ov.window_focused():
+            if ent.in_game():
                 ent.entity_loop()
                 ent.glow_objects_loop()
         except Exception as err:
@@ -40,7 +40,7 @@ def glow_esp():
                                 continue
                             if ent.get_dormant(entity[1]) == True and ent.get_health(entity[1]) > 0:
                                 continue
-                            
+
                             if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
                                 # 02 - 05 color 13 -Occluded 14 - Unoccluded 15 - FullBloomRender 16 - RenderStyle 17 - SplitScreenSlot
                                 var[2] = c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
@@ -521,7 +521,7 @@ def convar_handler():
 def opengl_overlay():
     global ov
     ov = Overlay()
-    c = GetWindowRect(ov.window_handle())
+    c = GetWindowRect(ov.overlay_handle)
 
     x1 = (c[2] / 2) + 1
     y1 = (c[3] / 2) + 1
