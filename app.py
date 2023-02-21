@@ -522,11 +522,8 @@ def opengl_overlay():
     global ov
     ov = Overlay()
     c = GetWindowRect(FindWindow(None, ov.csgo_window_title))
-
     x1 = (c[2] / 2) + 1
     y1 = (c[3] / 2) + 1
-    dx = (c[2] + 1) / lp.get_fov()
-    dy = (c[3] + 1) / lp.get_fov()
     
     while True:
         try:
@@ -583,6 +580,8 @@ def opengl_overlay():
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() > 1:
+                        dx = (c[2] + 1) / lp.get_fov()
+                        dy = (c[3] + 1) / lp.get_fov()
                         crosshair_x = x1 - dx * punch_angle.y
                         crosshair_y = y1 - dy * punch_angle.x
                         if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
