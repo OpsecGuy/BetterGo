@@ -15,7 +15,7 @@ External CS:GO cheat written in Python(3.11).
 
 ## Make sure to:
 - Run game in 'Fullscreen Windowed' mode in video settings in order to use Overlay functions.
-- Place glfw.dll in the same folder where cheat is.
+- Place glfw.dll in the same folder where cheat is located.
 
 ## In game
 ![This is an image](https://i.imgur.com/VlAsuOp.png)
