@@ -38,7 +38,7 @@ def glow_esp():
                         if entity[2] == 40:
                             if lp.local_player() == entity[1]:
                                 continue
-                            if ent.get_dormant(entity[1]) == True and ent.get_health(entity[1]) > 0:
+                            if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
                                 continue
 
                             if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
@@ -133,6 +133,7 @@ def aimbot():
                                 view_angle.z + aim_punch.z * 2.0)
                         
                         angle = calculate_angle(local_eye_pos, bone_matrix, current_view_angle)
+                        
                         fov = hypot(angle.x, angle.y)
                         
                         fixed_angle = clamp_angle(normalize_angle(angle))
@@ -182,7 +183,7 @@ def rcs(key: int):
 def auto_pistol():
     while True:
         try:
-            if dpg.get_value('c_autopistol') and ent.get_health(lp.local_player()) > 0 and ov.window_focused():
+            if dpg.get_value('c_autopistol') and ent.in_game() and ov.window_focused() and ent.get_health(lp.local_player()) > 0:
                 if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_autopistol')) and weapon_pistol(lp.active_weapon()):    
                     lp.force_attack(6)
                     time.sleep(0.02)
@@ -196,7 +197,7 @@ def trigger_bot():
     entity = 0
     while True:
         try:
-            if ov.window_focused() and ent.get_health(lp.local_player()) > 0:
+            if ov.window_focused() and ent.in_game() and ent.get_health(lp.local_player()) > 0:
                 crosshair = lp.get_crosshair_id()
                 entity = lp.get_entity_by_crosshair()
                 if crosshair == 0 or entity == 0:
@@ -429,21 +430,28 @@ def night_mode():
 def chat_spam():
     global last_cmd_chat, free_chat_vmem, close_chat_handle
     last_cmd_chat = ''
+    mem_free = False
     while True:
         try:
             if dpg.get_value('c_chat') and ent.in_game():
                 current_cmd = f'say {dpg.get_value("i_chat")}'.encode('ascii')
-                
-                if current_cmd != last_cmd_chat:
-                    if last_cmd_chat != '':
-                        free_chat_vmem = kernel32.VirtualFreeEx(game_handle.process_handle, vchat_spam_buffer, sys.getsizeof(current_cmd) + 1, win32con.MEM_RELEASE)
-                        close_chat_handle = kernel32.CloseHandle(thread_handle)
-                    vchat_spam_buffer = kernel32.VirtualAllocEx(game_handle.process_handle, 0, sys.getsizeof(current_cmd) + 1, 0x00001000 | 0x00002000, win32con.PAGE_READWRITE)
+                if ent.get_team(lp.local_player()) not in [2, 3]:
+                    continue
 
-                kernel32.WriteProcessMemory(game_handle.process_handle, vchat_spam_buffer, current_cmd, sys.getsizeof(current_cmd), 0)
-                chat_spam_thread = win32process.CreateRemoteThread(game_handle.process_handle, None, 0, (engine_dll + offsets.Cmd_ExecuteCommand), vchat_spam_buffer, 0)
-                win32event.WaitForSingleObject(chat_spam_thread[0], 0)
-                thread_handle = int(str(chat_spam_thread[0]).removesuffix('>').split(':')[1])
+                if last_cmd_chat == 'say '.encode('ascii') and mem_free == False:
+                    free_chat_vmem = kernel32.VirtualFreeEx(game_handle.process_handle, vchat_spam_buffer, sys.getsizeof(current_cmd) + 1, win32con.MEM_RELEASE)
+                    close_chat_handle = kernel32.CloseHandle(thread_handle)
+                    mem_free = True
+                else:
+                    mem_free = False
+                    if current_cmd != last_cmd_chat and dpg.get_value('c_chat') != '':
+                        vchat_spam_buffer = kernel32.VirtualAllocEx(game_handle.process_handle, 0, sys.getsizeof(current_cmd) + 1, 0x00001000 | 0x00002000, win32con.PAGE_READWRITE)
+                    if mem_free == False:
+                        kernel32.WriteProcessMemory(game_handle.process_handle, vchat_spam_buffer, current_cmd, sys.getsizeof(current_cmd), 0)
+                        chat_spam_thread = win32process.CreateRemoteThread(game_handle.process_handle, None, 0, (engine_dll + offsets.Cmd_ExecuteCommand), vchat_spam_buffer, 0)
+                        win32event.WaitForSingleObject(chat_spam_thread[0], 0)
+                        thread_handle = int(str(chat_spam_thread[0]).removesuffix('>').split(':')[1])
+
                 last_cmd_chat = current_cmd
 
         except Exception as err:
@@ -466,7 +474,6 @@ def exit():
         lp.set_flashbang_alpha(255.0)
         ent.force_update()
         ov.close()
-        dpg.destroy_context()
         os._exit(0)
     except exception.MemoryWriteError as err:
         if DEBUG_MODE == True:
@@ -525,9 +532,7 @@ def opengl_overlay():
     while True:
         try:
             ov.draw_text(f'github.com/OpsecGuy', 420, 20)
-
             if ent.in_game():
-                view_matrix = ent.view_matrix()
 
                 if dpg.get_value('c_spec_alert'):
                     ov.draw_text(f'{spectator_list()}', x1 - 75, y1 + 200)
@@ -539,6 +544,7 @@ def opengl_overlay():
                         if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
                             continue
 
+                        view_matrix = ent.view_matrix()
                         entity_position = ent.get_position(entity[1])
                         w2s_position = w2s(Vector3(entity_position.x, entity_position.y, entity_position.z), view_matrix)
                         bone_head = w2s(ent.get_bone_position(entity[1], 8), view_matrix)
@@ -548,18 +554,18 @@ def opengl_overlay():
 
                         # line from local_player to entity
                         if dpg.get_value('c_snaplines'):
-                            ov.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0, 255, 0))
+                            ov.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0.0, 1.0, 0.0))
 
                         if dpg.get_value('c_box_esp'):
                             head = bone_head[1] - w2s_position[1]
                             width = head / 2
                             center = width / -2
                             ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
-                            ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 255.0, 0.0))
+                            ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 1.0, 0.0))
 
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
-                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 255.0, 0.0))
+                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 1.0, 0.0))
 
                     # bomb indicator
                     elif class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
@@ -568,11 +574,11 @@ def opengl_overlay():
 
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
-                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (255.0, 255.0, 0.0))
+                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
 
                 if dpg.get_value('c_sniper_crosshair'):
                     if h.weapon_sniper(lp.active_weapon()):
-                        ov.draw_lines(x1, y1, 1, (255.0, 0.0, 0.0))
+                        ov.draw_lines(x1, y1, 1, (1.0, 0.0, 0.0))
 
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
@@ -582,9 +588,9 @@ def opengl_overlay():
                         crosshair_x = x1 - dx * punch_angle.y
                         crosshair_y = y1 - dy * punch_angle.x
                         if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
-                            ov.draw_lines(crosshair_x, crosshair_y, 1, (255.0, 0.0, 0.0))
+                            ov.draw_lines(crosshair_x, crosshair_y, 1, (1.0, 0.0, 0.0))
                         elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
-                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (255.0, 255.0, 0.0))
+                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (1.0, 1.0, 0.0))
                         
             ov.refresh()
         except Exception as err:
@@ -598,27 +604,28 @@ def main():
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
         threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
-        time.sleep(0.5)
-        threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
-        threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
-        threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
-        threading.Thread(target=rcs, args=[0x01], name='rcs', daemon=True).start()
-        threading.Thread(target=auto_pistol, name='auto_pistol', daemon=True).start()
-        threading.Thread(target=trigger_bot, name='trigger_bot', daemon=True).start()
-        threading.Thread(target=bunny_hop, name='bunny_hop', daemon=True).start()
-        threading.Thread(target=auto_strafer, name='auto_strafer', daemon=True).start()
-        threading.Thread(target=radar_hack, name='radar_hack', daemon=True).start()
-        threading.Thread(target=no_flash, name='no_flash', daemon=True).start()
-        threading.Thread(target=no_smoke, name='no_smoke', daemon=True).start()
-        threading.Thread(target=fov_changer, name='fov_changer', daemon=True).start()
-        threading.Thread(target=fake_lag, name='fake_lag', daemon=True).start()
-        threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound', daemon=True).start()
-        threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
-        threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
-        threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
-        threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
-        threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
-        dpg.start_dearpygui()
+        time.sleep(1)
+        if ov.overlay_state == True:
+            threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
+            threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
+            threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
+            threading.Thread(target=rcs, args=[0x01], name='rcs', daemon=True).start()
+            threading.Thread(target=auto_pistol, name='auto_pistol', daemon=True).start()
+            threading.Thread(target=trigger_bot, name='trigger_bot', daemon=True).start()
+            threading.Thread(target=bunny_hop, name='bunny_hop', daemon=True).start()
+            threading.Thread(target=auto_strafer, name='auto_strafer', daemon=True).start()
+            threading.Thread(target=radar_hack, name='radar_hack', daemon=True).start()
+            threading.Thread(target=no_flash, name='no_flash', daemon=True).start()
+            threading.Thread(target=no_smoke, name='no_smoke', daemon=True).start()
+            threading.Thread(target=fov_changer, name='fov_changer', daemon=True).start()
+            threading.Thread(target=fake_lag, name='fake_lag', daemon=True).start()
+            threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound', daemon=True).start()
+            threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
+            threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
+            threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
+            threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
+            threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
+            dpg.start_dearpygui()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
         os._exit(0)
