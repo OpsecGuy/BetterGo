@@ -1,4 +1,4 @@
-import os, time, ctypes, win32process, win32con, win32event, win32gui, sys, struct, keyboard
+import os, time, ctypes, win32process, win32con, win32event, win32gui, sys, struct
 from pymem import Pymem, process, exception, pattern
 from dataclasses import dataclass
 from helper import get_hash_of

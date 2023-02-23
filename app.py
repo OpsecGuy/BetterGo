@@ -4,12 +4,10 @@ from memory import *
 from entity import *
 from local import *
 from gui import *
-from helper import *
 from convar import *
 from overlay import *
 import threading
 import winsound
-
 DEBUG_MODE = True
 
 def entity_loop():

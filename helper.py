@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from enum import IntEnum
+import hashlib, random
 from math import atan2, hypot, sqrt, pi
+from dataclasses import dataclass
 from memory import ctypes
-import hashlib
+from enum import IntEnum
 
 player_info_buffer = []
 
@@ -166,6 +166,13 @@ def get_hash_of(file_name: str):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+def get_random_string() -> None:
+    chars = ['A',
+    'B', 'C', 'D', 'E', 'F','G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'U', 'P', 'R', 'S', 'T', 'W', 'Y', 'Z',
+    'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'u', 'p', 'r', 's', 't', 'w', 'y', 'z',
+    '1','2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#', '$', '%', '^', '&', '&', '(', ')', '-', '_', '=', '+']
+    return ''.join(random.choice(chars) for _ in range(0, 15))
 
 sky_list =[
     'cs_tibet',

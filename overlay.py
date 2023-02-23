@@ -1,16 +1,17 @@
-import OpenGL.GL as gl
 import OpenGL.GLUT as glut
+import OpenGL.GL as gl
 import glfw
 
-from win32con import WS_EX_LAYERED, GWL_EXSTYLE, WS_EX_TRANSPARENT
 from win32gui import FindWindow, GetWindowLong, SetWindowLong, GetWindowRect, GetForegroundWindow, GetWindowText, GetActiveWindow
+from win32con import WS_EX_LAYERED, GWL_EXSTYLE, WS_EX_TRANSPARENT
+from helper import ScreenSize, Vector3, get_random_string
 from math import tan, cos, pi
-from helper import ScreenSize, Vector3
 from memory import kernel32
 
 class Overlay():
     def __init__(self):
         self.overlay_state = False
+        self.random_string = get_random_string()
         self.csgo_window_title = 'Counter-Strike: Global Offensive - Direct3D 9'
         # Initialize GLFW and GLUT
         if not glfw.init() or not glut.glutInit():
@@ -23,7 +24,7 @@ class Overlay():
         glfw.window_hint(glfw.TRANSPARENT_FRAMEBUFFER, True)
         glfw.window_hint(glfw.SAMPLES, 2)
 
-        self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:='BG_Overlay', None, None)
+        self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:=f'{self.random_string}', None, None)
         if not self.window:
             return
         # Get handle to the created window
