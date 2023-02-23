@@ -7,6 +7,8 @@ from gui import *
 from helper import *
 from convar import *
 from overlay import *
+import threading
+import winsound
 
 DEBUG_MODE = True
 

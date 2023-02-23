@@ -95,11 +95,11 @@ class GUI(Config):
                 with dpg.group(horizontal=True):
                     dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
                     dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
-            
+
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='b_unload')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
-            dpg.add_text('Version: 1.5.6')
+            dpg.add_text('Version: 1.5.7')
             dpg.add_text('Functions marked by (?)\nmay lower your trust factor', color=(255, 0, 0, 255))
 
         with dpg.window(label='Player info', tag='w_players_dump', show=False, autosize=True):

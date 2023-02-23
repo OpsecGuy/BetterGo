@@ -10,12 +10,11 @@ from memory import kernel32
 
 class Overlay():
     def __init__(self):
+        self.overlay_state = False
         self.csgo_window_title = 'Counter-Strike: Global Offensive - Direct3D 9'
         # Initialize GLFW and GLUT
         if not glfw.init() or not glut.glutInit():
             return
-
-        self.overlay_state = True
 
         # Window hints - set before creating a window
         glfw.window_hint(glfw.FLOATING, True)
@@ -25,6 +24,8 @@ class Overlay():
         glfw.window_hint(glfw.SAMPLES, 2)
 
         self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:='BG_Overlay', None, None)
+        if not self.window:
+            return
         # Get handle to the created window
         self.handle = FindWindow(None, title)
 
@@ -38,7 +39,7 @@ class Overlay():
         gl.glLoadIdentity()
         gl.glOrtho(0, ScreenSize.x - 1, 0, ScreenSize.y - 1, -1, 1)
         gl.glDisable(gl.GL_DEPTH_TEST)
-        gl.glDisable(gl.GL_TEXTURE_2D)
+        # gl.glDisable(gl.GL_TEXTURE_2D)
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
@@ -49,6 +50,8 @@ class Overlay():
         SetWindowLong(self.handle, GWL_EXSTYLE, exstyle)
         SetWindowLong(self.handle, GWL_EXSTYLE,
                             exstyle | WS_EX_LAYERED)
+        
+        self.overlay_state = True
 
     def close(self):
         glfw.set_window_should_close(self.window, True)
@@ -64,7 +67,7 @@ class Overlay():
         glfw.swap_buffers(self.window)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         glfw.poll_events()
-    
+
     def draw_empty_circle(self, cx: float, cy: float, r: float, points: int, color: Vector3):
         gl.glColor4f(*color, 1.0)
         theta = pi * 2 / float(points)
@@ -138,4 +141,5 @@ class Overlay():
 
             for c in line:
                 glut.glutBitmapCharacter(font, ord(c))
+        gl.glFlush()
 

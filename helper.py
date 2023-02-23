@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from enum import IntEnum
 from math import atan2, hypot, sqrt, pi
 from memory import ctypes
+import hashlib
 
 player_info_buffer = []
 
 config_example = {
     'aimbot': {
         'switch': False,
-        'key': 'MOUSE 5',
+        'key': 'LEFT MOUSE',
         'fov': 2.0,
         'smooth': 10.0,
         'bone': 'HEAD',
@@ -158,6 +159,13 @@ def w2s(pos: Vector3, matrix):
     _y = (ScreenSize.y / 2 * yy) + (yy + ScreenSize.y / 2)
 
     return [_x, _y]
+
+def get_hash_of(file_name: str):
+    hash_md5 = hashlib.md5()
+    with open(file_name, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 sky_list =[
     'cs_tibet',
