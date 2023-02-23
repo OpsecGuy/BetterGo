@@ -6,21 +6,19 @@ External CS:GO cheat written in Python(3.11).
 - GlowESP
 - Recoil Control System
 - TriggerBot
-- Knife Bot
 - Auto Pistol
 - BunnyHop
-- Hit Sound
 - Chat Spam
 - Pattern Scan
-- Convars handler
-- Overlay
+- OpenGL Overlay
 - Many more... :)
 
-## In game:
-![This is an image](https://i.imgur.com/cddlZVs.png)
-![This is an image](https://i.imgur.com/rpQSf0P.png)
-![This is an image](https://i.imgur.com/LNjuQ3n.png)
+## In game
 ![This is an image](https://i.imgur.com/VlAsuOp.png)
+
+## Make sure to:
+- Run game in 'Fullscreen Windowed' mode in video settings in order to use Overlay functions.
+- Place glfw.dll in the same folder where cheat is.
 
 ## Instruction
 - Please read video description
@@ -29,6 +27,7 @@ External CS:GO cheat written in Python(3.11).
 
 ## Contributors
 - [boris768](https://github.com/boris768/)
+- [AlexanderWayne](https://github.com/AlexanderWayne) - Tester
 
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-multihack-exe-source.html
