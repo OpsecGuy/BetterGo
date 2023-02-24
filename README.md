@@ -27,7 +27,7 @@ External CS:GO cheat written in Python(3.11).
 
 ## Contributors
 - [boris768](https://github.com/boris768/)
-- [AlexanderWayne](https://github.com/AlexanderWayne) - Tester
+- [AlexanderQueen](https://github.com/AlexanderQueen) - Tester
 
 ## UC Thread:
 ##### https://www.unknowncheats.me/forum/cs-go-releases/482499-python-external-multihack-exe-source.html
