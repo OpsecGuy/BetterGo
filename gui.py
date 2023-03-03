@@ -90,7 +90,7 @@ class GUI(Config):
                     dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
                     dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
             
-            dpg.add_checkbox(label='Safe Mode', tag='b_safe_mode')
+            dpg.add_checkbox(label='Safe Mode', tag='c_safe_mode')
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='b_unload')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
@@ -103,10 +103,9 @@ class GUI(Config):
                 dpg.add_text('', tag='buffer_wins')
                 dpg.add_text('', tag='buffer_rank')
         
-        with dpg.tooltip('b_safe_mode'):
-            dpg.add_text('Disables Glow/ Vis Check/ Chat Spam')
+        with dpg.tooltip(parent='c_safe_mode'):
+            dpg.add_text('Disables features that can cause red trust factor.')
 
-        dpg.add_text(default_value='asd', parent='b_safe_mode')
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.set_primary_window("w_main", True)
@@ -137,12 +136,17 @@ class GUI(Config):
                 dpg.hide_item('s_fakelag_str') if dpg.get_value('c_fakelag') == False else dpg.show_item('s_fakelag_str')
                 dpg.hide_item('s_night_str') if dpg.get_value('c_night') == False else dpg.show_item('s_night_str')
                 
-                if dpg.get_value('b_safe_mode'):
-                    dpg.disable_item('c_aimbot_vis') & dpg.set_value('c_aimbot_vis', False)
-                    dpg.disable_item('c_esp') & dpg.set_value('c_esp', False)
-                    dpg.disable_item('c_esp_items') & dpg.set_value('c_esp_items', False)
-                    dpg.disable_item('c_radar') & dpg.set_value('c_radar', False)
-                    dpg.disable_item('c_chat') & dpg.set_value('c_chat', False)
+                if dpg.get_value('c_safe_mode'):
+                    dpg.disable_item('c_aimbot_vis')
+                    dpg.set_value('c_aimbot_vis', False)
+                    dpg.disable_item('c_esp')
+                    dpg.set_value('c_esp', False)
+                    dpg.disable_item('c_esp_items')
+                    dpg.set_value('c_esp_items', False)
+                    dpg.disable_item('c_radar')
+                    dpg.set_value('c_radar', False)
+                    dpg.disable_item('c_chat')
+                    dpg.set_value('c_chat', False)
                 else:
                     dpg.enable_item('c_aimbot_vis')
                     dpg.enable_item('c_esp')
@@ -204,6 +208,7 @@ class GUI(Config):
 
                 content['overlay']['box_esp'] = dpg.get_value('c_box_esp')
                 content['overlay']['snap_lines'] = dpg.get_value('c_snaplines')
+                content['overlay']['distance'] = dpg.get_value('c_distance')
                 content['overlay']['head_indicator'] = dpg.get_value('c_head_indicator')
                 content['overlay']['bomb_indicator'] = dpg.get_value('c_bomb_indicator')
                 content['overlay']['grenade_traces'] = dpg.get_value('c_gre_line')
@@ -224,6 +229,8 @@ class GUI(Config):
                 content['misc']['show_fps'] = dpg.get_value('c_fps')
                 content['misc']['fake_lag'] = dpg.get_value('c_fakelag')
                 content['misc']['lag_strength'] = dpg.get_value('s_fakelag_str')
+                
+                content['other']['safe_mode'] = dpg.get_value('c_safe_mode')
                 
                 with open(f'{path_to_config}', 'w') as f:
                     json.dump(content, f)
@@ -267,6 +274,7 @@ class GUI(Config):
 
             dpg.set_value('c_box_esp', self.config.read_value(config_name, 'overlay','box_esp'))
             dpg.set_value('c_snaplines', self.config.read_value(config_name, 'overlay','snap_lines'))
+            dpg.set_value('c_distance', self.config.read_value(config_name, 'overlay', 'distance'))
             dpg.set_value('c_head_indicator', self.config.read_value(config_name, 'overlay','head_indicator'))
             dpg.set_value('c_bomb_indicator', self.config.read_value(config_name, 'overlay','bomb_indicator'))
             dpg.set_value('c_gre_line', self.config.read_value(config_name, 'overlay','grenade_traces'))
@@ -287,6 +295,8 @@ class GUI(Config):
             dpg.set_value('c_fps', self.config.read_value(config_name, 'misc','show_fps'))
             dpg.set_value('c_fakelag', self.config.read_value(config_name, 'misc','fake_lag'))
             if self.config.read_value(config_name, 'misc','lag_strength') <= dpg.get_item_configuration('s_fakelag_str')['max_value']: dpg.set_value('s_fakelag_str',self.config.read_value(config_name, 'misc','lag_strength'))
+            
+            dpg.set_value('c_safe_mode', self.config.read_value(config_name, 'other','safe_mode'))
 
     def key_handler(self, key: str):
         return h.gui_keys_list.get(dpg.get_value(key))
