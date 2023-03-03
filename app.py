@@ -592,11 +592,12 @@ def opengl_overlay():
                         elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
                             ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (1.0, 1.0, 0.0))
                         
-            ov.refresh()
         except Exception as err:
             if DEBUG_MODE == True:
                 print(opengl_overlay.__name__, err)
             pass
+        
+        ov.refresh()
         time.sleep(0.001)
 
 def main():
