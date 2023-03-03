@@ -22,7 +22,7 @@ try:
 except Exception as err:
     ctypes.windll.user32.MessageBoxW(0, f'{err}', 'Fatal Error', 0)
     os._exit(0)
-    
+
 try:
     game_handle = Pymem('csgo.exe')
     client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll

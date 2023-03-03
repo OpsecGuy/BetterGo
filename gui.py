@@ -20,20 +20,20 @@ class GUI(Config):
             with dpg.collapsing_header(label="Aimbot", tag='aimbot_header'):
                 dpg.add_checkbox(label='Aimbot', tag='c_aimbot')
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 5', width=215, tag='k_aimbot')
-                dpg.add_slider_float(label='Aimbot FOV', default_value=5.0, min_value=1.0, max_value=359.9, clamped=True, width=215, tag='s_aimbot_fov')
-                dpg.add_slider_float(label='Aimbot Smooth', default_value=3.0, min_value=1.0, max_value=30.0, clamped=True, width=215, tag='s_aimbot_smooth')
+                dpg.add_slider_float(label='Aimbot FOV', default_value=5.0, min_value=1.0, max_value=359.9, clamped=True, width=215, format='%.3f', tag='s_aimbot_fov')
+                dpg.add_slider_float(label='Aimbot Smooth', default_value=3.0, min_value=1.0, max_value=30.0, clamped=True, width=215, format='%.3f', tag='s_aimbot_smooth')
                 dpg.add_combo(label='Bone', items=tuple(h.bone_ids.keys()), default_value='HEAD', width=215, tag='c_aimbot_bone')
                 dpg.add_checkbox(label='Visible Only (?)', tag='c_aimbot_vis')
                 dpg.add_checkbox(label='Attack Team', tag='c_aimbot_team')
                 dpg.add_separator()
                 dpg.add_checkbox(label='Standalone RCS', tag='c_rcs')
-                dpg.add_slider_float(label='RCS Strength', default_value=0.0, min_value=0.0, max_value=2.0, clamped=True, width=215, tag='s_rcs_str')
+                dpg.add_slider_float(label='RCS Strength', default_value=0.0, min_value=0.0, max_value=2.0, clamped=True, width=215, format='%.3f', tag='s_rcs_str')
                 dpg.add_slider_int(label='Shot After x Bullets', default_value=0, min_value=0, max_value=30, clamped=True, width=215, tag='s_rcs_min_bullets')
                 dpg.add_separator()
                 dpg.add_checkbox(label='TriggerBot', tag='c_tbot')
                 dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 4', width=215, tag='k_tbot')
                 dpg.add_checkbox(label='Humanization', tag='c_tbot_legit')
-                dpg.add_slider_float(label='TriggerBot Delay', default_value=0.025, min_value=0.01, max_value=0.2, clamped=True, width=215, tag='s_tbot_delay')
+                dpg.add_slider_float(label='TriggerBot Delay', default_value=0.025, min_value=0.01, max_value=0.2, clamped=True, width=215, format='%.3f', tag='s_tbot_delay')
 
             with dpg.collapsing_header(label='Visuals', tag='visuals_header'):
                 dpg.add_checkbox(label='Player ESP (?)', tag='c_esp')
@@ -44,9 +44,9 @@ class GUI(Config):
                 dpg.add_checkbox(label='Item ESP (?)', tag='c_esp_items')
                 dpg.add_separator()
                 dpg.add_checkbox(label='Night Mode', tag='c_night')
-                dpg.add_slider_float(label='Night Mode Strength', default_value=1.0, min_value=0.01, max_value=3.0, clamped=True, width=215, tag='s_night_str')
+                dpg.add_slider_float(label='Night Mode Strength', default_value=1.0, min_value=0.01, max_value=3.0, clamped=True, width=215, format='%.3f', tag='s_night_str')
                 dpg.add_checkbox(label='No Flash (?)', tag='c_noflash')
-                dpg.add_slider_float(label='No Flash Strength', default_value=255.0, min_value=0.0, max_value=255.0, clamped=True, width=215, tag='s_noflash_str')
+                dpg.add_slider_float(label='No Flash Strength', default_value=255.0, min_value=0.0, max_value=255.0, clamped=True, width=215, format='%.3f', tag='s_noflash_str')
                 dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, clamped=True, width=215, tag='s_fov')
                 dpg.add_combo(label='Sky', items=list(h.sky_list), default_value='', width=215, tag='d_sky')
                 dpg.add_separator()
@@ -54,6 +54,7 @@ class GUI(Config):
             with dpg.collapsing_header(label='Overlay', tag='overlay_header'):
                 dpg.add_checkbox(label='Box ESP + HP Text', tag='c_box_esp')
                 dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
+                dpg.add_checkbox(label='Distance', tag='c_distance')
                 dpg.add_checkbox(label='Head Indicator', tag='c_head_indicator')
                 dpg.add_checkbox(label='Bomb Indicator', tag='c_bomb_indicator')
                 dpg.add_checkbox(label='Grenade Trajectory', tag='c_gre_line')
@@ -88,11 +89,12 @@ class GUI(Config):
                 with dpg.group(horizontal=True):
                     dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
                     dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
-
+            
+            dpg.add_checkbox(label='Safe Mode', tag='b_safe_mode')
             dpg.add_separator()
             dpg.add_button(label='Unload', width=160, height=25, tag='b_unload')
             dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
-            dpg.add_text('Version: 1.5.7')
+            dpg.add_text('Version: 1.5.8')
             dpg.add_text('Functions marked by (?)\nmay lower your trust factor', color=(255, 0, 0, 255))
 
         with dpg.window(label='Player info', tag='w_players_dump', show=False, autosize=True):
@@ -100,7 +102,11 @@ class GUI(Config):
                 dpg.add_text('', tag='buffer_name')
                 dpg.add_text('', tag='buffer_wins')
                 dpg.add_text('', tag='buffer_rank')
-            
+        
+        with dpg.tooltip('b_safe_mode'):
+            dpg.add_text('Disables Glow/ Vis Check/ Chat Spam')
+
+        dpg.add_text(default_value='asd', parent='b_safe_mode')
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.set_primary_window("w_main", True)
@@ -130,10 +136,24 @@ class GUI(Config):
                 dpg.hide_item('i_chat') if dpg.get_value('c_chat') == False else dpg.show_item('i_chat')
                 dpg.hide_item('s_fakelag_str') if dpg.get_value('c_fakelag') == False else dpg.show_item('s_fakelag_str')
                 dpg.hide_item('s_night_str') if dpg.get_value('c_night') == False else dpg.show_item('s_night_str')
+                
+                if dpg.get_value('b_safe_mode'):
+                    dpg.disable_item('c_aimbot_vis') & dpg.set_value('c_aimbot_vis', False)
+                    dpg.disable_item('c_esp') & dpg.set_value('c_esp', False)
+                    dpg.disable_item('c_esp_items') & dpg.set_value('c_esp_items', False)
+                    dpg.disable_item('c_radar') & dpg.set_value('c_radar', False)
+                    dpg.disable_item('c_chat') & dpg.set_value('c_chat', False)
+                else:
+                    dpg.enable_item('c_aimbot_vis')
+                    dpg.enable_item('c_esp')
+                    dpg.enable_item('c_esp_items')
+                    dpg.enable_item('c_radar')
+                    dpg.enable_item('c_chat')
+                
                 dpg.configure_item('c_config_list', items=tuple(self.config.get_config_list()))
             except Exception as err:
                 pass
-            time.sleep(0.01)
+            time.sleep(0.1)
 
     def create_config(self):
         if dpg.get_value('i_config_name') != '':

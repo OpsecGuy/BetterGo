@@ -8,7 +8,7 @@ from convar import *
 from overlay import *
 import threading
 import winsound
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 def entity_loop():
     while True:
@@ -23,53 +23,71 @@ def entity_loop():
         time.sleep(0.001)
 
 def glow_esp():
+    # TO:DO Fix crash on writing struct to memory
     while True:
         try:
             if ent.in_game():
                 enemy_team_color = dpg.get_value('e_esp_enemy')
                 team_color = dpg.get_value('e_esp_team')
-                c1 = [round(enemy_team_color[0], 1), round(enemy_team_color[1], 1), round(enemy_team_color[2], 1), round(enemy_team_color[3], 1)]
-                c2 = [round(team_color[0], 1), round(team_color[1], 1), round(team_color[2], 1), round(team_color[3], 1)]
+                c1 = [enemy_team_color[0], enemy_team_color[1], enemy_team_color[2], enemy_team_color[3]]
+                c2 = [team_color[0], team_color[1], team_color[2], team_color[3]]
+                local_player_team = ent.get_team(lp.local_player())
 
                 for entity in ent.glow_objects_list:
-                    bytes = game_handle.read_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), 0x38)
-                    var = list(struct.unpack("2i4f4c3f4c3i", bytes))
+                    
+                    if lp.local_player() == entity[1] or ent.get_dormant(entity[1]) == True:
+                        continue
+                            
                     if dpg.get_value('c_esp'):
                         if entity[2] == 40:
-                            if lp.local_player() == entity[1]:
-                                continue
-                            if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
+                            
+                            health = ent.get_health(entity[1])
+                            if health <= 0:
                                 continue
 
-                            if ent.get_team(entity[1]) != ent.get_team(lp.local_player()):
-                                # 02 - 05 color 13 -Occluded 14 - Unoccluded 15 - FullBloomRender 16 - RenderStyle 17 - SplitScreenSlot
-                                var[2] = c1[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
-                                var[3] = c1[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
-                                var[4] = c1[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
-                                var[5] = c1[3] / 255
+                            if ent.get_team(entity[1]) != local_player_team:
+                                
+                                glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                  
+                                bytes = game_handle.read_bytes(glow_target_address, 0x38)
+                                var = list(struct.unpack("2i4f4c3f4c3i", bytes))
+                                # print(f'Orginal:\n{var}')
+                                var[2] = round(c1[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
+                                var[3] = round(c1[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
+                                var[4] = round(c1[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
+                                var[5] = round(c1[3] / 255, 2)
                                 var[13] = b'\x01'
                                 var[14] = b'\x00'
                                 # convert list into tuple
                                 var2 = tuple(var)
+                                # print(f'New:\n{var2}')
                                 # pack Glow object struct with our changes
                                 value = struct.pack("2i4f4c3f4c3i", *var2)
                                 # Write new glow struct to game memory
-                                game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                                game_handle.write_bytes(glow_target_address, value, 0x38)
                             
-                            elif ent.get_team(lp.local_player()) and dpg.get_value('c_esp_team'):  
-                                var[2] = c2[0] / 255 if not dpg.get_value('c_esp_health') else (255.0 - 2.55 * ent.get_health(entity[1])) / 255.0
-                                var[3] = c2[1] / 255 if not dpg.get_value('c_esp_health') else (2.55 * ent.get_health(entity[1])) / 255.0
-                                var[4] = c2[2] / 255 if not dpg.get_value('c_esp_health') else 0.0
-                                var[5] = c2[3] / 255
+                            elif dpg.get_value('c_esp_team'):
+                                
+                                glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
+                                bytes = game_handle.read_bytes(glow_target_address, 0x38)
+                                var = list(struct.unpack("2i4f4c3f4c3i", bytes))
+                                var[2] = round(c2[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
+                                var[3] = round(c2[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
+                                var[4] = round(c2[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
+                                var[5] = round(c2[3] / 255, 2)
                                 var[13] = b'\x01'
                                 var[14] = b'\x00'
                                 var2 = tuple(var)
                                 value = struct.pack("2i4f4c3f4c3i", *var2)
                                 # Write new glow struct to game memory
-                                game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                                game_handle.write_bytes(glow_target_address, value, 0x38)
 
                     if dpg.get_value('c_esp_items'):
                         if class_id_c4(entity[2]) or class_id_gun(entity[2]):
+                            
+                            glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
+                            bytes = game_handle.read_bytes(glow_target_address, 0x38)
+                            var = list(struct.unpack("2i4f4c3f4c3i", bytes))
+                                
                             var[2] = 0.92
                             var[3] = 0.79
                             var[4] = 0.16
@@ -79,9 +97,13 @@ def glow_esp():
                             var2 = tuple(var)
                             value = struct.pack("2i4f4c3f4c3i", *var2)
                             # Write new glow struct to game memory
-                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                            game_handle.write_bytes(glow_target_address, value, 0x38)
                             
-                        elif class_id_grenade(entity[2]):
+                        elif class_id_grenade(entity[2]):                            
+                            glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                    
+                            bytes = game_handle.read_bytes(glow_target_address, 0x38)
+                            var = list(struct.unpack("2i4f4c3f4c3i", bytes))
+                            
                             var[2] = 1.0
                             var[3] = 1.0
                             var[4] = 1.0
@@ -91,7 +113,7 @@ def glow_esp():
                             var2 = tuple(var)
                             value = struct.pack("2i4f4c3f4c3i", *var2)
                             # Write new glow struct to game memory
-                            game_handle.write_bytes(ent.glow_object() + (0x38 * (entity[0] - 1)), value, 0x38)
+                            game_handle.write_bytes(glow_target_address, value, 0x38)
                             
         except Exception as err:
             if DEBUG_MODE == True:
@@ -532,21 +554,22 @@ def opengl_overlay():
     while True:
         try:
             ov.draw_text(f'github.com/OpsecGuy', 420, 20)
-            if ent.in_game():
-
+            if ent.in_game() and ov.window_focused():
                 if dpg.get_value('c_spec_alert'):
                     ov.draw_text(f'{spectator_list()}', x1 - 75, y1 + 200)
 
+                local_player = lp.local_player()
+                view_matrix = ent.view_matrix()
+                
                 for entity in ent.entity_list:
                     if entity[2] == 40:
-                        if entity[1] == lp.local_player() or ent.get_team(lp.local_player()) == ent.get_team(entity[1]):
+                        if entity[1] == local_player or ent.get_team(local_player) == ent.get_team(entity[1]):
                             continue
                         if ent.get_dormant(entity[1]) == True or ent.get_health(entity[1]) <= 0:
                             continue
 
-                        view_matrix = ent.view_matrix()
                         entity_position = ent.get_position(entity[1])
-                        w2s_position = w2s(Vector3(entity_position.x, entity_position.y, entity_position.z), view_matrix)
+                        w2s_position = w2s(entity_position, view_matrix)
                         bone_head = w2s(ent.get_bone_position(entity[1], 8), view_matrix)
 
                         if w2s_position is None or bone_head is None:
@@ -560,8 +583,13 @@ def opengl_overlay():
                             head = bone_head[1] - w2s_position[1]
                             width = head / 2
                             center = width / -2
+                            
                             ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
                             ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 1.0, 0.0))
+
+                        if dpg.get_value('c_distance'):
+                            dist = distance(start_point=ent.get_position(local_player), end_point=entity_position)
+                            ov.draw_text(f'{str(dist / 32):.4}m', w2s_position[0], w2s_position[1] - 30)
 
                         # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
@@ -577,7 +605,7 @@ def opengl_overlay():
                         ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
 
                 if dpg.get_value('c_sniper_crosshair'):
-                    if h.weapon_sniper(lp.active_weapon()):
+                    if weapon_sniper(lp.active_weapon()) and not ent.is_scoping(local_player):
                         ov.draw_lines(x1, y1, 1, (1.0, 0.0, 0.0))
 
                 if dpg.get_value('c_recoil_crosshair'):
@@ -596,7 +624,6 @@ def opengl_overlay():
             if DEBUG_MODE == True:
                 print(opengl_overlay.__name__, err)
             pass
-        
         ov.refresh()
         time.sleep(0.001)
 

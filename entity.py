@@ -27,14 +27,16 @@ class Entity(LocalPlayer):
     def glow_objects_loop(self):
         try:
             self.glow_objects_list.clear()
-            for i in range(1, 512):
+            
+            for i in range(1, self.glow_object_size()):
                 glow_object = self.mem.game_handle.read_uint(self.glow_object() + 0x38 * (i - 1) + 0x4)
                 
                 if glow_object != 0:
-                    if self.class_id(glow_object) == None:
+                    class_id = self.class_id(glow_object)
+                    if class_id == None:
                         continue
-                    if [glow_object, self.class_id(glow_object)] not in self.glow_objects_list:
-                        self.glow_objects_list.append([i, glow_object, self.class_id(glow_object)])
+                    if [glow_object, class_id] not in self.glow_objects_list:
+                        self.glow_objects_list.append([i, glow_object, class_id])
         except Exception as err:
             pass
 
@@ -71,6 +73,9 @@ class Entity(LocalPlayer):
     def is_defusing(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bIsDefusing)
 
+    def is_scoping(self, entity: int):
+        return self.mem.game_handle.read_bool(entity + offsets.m_bIsScoped)
+    
     def is_protected(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bGunGameImmunity)
     
