@@ -8,7 +8,7 @@ from convar import *
 from overlay import *
 import threading
 import winsound
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 def entity_loop():
     while True:
@@ -23,7 +23,6 @@ def entity_loop():
         time.sleep(0.001)
 
 def glow_esp():
-    # TO:DO Fix crash on writing struct to memory
     while True:
         try:
             if ent.in_game():
@@ -46,75 +45,68 @@ def glow_esp():
                                 continue
 
                             if ent.get_team(entity[1]) != local_player_team:
-                                
-                                glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                  
-                                bytes = game_handle.read_bytes(glow_target_address, 0x38)
-                                var = list(struct.unpack("2i4f4c3f4c3i", bytes))
-                                # print(f'Orginal:\n{var}')
-                                var[2] = round(c1[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
-                                var[3] = round(c1[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
-                                var[4] = round(c1[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
-                                var[5] = round(c1[3] / 255, 2)
-                                var[13] = b'\x01'
-                                var[14] = b'\x00'
+                                # + 0x8 because we skip reading first 2 int(s) which leaded to crashes
+                                # 3 last fields in orginal struct we ignore and update only what we need
+                                glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))
+                                bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23) # 0x23, because we don't fill whole struct
+                                var = list(struct.unpack("4f1?3c3f3c", bytes))
+
+                                var[0] = round(c1[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
+                                var[1] = round(c1[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
+                                var[2] = round(c1[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
+                                var[3] = round(c1[3] / 255, 2)
+                                var[11] = b'\x01'
+                                var[12] = b'\x00'
                                 # convert list into tuple
                                 var2 = tuple(var)
-                                # print(f'New:\n{var2}')
                                 # pack Glow object struct with our changes
-                                value = struct.pack("2i4f4c3f4c3i", *var2)
+                                value = struct.pack("4f1?3c3f3c", *var2)
                                 # Write new glow struct to game memory
-                                game_handle.write_bytes(glow_target_address, value, 0x38)
-                            
-                            elif dpg.get_value('c_esp_team'):
+                                game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
                                 
+                            elif dpg.get_value('c_esp_team'):
                                 glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
-                                bytes = game_handle.read_bytes(glow_target_address, 0x38)
-                                var = list(struct.unpack("2i4f4c3f4c3i", bytes))
-                                var[2] = round(c2[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
-                                var[3] = round(c2[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
-                                var[4] = round(c2[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
-                                var[5] = round(c2[3] / 255, 2)
-                                var[13] = b'\x01'
-                                var[14] = b'\x00'
+                                bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
+                                var = list(struct.unpack("4f1?3c3f3c", bytes))
+                                var[0] = round(c2[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
+                                var[1] = round(c2[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
+                                var[2] = round(c2[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
+                                var[3] = round(c2[3] / 255, 2)
+                                var[11] = b'\x01'
+                                var[12] = b'\x00'
                                 var2 = tuple(var)
-                                value = struct.pack("2i4f4c3f4c3i", *var2)
-                                # Write new glow struct to game memory
-                                game_handle.write_bytes(glow_target_address, value, 0x38)
+                                value = struct.pack("4f1?3c3f3c", *var2)
+                                game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
 
                     if dpg.get_value('c_esp_items'):
                         if class_id_c4(entity[2]) or class_id_gun(entity[2]):
-                            
                             glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
-                            bytes = game_handle.read_bytes(glow_target_address, 0x38)
-                            var = list(struct.unpack("2i4f4c3f4c3i", bytes))
-                                
-                            var[2] = 0.92
-                            var[3] = 0.79
-                            var[4] = 0.16
-                            var[5] = 0.6
-                            var[13] = b'\x01'
-                            var[14] = b'\x00'
+                            bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
+                            var = list(struct.unpack("4f1?3c3f3c", bytes))
+                            var[0] = 0.92
+                            var[1] = 0.79
+                            var[2] = 0.16
+                            var[3] = 0.6
+                            var[11] = b'\x01'
+                            var[12] = b'\x00'
                             var2 = tuple(var)
-                            value = struct.pack("2i4f4c3f4c3i", *var2)
-                            # Write new glow struct to game memory
-                            game_handle.write_bytes(glow_target_address, value, 0x38)
+                            value = struct.pack("4f1?3c3f3c", *var2)
+                            game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
                             
                         elif class_id_grenade(entity[2]):                            
                             glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                    
-                            bytes = game_handle.read_bytes(glow_target_address, 0x38)
-                            var = list(struct.unpack("2i4f4c3f4c3i", bytes))
-                            
+                            bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
+                            var = list(struct.unpack("4f1?3c3f3c", bytes))
+                            var[0] = 1.0
+                            var[1] = 1.0
                             var[2] = 1.0
-                            var[3] = 1.0
-                            var[4] = 1.0
-                            var[5] = 0.6
-                            var[13] = b'\x01'
-                            var[14] = b'\x00'
+                            var[3] = 0.6
+                            var[11] = b'\x01'
+                            var[12] = b'\x00'
                             var2 = tuple(var)
-                            value = struct.pack("2i4f4c3f4c3i", *var2)
-                            # Write new glow struct to game memory
-                            game_handle.write_bytes(glow_target_address, value, 0x38)
-                            
+                            value = struct.pack("4f1?3c3f3c", *var2)
+                            game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
+
         except Exception as err:
             if DEBUG_MODE == True:
                 print(glow_esp.__name__, err)
