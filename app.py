@@ -8,7 +8,7 @@ from convar import *
 from overlay import *
 import threading
 import winsound
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 def entity_loop():
     while True:
@@ -26,18 +26,17 @@ def glow_esp():
     while True:
         try:
             if ent.in_game():
-                enemy_team_color = dpg.get_value('e_esp_enemy')
-                team_color = dpg.get_value('e_esp_team')
+                enemy_team_color = dpg.get_value('e_glow_esp_enemy')
+                team_color = dpg.get_value('e_glow_esp_team')
                 c1 = [enemy_team_color[0], enemy_team_color[1], enemy_team_color[2], enemy_team_color[3]]
                 c2 = [team_color[0], team_color[1], team_color[2], team_color[3]]
                 local_player_team = ent.get_team(lp.local_player())
 
                 for entity in ent.glow_objects_list:
-                    
                     if lp.local_player() == entity[1] or ent.get_dormant(entity[1]) == True:
                         continue
-                            
-                    if dpg.get_value('c_esp'):
+
+                    if dpg.get_value('c_glow_esp'):
                         if entity[2] == 40:
                             
                             health = ent.get_health(entity[1])
@@ -51,9 +50,9 @@ def glow_esp():
                                 bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23) # 0x23, because we don't fill whole struct
                                 var = list(struct.unpack("4f1?3c3f3c", bytes))
 
-                                var[0] = round(c1[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
-                                var[1] = round(c1[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
-                                var[2] = round(c1[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
+                                var[0] = round(c1[0] / 255, 2) if not dpg.get_value('c_glow_esp_health') else 1.0 - (health / 100.0)
+                                var[1] = round(c1[1] / 255, 2) if not dpg.get_value('c_glow_esp_health') else health / 100.0
+                                var[2] = round(c1[2] / 255, 2) if not dpg.get_value('c_glow_esp_health') else 0.0
                                 var[3] = round(c1[3] / 255, 2)
                                 var[11] = b'\x01'
                                 var[12] = b'\x00'
@@ -63,8 +62,8 @@ def glow_esp():
                                 value = struct.pack("4f1?3c3f3c", *var2)
                                 # Write new glow struct to game memory
                                 game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
-                                
-                            elif dpg.get_value('c_esp_team'):
+
+                            elif dpg.get_value('c_glow_esp_team'):
                                 glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
                                 bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
                                 var = list(struct.unpack("4f1?3c3f3c", bytes))
@@ -78,7 +77,7 @@ def glow_esp():
                                 value = struct.pack("4f1?3c3f3c", *var2)
                                 game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
 
-                    if dpg.get_value('c_esp_items'):
+                    if dpg.get_value('c_glow_esp_items'):
                         if class_id_c4(entity[2]) or class_id_gun(entity[2]):
                             glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
                             bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
@@ -167,13 +166,13 @@ def aimbot():
             pass
         time.sleep(0.001)
 
-def rcs(key: int):
+def rcs():
     current_angle = Vector3(0, 0, 0)
     old_angle = Vector3(0, 0, 0)
     while (True):
         try:
             if dpg.get_value('c_rcs') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
-                if ctypes.windll.user32.GetAsyncKeyState(key) and ent.get_shots_fired() > dpg.get_value('s_rcs_min_bullets'):
+                if ctypes.windll.user32.GetAsyncKeyState(0x01) and ent.get_shots_fired() > dpg.get_value('s_rcs_min_bullets'):
                     if weapon_rifle(lp.active_weapon()) or weapon_smg(lp.active_weapon()) or weapon_heavy(lp.active_weapon()):
                         view_angle = ent.get_view_angle()
                         punch_angle = lp.aim_punch_angle()
@@ -219,8 +218,11 @@ def trigger_bot():
                     
                 local_position = ent.get_position(lp.local_player())
                 distance = h.distance(local_position, ent.get_position(entity))
+                entity_hp_crosshair = lp.get_health_by_crosshair(entity)
+                entity_team_crosshair = lp.get_team_by_crosshair(entity)
+                local_team = ent.get_team(lp.local_player())
                 if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_tbot')) and dpg.get_value('c_tbot'):
-                    if lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()) and lp.get_health_by_crosshair(entity) >= 1:
+                    if entity_team_crosshair != local_team and entity_hp_crosshair >= 1:
                         if dpg.get_value('c_tbot_legit') == True:
                             v2_delay = round(random.uniform(0.001, 0.01), 3)
                             
@@ -230,15 +232,15 @@ def trigger_bot():
                         lp.force_attack(6)
                 
                 if dpg.get_value('c_zeus'):
-                    if lp.active_weapon() == 31 and lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()):
-                        if lp.get_health_by_crosshair(entity) > 0:
+                    if lp.active_weapon() == 31 and entity_team_crosshair != local_team:
+                        if entity_hp_crosshair > 0:
                             if distance <= 150:
                                 lp.force_attack(6)
 
                 if dpg.get_value('c_knifebot'):
-                    if weapon_knife(lp.active_weapon()) and lp.get_team_by_crosshair(entity) != ent.get_team(lp.local_player()):
+                    if weapon_knife(lp.active_weapon()) and entity_team_crosshair != local_team:
                         if distance <= 82:
-                            if lp.get_health_by_crosshair(entity) <= 55 and distance <= 70:
+                            if entity_hp_crosshair <= 55 and distance <= 70:
                                 lp.force_attack2(6)
                             else:
                                 lp.force_attack(6)
@@ -372,7 +374,8 @@ def spectator_list():
     try:
         spectators.clear()
         if ent.in_game():
-            if ent.get_health(lp.local_player()) <= 0:
+            local_player = lp.local_player()
+            if ent.get_health(local_player) <= 0:
                 spectators.clear()
 
             for entity in ent.entity_list:
@@ -382,11 +385,11 @@ def spectator_list():
                     if player_name == None or player_name == 'GOTV':
                         continue
 
-                    if ent.get_team(entity[1]) == ent.get_team(lp.local_player()):
+                    if ent.get_team(entity[1]) == ent.get_team(local_player):
                         observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
                         spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
                         
-                        if spectated == lp.local_player():
+                        if spectated == local_player:
                             spectators.append(player_name)
             
             if len(spectators) > 0:
@@ -546,7 +549,7 @@ def opengl_overlay():
     while True:
         try:
             ov.draw_text(f'github.com/OpsecGuy', 420, 20)
-            if ent.in_game() and ov.window_focused():
+            if ent.in_game():
                 if dpg.get_value('c_spec_alert'):
                     ov.draw_text(f'{spectator_list()}', x1 - 75, y1 + 200)
 
@@ -567,7 +570,6 @@ def opengl_overlay():
                         if w2s_position is None or bone_head is None:
                             continue
 
-                        # line from local_player to entity
                         if dpg.get_value('c_snaplines'):
                             ov.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0.0, 1.0, 0.0))
 
@@ -575,7 +577,6 @@ def opengl_overlay():
                             head = bone_head[1] - w2s_position[1]
                             width = head / 2
                             center = width / -2
-                            
                             ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
                             ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 1.0, 0.0))
 
@@ -583,7 +584,6 @@ def opengl_overlay():
                             dist = distance(start_point=ent.get_position(local_player), end_point=entity_position)
                             ov.draw_text(f'{str(dist / 32):.4}m', w2s_position[0], w2s_position[1] - 30)
 
-                        # circle indicator for head position
                         if dpg.get_value('c_head_indicator'):
                             ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 1.0, 0.0))
 
@@ -603,10 +603,12 @@ def opengl_overlay():
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() > 1:
-                        dx = c[2] / lp.get_fov()
-                        dy = c[3] / lp.get_fov()
+                        fov = lp.get_fov()
+                        dx = c[2] / fov
+                        dy = c[3] / fov
                         crosshair_x = x1 - dx * punch_angle.y
                         crosshair_y = y1 - dy * punch_angle.x
+
                         if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
                             ov.draw_lines(crosshair_x, crosshair_y, 1, (1.0, 0.0, 0.0))
                         elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
@@ -624,12 +626,12 @@ def main():
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
         threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
-        time.sleep(1)
+        time.sleep(0.5) # Increase in case of issues with overlay to 1.0
         if ov.overlay_state == True:
             threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
             threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
             threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
-            threading.Thread(target=rcs, args=[0x01], name='rcs', daemon=True).start()
+            threading.Thread(target=rcs, name='rcs', daemon=True).start()
             threading.Thread(target=auto_pistol, name='auto_pistol', daemon=True).start()
             threading.Thread(target=trigger_bot, name='trigger_bot', daemon=True).start()
             threading.Thread(target=bunny_hop, name='bunny_hop', daemon=True).start()

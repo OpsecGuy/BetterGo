@@ -41,6 +41,7 @@ config_example = {
     "overlay": {
         "box_esp": True,
         "snap_lines": True,
+        "distance": False,
         "head_indicator": False,
         "bomb_indicator": False,
         "grenade_traces": False,
@@ -63,13 +64,16 @@ config_example = {
         "fake_lag": False,
         "lag_strength": 0.001,
     },
+    "other":{
+        "safe_mode": False,
+    },
 }
 
 class GlowObjectDefinition_t(ctypes.Structure):
     _fields_ = [
         ("m_nNextFreeSlot", ctypes.c_int32),
         ("m_pEntity", ctypes.c_uint32),
-        ("r", ctypes.c_float),
+        ("r", ctypes.c_float), # 0x8
         ("g", ctypes.c_float),
         ("b", ctypes.c_float),
         ("a", ctypes.c_float),
