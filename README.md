@@ -46,5 +46,5 @@ Place glfw.dll in the same folder where cheat is located.
 1. Install [pyinstaller](https://github.com/pyinstaller/pyinstaller) for that.
 2. Open CMD and type this commands:
 3. cd PATH_TO_FOLDER_WITH_CHEAT
-4. pyinstaller --onefile app.py --clean
+4. pyinstaller --onefile app.py --clean --windowed
 5. Once it finish compresing files, go to new created 'dist' folder and run app.exe
