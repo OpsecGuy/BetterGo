@@ -35,10 +35,9 @@ def glow_esp():
                 for entity in ent.glow_objects_list:
                     if lp.local_player() == entity[1] or ent.get_dormant(entity[1]) == True:
                         continue
-
                     if dpg.get_value('c_glow_esp'):
                         if entity[2] == 40:
-                            
+
                             health = ent.get_health(entity[1])
                             if health <= 0:
                                 continue
@@ -49,7 +48,6 @@ def glow_esp():
                                 glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))
                                 bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23) # 0x23, because we don't fill whole struct
                                 var = list(struct.unpack("4f1?3c3f3c", bytes))
-
                                 var[0] = round(c1[0] / 255, 2) if not dpg.get_value('c_glow_esp_health') else 1.0 - (health / 100.0)
                                 var[1] = round(c1[1] / 255, 2) if not dpg.get_value('c_glow_esp_health') else health / 100.0
                                 var[2] = round(c1[2] / 255, 2) if not dpg.get_value('c_glow_esp_health') else 0.0
@@ -61,7 +59,7 @@ def glow_esp():
                                 # pack Glow object struct with our changes
                                 value = struct.pack("4f1?3c3f3c", *var2)
                                 # Write new glow struct to game memory
-                                game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
+                                game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
 
                             elif dpg.get_value('c_glow_esp_team'):
                                 glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
@@ -75,7 +73,7 @@ def glow_esp():
                                 var[12] = b'\x00'
                                 var2 = tuple(var)
                                 value = struct.pack("4f1?3c3f3c", *var2)
-                                game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
+                                game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
 
                     if dpg.get_value('c_glow_esp_items'):
                         if class_id_c4(entity[2]) or class_id_gun(entity[2]):
@@ -90,9 +88,9 @@ def glow_esp():
                             var[12] = b'\x00'
                             var2 = tuple(var)
                             value = struct.pack("4f1?3c3f3c", *var2)
-                            game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
-                            
-                        elif class_id_grenade(entity[2]):                            
+                            game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
+
+                        if class_id_grenade(entity[2]):                            
                             glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                    
                             bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
                             var = list(struct.unpack("4f1?3c3f3c", bytes))
@@ -104,7 +102,7 @@ def glow_esp():
                             var[12] = b'\x00'
                             var2 = tuple(var)
                             value = struct.pack("4f1?3c3f3c", *var2)
-                            game_handle.write_bytes(glow_target_address+0x8, value, 0x23)
+                            game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
 
         except Exception as err:
             if DEBUG_MODE == True:
@@ -136,7 +134,7 @@ def aimbot():
                                 continue
                         if ent.get_dormant(entity[1]) or ent.is_protected(entity[1]) == True:
                             continue
-                        if ent.get_health(entity[1]) == 0:
+                        if ent.get_health(entity[1]) <= 0:
                             continue
                         
                         bone_matrix = ent.get_bone_position(entity[1], bone_ids.get(dpg.get_value('c_aimbot_bone')))
@@ -181,17 +179,20 @@ def rcs():
                         current_angle.y = (view_angle.y + old_angle.y) - punch_angle.y * dpg.get_value('s_rcs_str')
 
                         clamped_angle = clamp_angle(current_angle)
-                        ent.set_view_angle(Vector3(clamped_angle.x, clamped_angle.y, clamped_angle.z))
+                        ent.set_view_angle(current_angle)
 
                         old_angle.x = punch_angle.x * dpg.get_value('s_rcs_str')
                         old_angle.y = punch_angle.y * dpg.get_value('s_rcs_str')
+                    else:
+                        old_angle.x = old_angle.y = 0.0
                 else:
                     old_angle.x = old_angle.y = 0.0
+
         except Exception as err:
             if DEBUG_MODE == True:
                 print(rcs.__name__, err)
             pass
-        time.sleep(0.01)
+        time.sleep(0.001)
 
 def auto_pistol():
     while True:

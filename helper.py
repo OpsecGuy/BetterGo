@@ -663,7 +663,8 @@ def class_id_grenade(class_id):
         or class_id == ClassId.CMolotovProjectile or class_id == ClassId.CMolotovGrenade
         or class_id == ClassId.CHEGrenade or class_id == ClassId.CIncendiaryGrenade 
         or class_id == ClassId.CSmokeGrenade or class_id == ClassId.ParticleSmokeGrenade
-        or class_id == ClassId.CSmokeGrenadeProjectile or class_id == ClassId.CFlashbang):
+        or class_id == ClassId.CSmokeGrenadeProjectile or class_id == ClassId.CFlashbang
+        or class_id == ClassId.CBaseCSGrenadeProjectile):
         return True
     else:
         return False

@@ -134,7 +134,6 @@ class Entity(LocalPlayer):
         )
 
     def get_view_angle(self):
-        
         bytes = self.mem.game_handle.read_bytes(self.engine_ptr() + offsets.dwClientState_ViewAngles, 0xC)
         var = list(struct.unpack("3f", bytes))
         return Vector3(*var)
@@ -166,7 +165,7 @@ class Entity(LocalPlayer):
         info = self.mem.game_handle.read_uint(player_info_items + 0x28 + (entity * 0x34))
 
         if info > 0:
-            return self.mem.game_handle.read_bytes(info + 0x10, 64)
+            return self.mem.game_handle.read_bytes(info + 0x10, 32)
             # return self.mem.game_handle.read_string(info + 0x10)
 
     def get_rank(self, entity: int):
