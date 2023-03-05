@@ -32,7 +32,7 @@ External CS:GO cheat written in Python(3.11).
 #### Overlay is crashing/ not working
 1. Check what python versions are installed on your PC and make sure you using at least python 3.8+ (3.11 is recommended)
 2. Go to https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopengl
-[FOR PYTHON 3.11]
+>FOR PYTHON 3.11
 3. Download PyOpenGL_accelerate‑3.1.6‑cp311‑cp311‑win_amd64.whl and PyOpenGL‑3.1.6‑cp311‑cp311‑win_amd64.whl
 4. Go to CMD and run this commands:
 pip install PyOpenGL-3.1.6-cp311-cp311-win_amd64.whl --force-reinstall
