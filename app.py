@@ -8,6 +8,7 @@ from convar import *
 from overlay import *
 import threading
 import winsound
+
 DEBUG_MODE = False
 
 def entity_loop():
@@ -35,6 +36,7 @@ def glow_esp():
                 for entity in ent.glow_objects_list:
                     if lp.local_player() == entity[1] or ent.get_dormant(entity[1]) == True:
                         continue
+                    
                     if dpg.get_value('c_glow_esp'):
                         if entity[2] == 40:
 
@@ -46,64 +48,59 @@ def glow_esp():
                                 # + 0x8 because we skip reading first 2 int(s) which leaded to crashes
                                 # 3 last fields in orginal struct we ignore and update only what we need
                                 glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))
-                                bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23) # 0x23, because we don't fill whole struct
-                                var = list(struct.unpack("4f1?3c3f3c", bytes))
+                                glow_struct_bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23) # 0x23, because we don't fill whole struct
+                                var = list(struct.unpack("4f1?3c3f3c", glow_struct_bytes))
                                 var[0] = round(c1[0] / 255, 2) if not dpg.get_value('c_glow_esp_health') else 1.0 - (health / 100.0)
                                 var[1] = round(c1[1] / 255, 2) if not dpg.get_value('c_glow_esp_health') else health / 100.0
                                 var[2] = round(c1[2] / 255, 2) if not dpg.get_value('c_glow_esp_health') else 0.0
                                 var[3] = round(c1[3] / 255, 2)
                                 var[11] = b'\x01'
                                 var[12] = b'\x00'
-                                # convert list into tuple
-                                var2 = tuple(var)
-                                # pack Glow object struct with our changes
-                                value = struct.pack("4f1?3c3f3c", *var2)
+                                # pack glow object struct with our changes
+                                value = struct.pack("4f1?3c3f3c", *var)
                                 # Write new glow struct to game memory
                                 game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
 
                             elif dpg.get_value('c_glow_esp_team'):
                                 glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
-                                bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
-                                var = list(struct.unpack("4f1?3c3f3c", bytes))
+                                glow_struct_bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
+                                var = list(struct.unpack("4f1?3c3f3c", glow_struct_bytes))
                                 var[0] = round(c2[0] / 255, 2) if not dpg.get_value('c_esp_health') else 1.0 - (health / 100.0)
                                 var[1] = round(c2[1] / 255, 2) if not dpg.get_value('c_esp_health') else health / 100.0
                                 var[2] = round(c2[2] / 255, 2) if not dpg.get_value('c_esp_health') else 0.0
                                 var[3] = round(c2[3] / 255, 2)
                                 var[11] = b'\x01'
                                 var[12] = b'\x00'
-                                var2 = tuple(var)
-                                value = struct.pack("4f1?3c3f3c", *var2)
+                                value = struct.pack("4f1?3c3f3c", *var)
                                 game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
 
                     if dpg.get_value('c_glow_esp_items'):
                         if class_id_c4(entity[2]) or class_id_gun(entity[2]):
                             glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                   
-                            bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
-                            var = list(struct.unpack("4f1?3c3f3c", bytes))
+                            glow_struct_bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
+                            var = list(struct.unpack("4f1?3c3f3c", glow_struct_bytes))
                             var[0] = 0.92
                             var[1] = 0.79
                             var[2] = 0.16
-                            var[3] = 0.6
+                            var[3] = 0.7
                             var[11] = b'\x01'
                             var[12] = b'\x00'
-                            var2 = tuple(var)
-                            value = struct.pack("4f1?3c3f3c", *var2)
+                            value = struct.pack("4f1?3c3f3c", *var)
                             game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
 
                         if class_id_grenade(entity[2]):                            
                             glow_target_address = ent.glow_object() + (0x38 * (entity[0] - 1))                    
-                            bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
-                            var = list(struct.unpack("4f1?3c3f3c", bytes))
+                            glow_struct_bytes = game_handle.read_bytes(glow_target_address + 0x8, 0x23)
+                            var = list(struct.unpack("4f1?3c3f3c", glow_struct_bytes))
                             var[0] = 1.0
-                            var[1] = 1.0
-                            var[2] = 1.0
-                            var[3] = 0.6
+                            var[1] = 0.0
+                            var[2] = 0.0
+                            var[3] = 0.8
                             var[11] = b'\x01'
                             var[12] = b'\x00'
-                            var2 = tuple(var)
-                            value = struct.pack("4f1?3c3f3c", *var2)
+                            value = struct.pack("4f1?3c3f3c", *var)
                             game_handle.write_bytes(glow_target_address + 0x8, value, 0x23)
-
+                    
         except Exception as err:
             if DEBUG_MODE == True:
                 print(glow_esp.__name__, err)
@@ -626,29 +623,29 @@ def main():
     try:
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
-        threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
-        time.sleep(0.5) # Increase in case of issues with overlay to 1.0
-        if ov.overlay_state == True:
-            threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
-            threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
-            threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
-            threading.Thread(target=rcs, name='rcs', daemon=True).start()
-            threading.Thread(target=auto_pistol, name='auto_pistol', daemon=True).start()
-            threading.Thread(target=trigger_bot, name='trigger_bot', daemon=True).start()
-            threading.Thread(target=bunny_hop, name='bunny_hop', daemon=True).start()
-            threading.Thread(target=auto_strafer, name='auto_strafer', daemon=True).start()
-            threading.Thread(target=radar_hack, name='radar_hack', daemon=True).start()
-            threading.Thread(target=no_flash, name='no_flash', daemon=True).start()
-            threading.Thread(target=no_smoke, name='no_smoke', daemon=True).start()
-            threading.Thread(target=fov_changer, name='fov_changer', daemon=True).start()
-            threading.Thread(target=fake_lag, name='fake_lag', daemon=True).start()
-            threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound', daemon=True).start()
-            threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
-            threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
-            threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
-            threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
-            threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
-            dpg.start_dearpygui()
+        # threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
+        # time.sleep(0.5) # Increase in case of issues with overlay to 1.0
+        # if ov.overlay_state == True:
+        threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
+        threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
+        threading.Thread(target=glow_esp, name='glow_esp', daemon=True).start()
+        threading.Thread(target=rcs, name='rcs', daemon=True).start()
+        threading.Thread(target=auto_pistol, name='auto_pistol', daemon=True).start()
+        threading.Thread(target=trigger_bot, name='trigger_bot', daemon=True).start()
+        threading.Thread(target=bunny_hop, name='bunny_hop', daemon=True).start()
+        threading.Thread(target=auto_strafer, name='auto_strafer', daemon=True).start()
+        threading.Thread(target=radar_hack, name='radar_hack', daemon=True).start()
+        threading.Thread(target=no_flash, name='no_flash', daemon=True).start()
+        threading.Thread(target=no_smoke, name='no_smoke', daemon=True).start()
+        threading.Thread(target=fov_changer, name='fov_changer', daemon=True).start()
+        threading.Thread(target=fake_lag, name='fake_lag', daemon=True).start()
+        threading.Thread(target=hit_sound, args=['hitsound.wav'], name='hit_sound', daemon=True).start()
+        threading.Thread(target=player_infos, name='player_infos', daemon=True).start()
+        threading.Thread(target=night_mode, name='night_mode', daemon=True).start()
+        threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
+        threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
+        threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
+        dpg.start_dearpygui()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
         os._exit(0)
