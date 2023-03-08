@@ -223,7 +223,6 @@ def trigger_bot():
                     if entity_team_crosshair != local_team and entity_hp_crosshair >= 1:
                         if dpg.get_value('c_tbot_legit') == True:
                             v2_delay = round(random.uniform(0.001, 0.01), 3)
-                            
                             time.sleep(dpg.get_value('s_tbot_delay') + v2_delay)
                         else:
                             time.sleep(dpg.get_value('s_tbot_delay'))
@@ -623,8 +622,8 @@ def main():
     try:
         gui.init_menu()
         dpg.set_item_callback('b_unload', exit)
-        # threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
-        # time.sleep(0.5) # Increase in case of issues with overlay to 1.0
+        threading.Thread(target=opengl_overlay, name='opengl_overlay', daemon=True).start()
+        time.sleep(0.5) # Increase in case of issues with overlay to 1.0
         # if ov.overlay_state == True:
         threading.Thread(target=entity_loop, name='entity_loop', daemon=True).start()
         threading.Thread(target=aimbot, name='aimbot', daemon=True).start()
