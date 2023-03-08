@@ -15,22 +15,23 @@ class Entity(LocalPlayer):
             # 1 - 64 - reserved for players
             for i in range(1, 512):
                 entity = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + i * 0x10)
-                
+
                 if entity != 0:
-                    if self.class_id(entity) == None:
+                    class_id = self.class_id(entity)
+                    if class_id == None:
                         continue
-                    if [entity, self.class_id(entity)] not in self.entity_list:
-                        self.entity_list.append([i, entity, self.class_id(entity)])
+                    if [entity, class_id] not in self.entity_list:
+                        self.entity_list.append([i, entity, class_id])
         except Exception as err:
             pass
 
     def glow_objects_loop(self):
         try:
             self.glow_objects_list.clear()
-            
+
             for i in range(1, self.glow_object_size()):
                 glow_object = self.mem.game_handle.read_uint(self.glow_object() + 0x38 * (i - 1) + 0x4)
-                
+
                 if glow_object != 0:
                     class_id = self.class_id(glow_object)
                     if class_id == None:
@@ -60,7 +61,7 @@ class Entity(LocalPlayer):
 
     def is_spotted(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bSpotted)
-    
+
     def set_spotted(self, entity: int, value: bool):
         return self.mem.game_handle.write_bool(entity + offsets.m_bSpotted, value)
 
@@ -75,10 +76,10 @@ class Entity(LocalPlayer):
 
     def is_scoping(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bIsScoped)
-    
+
     def is_protected(self, entity: int):
         return self.mem.game_handle.read_bool(entity + offsets.m_bGunGameImmunity)
-    
+
     def get_flag(self, entity: int):
         return self.mem.game_handle.read_uint(entity + offsets.m_fFlags)
 
@@ -122,10 +123,9 @@ class Entity(LocalPlayer):
         return class_id
 
     def get_position(self, entity: int):
-        return Vector3(self.mem.game_handle.read_float(entity + offsets.m_vecOrigin),
-                       self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x4),
-                       self.mem.game_handle.read_float(entity + offsets.m_vecOrigin + 0x8)
-        )
+        position_bytes = self.mem.game_handle.read_bytes(entity + offsets.m_vecOrigin, 0xC)
+        var = struct.unpack("3f", position_bytes)
+        return Vector3(*var)
 
     def set_position(self, entity, position: Vector3):
         Vector3(self.mem.game_handle.write_float(entity + offsets.m_vecOrigin, position.x),
@@ -134,13 +134,9 @@ class Entity(LocalPlayer):
         )
 
     def get_view_angle(self):
-        bytes = self.mem.game_handle.read_bytes(self.engine_ptr() + offsets.dwClientState_ViewAngles, 0xC)
-        var = list(struct.unpack("3f", bytes))
+        view_angle_bytes = self.mem.game_handle.read_bytes(self.engine_ptr() + offsets.dwClientState_ViewAngles, 0xC)
+        var = struct.unpack("3f", view_angle_bytes)
         return Vector3(*var)
-        #return Vector3(self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles),
-        #               self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x4),
-        #               self.mem.game_handle.read_float(self.engine_ptr() + offsets.dwClientState_ViewAngles + 0x8)
-        # )
 
     def set_view_angle(self, angle: Vector3):
         Vector3(self.mem.game_handle.write_float(self.engine_ptr() + offsets.dwClientState_ViewAngles, angle.x),
@@ -158,7 +154,7 @@ class Entity(LocalPlayer):
     def get_name(self, entity: int):
         player_info = self.mem.game_handle.read_uint(self.engine_ptr()
         + offsets.dwClientState_PlayerInfo)
-                
+
         player_info_items = self.mem.game_handle.read_uint(
             self.mem.game_handle.read_uint(player_info + 0x40) + 0xC
         )
@@ -169,13 +165,13 @@ class Entity(LocalPlayer):
             # return self.mem.game_handle.read_string(info + 0x10)
 
     def get_rank(self, entity: int):
-        player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
-        return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveRanking + (entity  + 1) * 0x4)
+        return self.mem.game_handle.read_uint((self.mem.client_dll + offsets.dwPlayerResource) 
+                                              + offsets.m_iCompetitiveRanking + (entity  + 1) * 0x4)
 
     def get_wins(self, entity: int):
-        player_resources = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwPlayerResource)
-        return self.mem.game_handle.read_uint(player_resources + offsets.m_iCompetitiveWins + (entity + 1) * 0x4)
-    
+        return self.mem.game_handle.read_uint((self.mem.client_dll + offsets.dwPlayerResource) 
+                                              + offsets.m_iCompetitiveWins + (entity + 1) * 0x4)
+
     def view_matrix(self):
         view = self.mem.game_handle.read_bytes(self.mem.client_dll + offsets.dwViewMatrix, 64)
         matrix = struct.unpack("16f", view)

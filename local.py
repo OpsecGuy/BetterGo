@@ -10,10 +10,10 @@ class LocalPlayer():
 
     def get_current_state(self):
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwForceJump)
-    
+
     def get_flashbang_duration(self):
         return self.mem.game_handle.read_float(self.local_player() + offsets.m_flFlashDuration)
-    
+
     def set_flashbang_duration(self, value: float):
         self.mem.game_handle.write_float(self.local_player() + offsets.m_flFlashDuration, value)
 
@@ -22,16 +22,16 @@ class LocalPlayer():
 
     def get_total_hits(self):
         return self.mem.game_handle.read_uint(self.local_player() + offsets.m_totalHitsOnServer)
-    
+
     def get_shots_fired(self):
         return self.mem.game_handle.read_uint(self.local_player() + offsets.m_iShotsFired)
-    
+
     def get_crosshair_id(self):
         return self.mem.game_handle.read_uint(self.local_player() + offsets.m_iCrosshairId)
 
     def get_entity_by_crosshair(self):
         return self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + ((self.get_crosshair_id() - 1) * 0x10))
-    
+
     def get_team_by_crosshair(self, entity: int):
         return self.mem.game_handle.read_int(entity + offsets.m_iTeamNum)
 
@@ -43,10 +43,10 @@ class LocalPlayer():
 
     def force_left(self, value: int):
         self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceLeft, value)
-    
+
     def force_right(self, value: int):
         self.mem.game_handle.write_int(self.mem.client_dll + offsets.dwForceRight, value)
-        
+
     def force_attack(self, value: int):
         self.mem.game_handle.write_uint(self.mem.client_dll + offsets.dwForceAttack, value)
 
@@ -57,7 +57,7 @@ class LocalPlayer():
         active_weapon = self.mem.game_handle.read_uint(self.local_player() + offsets.m_hActiveWeapon) & 0xFFF
         weapon_handle = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + (active_weapon - 1) * 0x10)
         return self.mem.game_handle.read_short(weapon_handle + offsets.m_iItemDefinitionIndex)
-    
+
     def send_packets(self, value: bool):
         self.mem.game_handle.write_bool(self.mem.engine_dll + offsets.dwbSendPackets, value)
 
@@ -68,21 +68,20 @@ class LocalPlayer():
         self.mem.game_handle.write_int(self.local_player() + offsets.m_iDefaultFOV, value)
 
     def aim_punch_angle(self):
-        return Vector3(self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle),
-                       self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle + 0x4),
-                       self.mem.game_handle.read_float(self.local_player() + offsets.m_aimPunchAngle + 0x8)
-        )
+        punch_angle_bytes = self.mem.game_handle.read_bytes(self.local_player() + offsets.m_aimPunchAngle, 0xC)
+        var = struct.unpack("3f", punch_angle_bytes)
+        return Vector3(*var)
 
     def get_move_type(self):
         return self.mem.game_handle.read_uint(self.local_player() + offsets.m_MoveType)
-    
+
     def get_view(self):
-        return Vector3(self.mem.game_handle.read_float(self.local_player() + offsets.m_vecViewOffset),
-                       self.mem.game_handle.read_float(self.local_player() + offsets.m_vecViewOffset + 0x4),
-                       self.mem.game_handle.read_float(self.local_player() + offsets.m_vecViewOffset + 0x8)
-        )
-    
-    def get_eye_position(self, origin: int):
-        return Vector3(origin.x + self.get_view().x,
-                       origin.y + self.get_view().y,
-                       origin.z + self.get_view().z)
+        vec_view_bytes = self.mem.game_handle.read_bytes(self.local_player() + offsets.m_vecViewOffset, 0xC)
+        var = struct.unpack("3f", vec_view_bytes)
+        return Vector3(*var)
+
+    def get_eye_position(self, origin: Vector3):
+        my_view = self.get_view()
+        return Vector3(origin.x + my_view.x,
+                       origin.y + my_view.y,
+                       origin.z + my_view.z)

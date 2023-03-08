@@ -584,8 +584,15 @@ def opengl_overlay():
                         if dpg.get_value('c_head_indicator'):
                             ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 1.0, 0.0))
 
+                    if entity[2] == 157:
+                        grenade_pos = ent.get_position(entity[1])
+                        w2s_pos = w2s(grenade_pos, view_matrix)
+                        if w2s_pos is None:
+                            continue
+                        ov.draw_empty_circle(w2s_pos[0], w2s_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
+                    
                     # bomb indicator
-                    elif class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
+                    if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
                         c4_pos = ent.get_position(entity[1])
                         w2s_c4_pos = w2s(c4_pos, view_matrix)
 
@@ -610,7 +617,7 @@ def opengl_overlay():
                             ov.draw_lines(crosshair_x, crosshair_y, 1, (1.0, 0.0, 0.0))
                         elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
                             ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (1.0, 1.0, 0.0))
-                        
+
         except Exception as err:
             if DEBUG_MODE == True:
                 print(opengl_overlay.__name__, err)
