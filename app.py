@@ -584,13 +584,6 @@ def opengl_overlay():
                         if dpg.get_value('c_head_indicator'):
                             ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 1.0, 0.0))
 
-                    if entity[2] == 157:
-                        grenade_pos = ent.get_position(entity[1])
-                        w2s_pos = w2s(grenade_pos, view_matrix)
-                        if w2s_pos is None:
-                            continue
-                        ov.draw_empty_circle(w2s_pos[0], w2s_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
-                    
                     # bomb indicator
                     if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
                         c4_pos = ent.get_position(entity[1])
