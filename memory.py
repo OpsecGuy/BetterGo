@@ -11,7 +11,7 @@ except Exception as err:
     os._exit(0)
 
 try:
-    glfw_path = os.getcwd() + '\\glfw3.dll'
+    glfw_path = os.getcwd() + '\\glfw3.dll' 
     valid_file_md5 = '732d3c46d42abd44fd5555fe9c3ae29f'
     hash = get_hash_of(glfw_path)
     

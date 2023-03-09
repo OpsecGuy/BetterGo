@@ -20,9 +20,8 @@ class GUI(Config):
         self.config.create_default_config('default_config.json')
         with dpg.window(tag='w_main'):
             with dpg.tab_bar():
-                
                 with dpg.tab(label='News'):
-                    dpg.add_text('Version: 1.6.1')
+                    dpg.add_text('Version: 1.6.2')
                     dpg.add_text('Functions marked by (?)\nmay lower your trust factor.\nSafe Mode disables them.', color=(255, 0, 0, 255))
                     dpg.add_checkbox(label='Safe Mode', default_value=True, tag='c_safe_mode')
                     dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))

@@ -40,7 +40,7 @@ class Overlay():
         gl.glLoadIdentity()
         gl.glOrtho(0, ScreenSize.x - 1, 0, ScreenSize.y - 1, -1, 1)
         gl.glDisable(gl.GL_DEPTH_TEST)
-        # gl.glDisable(gl.GL_TEXTURE_2D)
+        gl.glDisable(gl.GL_TEXTURE_2D)
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
@@ -69,9 +69,9 @@ class Overlay():
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         glfw.poll_events()
 
-    def draw_empty_circle(self, cx: float, cy: float, r: float, points: int, color: Vector3):
+    def draw_empty_circle(self, cx: float, cy: float, r: float, points: float, color: Vector3):
         gl.glColor4f(*color, 1.0)
-        theta = pi * 2 / float(points)
+        theta = pi * 2 / points
         tangetial_factor = tan(theta)
         radial_factor = cos(theta)
         x = r
@@ -90,7 +90,6 @@ class Overlay():
             x *= radial_factor
             y *= radial_factor
         gl.glEnd()
-        gl.glFlush()
 
     def draw_filled_dot(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
         gl.glPointSize(line_width)
@@ -98,7 +97,6 @@ class Overlay():
         gl.glColor4f(*color, 1.0)
         gl.glVertex2f(start_point_x, start_point_y)
         gl.glEnd()
-        gl.glFlush()
 
     def draw_line(self, start_point_x: float, start_point_y: float, end_point_x: float, end_point_y: float, line_width: float, color: Vector3):
         gl.glLineWidth(line_width)
@@ -107,9 +105,8 @@ class Overlay():
         gl.glVertex2f(start_point_x, start_point_y)
         gl.glVertex2f(end_point_x, end_point_y)
         gl.glEnd()
-        gl.glFlush()
 
-    def draw_lines(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
+    def draw_crosshair(self, start_point_x: float, start_point_y: float, line_width: float, color: Vector3):
         gl.glLineWidth(line_width)
         gl.glBegin(gl.GL_LINES)
         gl.glColor4f(*color, 1.0)
@@ -118,7 +115,6 @@ class Overlay():
         gl.glVertex2f(start_point_x - 5, start_point_y)
         gl.glVertex2f(start_point_x + 5, start_point_y)
         gl.glEnd()
-        gl.glFlush()
 
     def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float, color: Vector3):
         gl.glLineWidth(line_width)
@@ -129,7 +125,6 @@ class Overlay():
         gl.glVertex2f(start_point_x + width, start_point_y + height)
         gl.glVertex2f(start_point_x, start_point_y + height)
         gl.glEnd()
-        gl.glFlush()
 
     def draw_text(self, text: str, x: int, y: int, font=glut.GLUT_BITMAP_9_BY_15):
         gl.glRasterPos2f(x, y)
@@ -142,5 +137,3 @@ class Overlay():
 
             for c in line:
                 glut.glutBitmapCharacter(font, ord(c))
-        gl.glFlush()
-

@@ -1,4 +1,4 @@
-__author__ = 'Opsec'
+__author__ = 'OpsecGuy'
 
 from memory import *
 from entity import *
@@ -539,16 +539,16 @@ def convar_handler():
 def opengl_overlay():
     global ov
     ov = Overlay()
-    c = GetWindowRect(ov.handle)
-    x1 = (c[2] / 2) + 1
-    y1 = (c[3] / 2) + 1
+    ov_rect = GetWindowRect(ov.handle)
+    center_x = (ov_rect[2] + 1) / 2
+    center_y = (ov_rect[3] + 1) / 2
 
     while True:
         try:
             ov.draw_text(f'github.com/OpsecGuy', 420, 20)
             if ent.in_game():
                 if dpg.get_value('c_spec_alert'):
-                    ov.draw_text(f'{spectator_list()}', x1 - 75, y1 + 200)
+                    ov.draw_text(f'{spectator_list()}', center_x - 75, center_y + 200)
 
                 local_player = lp.local_player()
                 view_matrix = ent.view_matrix()
@@ -568,7 +568,7 @@ def opengl_overlay():
                             continue
 
                         if dpg.get_value('c_snaplines'):
-                            ov.draw_line(x1, 0, w2s_position[0], w2s_position[1], 1, (0.0, 1.0, 0.0))
+                            ov.draw_line(center_x, 0, w2s_position[0], w2s_position[1], 1, (0.0, 1.0, 0.0))
 
                         if dpg.get_value('c_box_esp'):
                             head = bone_head[1] - w2s_position[1]
@@ -578,38 +578,37 @@ def opengl_overlay():
                             ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 1.0, 0.0))
 
                         if dpg.get_value('c_distance'):
-                            dist = distance(start_point=ent.get_position(local_player), end_point=entity_position)
+                            dist = distance(ent.get_position(local_player), entity_position)
                             ov.draw_text(f'{str(dist / 32):.4}m', w2s_position[0], w2s_position[1] - 30)
 
                         if dpg.get_value('c_head_indicator'):
-                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10, (0.0, 1.0, 0.0))
+                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10.0, (0.0, 1.0, 0.0))
 
                     # bomb indicator
                     if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
                         c4_pos = ent.get_position(entity[1])
                         w2s_c4_pos = w2s(c4_pos, view_matrix)
-
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
-                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
+                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10.0, (1.0, 1.0, 0.0))
 
                 if dpg.get_value('c_sniper_crosshair'):
                     if weapon_sniper(lp.active_weapon()) and not ent.is_scoping(local_player):
-                        ov.draw_lines(x1, y1, 1, (1.0, 0.0, 0.0))
+                        ov.draw_crosshair(center_x, center_y, 1, (1.0, 0.0, 0.0))
 
                 if dpg.get_value('c_recoil_crosshair'):
                     punch_angle = ent.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() > 1:
                         fov = lp.get_fov()
-                        dx = c[2] / fov
-                        dy = c[3] / fov
-                        crosshair_x = x1 - dx * punch_angle.y
-                        crosshair_y = y1 - dy * punch_angle.x
+                        dx = (ov_rect[2] + 1) / fov
+                        dy = (ov_rect[3] + 1) / fov
+                        crosshair_x = center_x - dx * punch_angle.y
+                        crosshair_y = center_y - dy * punch_angle.x
 
                         if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
-                            ov.draw_lines(crosshair_x, crosshair_y, 1, (1.0, 0.0, 0.0))
+                            ov.draw_crosshair(crosshair_x, crosshair_y, 1, (1.0, 0.0, 0.0))
                         elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
-                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (1.0, 1.0, 0.0))
+                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10.0, (1.0, 1.0, 0.0))
 
         except Exception as err:
             if DEBUG_MODE == True:
