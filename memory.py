@@ -11,10 +11,10 @@ except Exception as err:
     os._exit(0)
 
 try:
-    glfw_path = os.getcwd() + '\\glfw3.dll' 
+    glfw_path = os.getcwd() + '\\glfw3.dll'
     valid_file_md5 = '732d3c46d42abd44fd5555fe9c3ae29f'
     hash = get_hash_of(glfw_path)
-    
+
     if hash != valid_file_md5:
         ctypes.windll.user32.MessageBoxW(0, f'MD5 hash of glfw3.dll does not match', 'Fatal Error', 0)
         os._exit(0)
@@ -60,4 +60,3 @@ def execute_cmd(command: str, address: int):
     thread_handle = int(str(command_thread[0]).removesuffix('>').split(':')[1])
     kernel32.VirtualFreeEx(game_handle.process_handle, command_buffer, sys.getsizeof(command) + 1, win32con.MEM_RELEASE)
     kernel32.CloseHandle(thread_handle)
-

@@ -2,7 +2,7 @@ from memory import *
 import offsets
 
 class ConVar():
-    def __init__(self, name):
+    def __init__(self, name) -> str:
         try:
             self.address = 0
             vstdlib = process.module_from_name(game_handle.process_handle, 'vstdlib.dll').lpBaseOfDll

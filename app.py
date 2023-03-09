@@ -133,17 +133,15 @@ def aimbot():
                             continue
                         if ent.get_health(entity[1]) <= 0:
                             continue
-                        
+
                         bone_matrix = ent.get_bone_position(entity[1], bone_ids.get(dpg.get_value('c_aimbot_bone')))
                         current_view_angle = \
                         Vector3(view_angle.x + aim_punch.x * 2.0,
                                 view_angle.y + aim_punch.y * 2.0,
                                 view_angle.z + aim_punch.z * 2.0)
-                        
                         angle = calculate_angle(local_eye_pos, bone_matrix, current_view_angle)
-                        
                         fov = hypot(angle.x, angle.y)
-                        
+
                         fixed_angle = clamp_angle(normalize_angle(angle))
                         if fov < best_fov:
                             best_fov = fov
@@ -154,7 +152,7 @@ def aimbot():
                                         view_angle.y + best_angle.y / dpg.get_value('s_aimbot_smooth'),
                                         view_angle.z + best_angle.z / dpg.get_value('s_aimbot_smooth')
                                         ))
-                                               
+
         except Exception as err:
             if DEBUG_MODE == True:
                 print(aimbot.__name__, err)

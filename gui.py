@@ -12,7 +12,7 @@ class GUI(Config):
     def _log(self, sender, app_data, user_data):
         print(f"sender: {sender}, \t app_data: {app_data}, \t user_data: {user_data}")
 
-    def init_menu(self):
+    def init_menu(self) -> None:
         dpg.create_context()
         self.set_custom_theme()
         dpg.create_viewport(title=self.random_string, decorated=True, width=380, height=450)
@@ -106,7 +106,7 @@ class GUI(Config):
         dpg.show_viewport()
         dpg.set_primary_window("w_main", True)
 
-    def make_interactive(self):
+    def make_interactive(self) -> None:
         while True:
             try:
                 dpg.hide_item('k_aimbot') if dpg.get_value('c_aimbot') == False else dpg.show_item('k_aimbot')
@@ -158,7 +158,7 @@ class GUI(Config):
                 pass
             time.sleep(0.1)
 
-    def set_custom_theme(self):
+    def set_custom_theme(self) -> None:
         dpg.add_theme(tag='base_theme')
         with dpg.theme_component(parent='base_theme'):
             dpg.add_theme_style(dpg.mvStyleVar_WindowRounding, 9)
@@ -172,7 +172,7 @@ class GUI(Config):
             dpg.add_theme_color(dpg.mvThemeCol_CheckMark, (0, 255, 0))
             dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,(0, 170, 50, 130))
 
-    def create_config(self):
+    def create_config(self) -> None:
         if dpg.get_value('i_config_name') != '':
             config_file = f"{dpg.get_value('i_config_name')}"
             path_to_config = f'{self.config.get_cfg_dir}\\'+ f'{config_file}'
@@ -185,7 +185,7 @@ class GUI(Config):
             except Exception as err:
                 pass
 
-    def save_config(self):
+    def save_config(self) -> None:
         if dpg.get_value('c_config_list') != '':
             config_file = f"{dpg.get_value('c_config_list')}.json"
             path_to_config = (f'{self.config.get_cfg_dir}\\'+ f'{config_file}')
@@ -249,7 +249,7 @@ class GUI(Config):
                     json.dump(content, f)
 
     # TO:DO Clean up
-    def load_config(self):
+    def load_config(self) -> None:
         config = f"{dpg.get_value('c_config_list')}.json"
         path_to_config = (f'{self.config.get_cfg_dir}\\'+ f'{config}')
         config_name = dpg.get_value('c_config_list')
@@ -311,5 +311,5 @@ class GUI(Config):
             
             dpg.set_value('c_safe_mode', self.config.read_value(config_name, 'other','safe_mode'))
 
-    def key_handler(self, key: str):
+    def key_handler(self, key: str) -> int:
         return h.gui_keys_list.get(dpg.get_value(key))
