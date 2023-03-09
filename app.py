@@ -396,7 +396,7 @@ def spectator_list():
 
     except Exception as err:
         if DEBUG_MODE == True:
-            print(hit_sound.__name__, err)
+            print(spectator_list.__name__, err)
         pass
 
 def player_infos():
@@ -500,36 +500,36 @@ def convar_handler():
     showfps = ConVar('cl_showfps')
     grenade_preview = ConVar('cl_grenadepreview')
     sky_name = ConVar('sv_skyname')
-    _temp1, _temp2, _temp3 = 0, 0, ''
+    temp_showfps, temp_grenade_preview, temp_sky_name = 0, 0, ''
 
     while True:
         try:
             fps_state = int(dpg.get_value('c_fps'))
             gre_state = int(dpg.get_value('c_gre_line'))
             sky_state = dpg.get_value('d_sky')
-            if fps_state != _temp1:
+            if fps_state != temp_showfps:
                 if (dpg.get_value('c_fps')):
                         showfps.set_int(fps_state)
-                        _temp1 = fps_state
+                        temp_showfps = fps_state
                 else:
                     showfps.set_int(fps_state)
-                    _temp1 = fps_state
+                    temp_showfps = fps_state
 
-            elif gre_state != _temp2:
+            if gre_state != temp_grenade_preview:
                 if (dpg.get_value('c_gre_line')):
                         grenade_preview.set_int(gre_state)
-                        _temp2 = gre_state
+                        temp_grenade_preview = gre_state
                 else:
                     grenade_preview.set_int(gre_state)
-                    _temp2 = gre_state
+                    temp_grenade_preview = gre_state
             
-            elif sky_state != _temp3:
+            if sky_state != temp_sky_name:
                 if (dpg.get_value('d_sky')):
                         sky_name.set_string(sky_state)
-                        _temp3 = sky_state
+                        temp_sky_name = sky_state
                 else:
                     sky_name.set_string(sky_state)
-                    _temp3 = sky_state
+                    temp_sky_name = sky_state
         except Exception as err:
             if DEBUG_MODE == True:
                 print(convar_handler.__name__, err)
@@ -582,7 +582,7 @@ def opengl_overlay():
                             ov.draw_text(f'{str(dist / 32):.4}m', w2s_position[0], w2s_position[1] - 30)
 
                         if dpg.get_value('c_head_indicator'):
-                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4, 10.0, (0.0, 1.0, 0.0))
+                            ov.draw_empty_circle(bone_head[0], bone_head[1], 4.0, 10, (0.0, 1.0, 0.0))
 
                     # bomb indicator
                     if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
@@ -590,7 +590,7 @@ def opengl_overlay():
                         w2s_c4_pos = w2s(c4_pos, view_matrix)
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
-                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10.0, (1.0, 1.0, 0.0))
+                        ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
 
                 if dpg.get_value('c_sniper_crosshair'):
                     if weapon_sniper(lp.active_weapon()) and not ent.is_scoping(local_player):
@@ -608,7 +608,7 @@ def opengl_overlay():
                         if dpg.get_value('c_recoil_crosshair_mode') == 'Crosshair':
                             ov.draw_crosshair(crosshair_x, crosshair_y, 1, (1.0, 0.0, 0.0))
                         elif dpg.get_value('c_recoil_crosshair_mode') == 'Circle':
-                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10.0, (1.0, 1.0, 0.0))
+                            ov.draw_empty_circle(crosshair_x, crosshair_y, 5.0, 10, (1.0, 1.0, 0.0))
 
         except Exception as err:
             if DEBUG_MODE == True:

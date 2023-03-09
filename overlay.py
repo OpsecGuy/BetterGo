@@ -69,9 +69,9 @@ class Overlay():
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         glfw.poll_events()
 
-    def draw_empty_circle(self, cx: float, cy: float, r: float, points: float, color: Vector3):
+    def draw_empty_circle(self, cx: float, cy: float, r: float, points: int, color: Vector3):
         gl.glColor4f(*color, 1.0)
-        theta = pi * 2 / points
+        theta = pi * 2 / float(points)
         tangetial_factor = tan(theta)
         radial_factor = cos(theta)
         x = r
