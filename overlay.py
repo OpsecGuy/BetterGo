@@ -125,8 +125,8 @@ class Overlay():
         gl.glEnd()
 
     def draw_text(self, text: str, x: int, y: int, font=glut.GLUT_BITMAP_9_BY_15) -> None:
-        gl.glRasterPos2f(x, y)
         gl.glColor4f(0.0, 1.0, 0.0, 1.0)
+        gl.glRasterPos2i(int(x), int(y))
         lines = text.split("\n")
         line_height = 24
 
