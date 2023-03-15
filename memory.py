@@ -23,20 +23,23 @@ except Exception as err:
     ctypes.windll.user32.MessageBoxW(0, f'{err}', 'Fatal Error', 0)
     os._exit(0)
 
-try:
-    game_handle = Pymem('csgo.exe')
-    client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
-    client_dll_size = process.module_from_name(game_handle.process_handle, 'client.dll').SizeOfImage
-    engine_dll = process.module_from_name(game_handle.process_handle, 'engine.dll').lpBaseOfDll
-except exception.ProcessNotFound as err:
-    ctypes.windll.user32.MessageBoxW(0, 'Could not find CS:GO process!\nMake sure the game is running first!', 'Fatal Error', 0)
-    os._exit(0)
+while True:
+    try:
+        game_handle = Pymem('csgo.exe')
+        client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
+        engine_dll = process.module_from_name(game_handle.process_handle, 'engine.dll').lpBaseOfDll
+        print(f'Game Handle: {hex(game_handle.base_address)}\nClient.dll: {hex(client_dll)}\nEngine.dll: {hex(engine_dll)}')
+        break
+    except (exception.ProcessNotFound, AttributeError) as err:
+        os.system('cls')
+        print('Waiting for csgo.exe!')
+        time.sleep(1)
+        continue
 
 @dataclass
 class Memory:
     game_handle: 0
     client_dll: 0
-    client_dll_size: 0
     engine_dll: 0
 
 def get_sig(module_name, _pattern, extra = 0, offset = 0, relative = True, deref = False):

@@ -148,22 +148,6 @@ def distance(start_point: Vector3, end_point: Vector3):
 
 	return int(abs(round(distance)))
 
-def w2s(pos: Vector3, matrix):
-    z = pos.x * matrix[12] + pos.y * matrix[13] + pos.z * matrix[14] + matrix[15]
-    if z < 0.1:
-        return None
-
-    x = pos.x * matrix[0] + pos.y * matrix[1] + pos.z * matrix[2] + matrix[3]
-    y = pos.x * matrix[4] + pos.y * matrix[5] + pos.z * matrix[6] + matrix[7]
-
-    xx = x / z
-    yy = y / z
-
-    _x = (ScreenSize.x / 2 * xx) + (xx + ScreenSize.x / 2)
-    _y = (ScreenSize.y / 2 * yy) + (yy + ScreenSize.y / 2)
-
-    return [_x, _y]
-
 def get_hash_of(file_name: str):
     hash_md5 = hashlib.md5()
     with open(file_name, "rb") as f:

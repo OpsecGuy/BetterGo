@@ -405,10 +405,11 @@ def player_infos():
                     if entity[2] == 40:
                         if ent.get_name(entity[0]) not in [None, 'GOTV']:
                             name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
-                             
+
                             if name not in h.player_info_buffer:
                                 player_info_buffer.append([name, str(ent.get_wins(entity[0])), str(ranks_list[ent.get_rank(entity[0])])])
-                                       
+
+                # TO:DO Recode needed
                 dpg.set_value('buffer_name','\n'.join([i[0] for i in h.player_info_buffer]))
                 dpg.set_value('buffer_wins','\n'.join([i[1] for i in h.player_info_buffer]))
                 dpg.set_value('buffer_rank','\n'.join([i[2] for i in h.player_info_buffer]))
@@ -559,8 +560,8 @@ def opengl_overlay():
                             continue
 
                         entity_position = ent.get_position(entity[1])
-                        w2s_position = w2s(entity_position, view_matrix)
-                        bone_head = w2s(ent.get_bone_position(entity[1], 8), view_matrix)
+                        w2s_position = ov.w2s(entity_position, view_matrix)
+                        bone_head = ov.w2s(ent.get_bone_position(entity[1], 8), view_matrix)
 
                         if w2s_position is None or bone_head is None:
                             continue
@@ -585,7 +586,7 @@ def opengl_overlay():
                     # bomb indicator
                     if class_id_c4(entity[2]) and dpg.get_value('c_bomb_indicator'):
                         c4_pos = ent.get_position(entity[1])
-                        w2s_c4_pos = w2s(c4_pos, view_matrix)
+                        w2s_c4_pos = ov.w2s(c4_pos, view_matrix)
                         if w2s_c4_pos is None or c4_pos.x == 0.0:
                             continue
                         ov.draw_empty_circle(w2s_c4_pos[0], w2s_c4_pos[1], 10.0, 10, (1.0, 1.0, 0.0))
@@ -641,6 +642,11 @@ def main():
         threading.Thread(target=chat_spam, name='chat_spam', daemon=True).start()
         threading.Thread(target=convar_handler, name='convar_controller', daemon=True).start()
         threading.Thread(target=gui.make_interactive, name='interactive_gui', daemon=True).start()
+        
+        if DEBUG_MODE == False:
+            console_handle = kernel32.GetConsoleWindow(0) # 0 to hide console window only
+            win32gui.ShowWindow(console_handle, win32con.SW_HIDE)
+        
         dpg.start_dearpygui()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')
@@ -649,7 +655,7 @@ def main():
 if __name__ == '__main__':
     try:
         print(f'Debug: {DEBUG_MODE}')
-        mem = Memory(game_handle, client_dll, client_dll_size, engine_dll)
+        mem = Memory(game_handle, client_dll, engine_dll)
         lp = LocalPlayer(mem)
         ent = Entity(mem)
         gui = GUI()

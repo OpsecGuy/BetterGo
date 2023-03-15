@@ -21,7 +21,7 @@ class Overlay():
         glfw.window_hint(glfw.DECORATED, False)
         glfw.window_hint(glfw.RESIZABLE, False)
         glfw.window_hint(glfw.TRANSPARENT_FRAMEBUFFER, True)
-        # Don't touch this. Without anti-aliasing all the drawings looks horrible.
+        # Don't touch this. Without anti-aliasing all the drawings looks terrible.
         glfw.window_hint(glfw.SAMPLES, 2)
 
         self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:=f'{self.random_string}', None, None)
@@ -124,7 +124,7 @@ class Overlay():
         gl.glVertex2f(start_point_x, start_point_y + height)
         gl.glEnd()
 
-    def draw_text(self, text: str, x: int, y: int, font=glut.GLUT_BITMAP_9_BY_15) -> None:
+    def draw_text(self, text: str, x: int | float, y: int | float, font=glut.GLUT_BITMAP_9_BY_15) -> None:
         gl.glColor4f(0.0, 1.0, 0.0, 1.0)
         gl.glRasterPos2i(int(x), int(y))
         lines = text.split("\n")
@@ -135,3 +135,19 @@ class Overlay():
 
             for c in line:
                 glut.glutBitmapCharacter(font, ord(c))
+
+    def w2s(self, pos: Vector3, matrix):
+        z = pos.x * matrix[12] + pos.y * matrix[13] + pos.z * matrix[14] + matrix[15]
+        if z < 0.01:
+            return None
+
+        x = pos.x * matrix[0] + pos.y * matrix[1] + pos.z * matrix[2] + matrix[3]
+        y = pos.x * matrix[4] + pos.y * matrix[5] + pos.z * matrix[6] + matrix[7]
+
+        xx = x / z
+        yy = y / z
+
+        _x = (ScreenSize.x / 2 * xx) + (xx + ScreenSize.x / 2)
+        _y = (ScreenSize.y / 2 * yy) + (yy + ScreenSize.y / 2)
+
+        return [_x, _y]

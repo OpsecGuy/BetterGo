@@ -13,7 +13,7 @@ class Entity(LocalPlayer):
             self.entity_list.clear()
             # 0 - world entity
             # 1 - 64 - reserved for players
-            for i in range(1, 512):
+            for i in range(0, 512):
                 entity = self.mem.game_handle.read_uint(self.mem.client_dll + offsets.dwEntityList + i * 0x10)
 
                 if entity != 0:
