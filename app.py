@@ -203,7 +203,6 @@ def auto_pistol():
         time.sleep(0.01)
 
 def trigger_bot():
-    entity = 0
     while True:
         try:
             if ov.window_focused() and ent.in_game() and ent.get_health(lp.local_player()) > 0:
@@ -213,7 +212,7 @@ def trigger_bot():
                     continue
                     
                 local_position = ent.get_position(lp.local_player())
-                distance = h.distance(local_position, ent.get_position(entity))
+                distance = helper.distance(local_position, ent.get_position(entity))
                 entity_hp_crosshair = lp.get_health_by_crosshair(entity)
                 entity_team_crosshair = lp.get_team_by_crosshair(entity)
                 local_team = ent.get_team(lp.local_player())
@@ -251,7 +250,7 @@ def bunny_hop():
         try:
             if dpg.get_value('c_bh') and lp.get_current_state() == 5:
                 while ctypes.windll.user32.GetAsyncKeyState(0x20):
-                    if ent.get_flag(lp.local_player()) in [257, 263] and lp.get_move_type() != 9:
+                    if ent.get_flag(lp.local_player()) & (1 << 0) and lp.get_move_type() != 9:
                         lp.force_jump(5)
                     else:
                         lp.force_jump(4)
@@ -406,14 +405,14 @@ def player_infos():
                         if ent.get_name(entity[0]) not in [None, 'GOTV']:
                             name = str(ent.get_name(entity[0])).removeprefix("b'").split('\\')[0].strip()[:10]
 
-                            if name not in h.player_info_buffer:
+                            if name not in helper.player_info_buffer:
                                 player_info_buffer.append([name, str(ent.get_wins(entity[0])), str(ranks_list[ent.get_rank(entity[0])])])
 
                 # TO:DO Recode needed
-                dpg.set_value('buffer_name','\n'.join([i[0] for i in h.player_info_buffer]))
-                dpg.set_value('buffer_wins','\n'.join([i[1] for i in h.player_info_buffer]))
-                dpg.set_value('buffer_rank','\n'.join([i[2] for i in h.player_info_buffer]))
-                h.player_info_buffer.clear()
+                dpg.set_value('buffer_name','\n'.join([i[0] for i in helper.player_info_buffer]))
+                dpg.set_value('buffer_wins','\n'.join([i[1] for i in helper.player_info_buffer]))
+                dpg.set_value('buffer_rank','\n'.join([i[2] for i in helper.player_info_buffer]))
+                helper.player_info_buffer.clear()
         except Exception as err:
             if DEBUG_MODE == True:
                 print(player_infos.__name__, err)
@@ -647,6 +646,7 @@ def main():
             console_handle = kernel32.GetConsoleWindow(0) # 0 to hide console window only
             win32gui.ShowWindow(console_handle, win32con.SW_HIDE)
         
+        # Call as last
         dpg.start_dearpygui()
     except Exception as err:
         print(f'Threads have been canceled! Exiting...\nReason: {err}\nExiting...')

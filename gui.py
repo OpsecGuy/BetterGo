@@ -1,12 +1,10 @@
 import dearpygui.dearpygui as dpg
-import helper as h
-import webbrowser
-import time, ctypes
+import webbrowser, time, ctypes, helper
 from config import *
 
 class GUI(Config):
     def __init__(self) -> None:
-        self.random_string = h.get_random_string()
+        self.random_string = helper.get_random_string()
         self.config = Config()
     
     def _log(self, sender, app_data, user_data):
@@ -21,16 +19,16 @@ class GUI(Config):
         with dpg.window(tag='w_main'):
             with dpg.tab_bar():
                 with dpg.tab(label='News'):
-                    dpg.add_text('Version: 1.6.4')
+                    dpg.add_text('Version: 1.6.4.1')
                     dpg.add_text('Functions marked by (?)\nmay lower your trust factor.\nSafe Mode disables them.', color=(255, 0, 0, 255))
                     dpg.add_checkbox(label='Safe Mode', default_value=True, tag='c_safe_mode')
                     dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
                 with dpg.tab(label='Aim'):
                     dpg.add_checkbox(label='Aimbot (?)', tag='c_aimbot')
-                    dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 5', width=215, tag='k_aimbot')
+                    dpg.add_combo(label='Key', items=tuple(helper.gui_keys_list.keys()), default_value='MOUSE 5', width=215, tag='k_aimbot')
                     dpg.add_slider_float(label='Aimbot FOV', default_value=5.0, min_value=1.0, max_value=359.9, clamped=True, width=215, format='%.3f', tag='s_aimbot_fov')
                     dpg.add_slider_float(label='Aimbot Smooth', default_value=3.0, min_value=1.0, max_value=30.0, clamped=True, width=215, format='%.3f', tag='s_aimbot_smooth')
-                    dpg.add_combo(label='Bone', items=tuple(h.bone_ids.keys()), default_value='HEAD', width=215, tag='c_aimbot_bone')
+                    dpg.add_combo(label='Bone', items=tuple(helper.bone_ids.keys()), default_value='HEAD', width=215, tag='c_aimbot_bone')
                     dpg.add_checkbox(label='Visible Only (?)', tag='c_aimbot_vis')
                     dpg.add_checkbox(label='Attack Team', tag='c_aimbot_team')
                     dpg.add_separator()
@@ -39,7 +37,7 @@ class GUI(Config):
                     dpg.add_slider_int(label='Shot After x Bullets', default_value=1, min_value=0, max_value=30, clamped=True, width=215, tag='s_rcs_min_bullets')
                     dpg.add_separator()
                     dpg.add_checkbox(label='TriggerBot', tag='c_tbot')
-                    dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='MOUSE 4', width=215, tag='k_tbot')
+                    dpg.add_combo(label='Key', items=tuple(helper.gui_keys_list.keys()), default_value='MOUSE 4', width=215, tag='k_tbot')
                     dpg.add_checkbox(label='Humanization', tag='c_tbot_legit')
                     dpg.add_slider_float(label='TriggerBot Delay', default_value=0.025, min_value=0.01, max_value=0.2, clamped=True, width=215, format='%.3f', tag='s_tbot_delay')
                 with dpg.tab(label='Visuals'):
@@ -55,7 +53,7 @@ class GUI(Config):
                     dpg.add_checkbox(label='No Flash (?)', tag='c_noflash')
                     dpg.add_slider_float(label='No Flash Strength', default_value=255.0, min_value=0.0, max_value=255.0, clamped=True, width=215, format='%.3f', tag='s_noflash_str')
                     dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, clamped=True, width=215, tag='s_fov')
-                    dpg.add_combo(label='Sky', items=list(h.sky_list), default_value='', width=215, tag='d_sky')
+                    dpg.add_combo(label='Sky', items=list(helper.sky_list), default_value='', width=215, tag='d_sky')
                 with dpg.tab(label='Overlay'):
                     dpg.add_checkbox(label='Box ESP + HP Text', tag='c_box_esp')
                     dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
@@ -68,7 +66,7 @@ class GUI(Config):
                     dpg.add_combo(label='Crosshair Style', items=['Crosshair', 'Circle'], default_value='Crosshair', width=215, tag='c_recoil_crosshair_mode')
                 with dpg.tab(label='Misc'):
                     dpg.add_checkbox(label='Auto Pistol', tag='c_autopistol', default_value=True)
-                    dpg.add_combo(label='Key', items=tuple(h.gui_keys_list.keys()), default_value='LEFT MOUSE', width=215, tag='k_autopistol')
+                    dpg.add_combo(label='Key', items=tuple(helper.gui_keys_list.keys()), default_value='LEFT MOUSE', width=215, tag='k_autopistol')
                     dpg.add_checkbox(label='Radar Hack (?)', tag='c_radar')
                     dpg.add_checkbox(label='Hit Sound', tag='c_hitsound')
                     dpg.add_checkbox(label='BunnyHop', tag='c_bh')
@@ -312,4 +310,4 @@ class GUI(Config):
             dpg.set_value('c_safe_mode', self.config.read_value(config_name, 'other','safe_mode'))
 
     def key_handler(self, key: str) -> int:
-        return h.gui_keys_list.get(dpg.get_value(key))
+        return helper.gui_keys_list.get(dpg.get_value(key))
