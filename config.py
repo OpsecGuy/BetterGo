@@ -2,42 +2,43 @@ import json, os
 from helper import config_example
 
 class Config():
-    def __init__(self):
-        # Default config name
-        self.config_name = 'BetterGo_config'
-        # Get absolute directory
+    def __init__(self, cfg_name: str = None):
+        self.cfg_name = cfg_name
+        # Current dir
         self.get_abs_dir = os.getcwd()
-        # Config folder name to set
-        self.get_cfg_dir = self.get_abs_dir + '\\' + self.config_name
+        
+        self.cfg_folder = 'Config'
+        self.cfg_folder_dir = self.get_abs_dir + '\\' + self.cfg_folder
         
         # Check if config folder exists
-        if os.path.exists(self.get_cfg_dir):
-            pass
-        else:
-            # Create folder with configs
-            os.mkdir(self.config_name)
+        if not os.path.exists(self.cfg_folder_dir):
+            os.mkdir(self.cfg_folder)
 
-    def create_default_config(self, file_name):
+    def create_default(self):
         try:
-            with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}', 'w+') as file:
-                file.flush()
-                file.write(json.dumps(config_example))
-
+            default_cfg_dir = self.cfg_folder_dir + '\\' + 'default.json'
+            if not os.path.exists(default_cfg_dir):
+                with open(default_cfg_dir, 'w+') as file:
+                    file.flush()
+                    file.write(json.dumps(config_example))
+            
         except Exception as err:
             print(err)
 
+    def get_path(self):
+        return self.cfg_folder_dir + '\\' + self.cfg_name
+    
     def get_config_list(self):
-        buffer = []
-        list = os.listdir(self.get_cfg_dir)
-        for config in list:
-            if '.json' in config:
-                buffer.append(config.removesuffix('.json'))
-        return buffer
+        return os.listdir(self.cfg_folder_dir)
 
-    def read_value(self, file_name: str, category: str, object: str):
+    def read_value(self, category: str, object: str):
         try:
-            with open(f'{self.get_cfg_dir}\\'+ rf'{file_name}.json', 'r') as f:
-                content = json.load(f)
-                return(content[category][object])
+            config = self.cfg_folder_dir + '\\' + self.cfg_name
+            # Check if config exists
+            if os.path.exists(config):
+                with open(config, 'r') as file:
+                    data = json.load(file)
+                    return(data[category][object])
+
         except Exception as err:
             print(err)

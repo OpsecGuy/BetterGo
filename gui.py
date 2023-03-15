@@ -6,7 +6,8 @@ class GUI(Config):
     def __init__(self) -> None:
         self.random_string = helper.get_random_string()
         self.config = Config()
-    
+        self.config.create_default()
+
     def _log(self, sender, app_data, user_data):
         print(f"sender: {sender}, \t app_data: {app_data}, \t user_data: {user_data}")
 
@@ -14,12 +15,11 @@ class GUI(Config):
         dpg.create_context()
         self.set_custom_theme()
         dpg.create_viewport(title=self.random_string, decorated=True, width=380, height=450)
-        
-        self.config.create_default_config('default_config.json')
+
         with dpg.window(tag='w_main'):
             with dpg.tab_bar():
                 with dpg.tab(label='News'):
-                    dpg.add_text('Version: 1.6.4.1')
+                    dpg.add_text('Version: 1.6.4.2')
                     dpg.add_text('Functions marked by (?)\nmay lower your trust factor.\nSafe Mode disables them.', color=(255, 0, 0, 255))
                     dpg.add_checkbox(label='Safe Mode', default_value=True, tag='c_safe_mode')
                     dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
@@ -82,9 +82,9 @@ class GUI(Config):
                     dpg.add_slider_float(label='Fake Lag Strength', default_value=0.001, min_value=0.001, max_value=0.016, clamped=True, width=215, tag='s_fakelag_str')
                     dpg.add_button(label='Players Info', width=160, height=25, tag='b_pinfo', callback=lambda: dpg.show_item('w_players_dump'))
                 with dpg.tab(label='Config'):
-                    dpg.add_input_text(label='Config name', default_value='default_config', width=140, tag='i_config_name')
+                    dpg.add_input_text(label='Config name', width=140, tag='i_config_name')
                     dpg.add_button(label='Create', width=160, height=25, callback=lambda: self.create_config(), tag='b_create_config')
-                    dpg.add_combo(label='Select Config', items=tuple(self.config.get_config_list()), width=215, tag='c_config_list')
+                    dpg.add_combo(label='Select Config', items=self.config.get_config_list(), default_value=self.config.get_config_list()[0], width=215, tag='c_config_list')
                     with dpg.group(horizontal=True):
                         dpg.add_button(label='Save', width=160, height=25, callback=lambda: self.save_config(), tag='b_save_config')
                         dpg.add_button(label='Load', width=160, height=25, callback=lambda: self.load_config(), tag='b_load_config')
@@ -171,24 +171,25 @@ class GUI(Config):
             dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,(0, 170, 50, 130))
 
     def create_config(self) -> None:
-        if dpg.get_value('i_config_name') != '':
-            config_file = f"{dpg.get_value('i_config_name')}"
-            path_to_config = f'{self.config.get_cfg_dir}\\'+ f'{config_file}'
-            try:
-                if os.path.exists(f'{path_to_config}.json'):
-                    ctypes.windll.user32.MessageBoxW(0, 'Config file with the same name already exist!', 'Config Error', 0)
-                else:
-                    with open(f'{path_to_config}.json', 'w+') as file:
-                        file.write(json.dumps(config_example))
-            except Exception as err:
-                pass
+        try:
+            new_cfg = dpg.get_value('i_config_name')
+            cfg = Config(new_cfg)
+            cfg_path = cfg.get_path()
+
+            if new_cfg != '':
+                with open(f'{cfg_path}.json', 'w+') as file:
+                    file.write(json.dumps(config_example))
+        except Exception as err:
+            pass
 
     def save_config(self) -> None:
-        if dpg.get_value('c_config_list') != '':
-            config_file = f"{dpg.get_value('c_config_list')}.json"
-            path_to_config = (f'{self.config.get_cfg_dir}\\'+ f'{config_file}')
-            with open(f'{path_to_config}', 'r+') as f:
-                content = json.load(f)
+        current_cfg = dpg.get_value('c_config_list')
+        if current_cfg != '':
+            cfg = Config(current_cfg)
+            cfg_path = cfg.get_path()
+            
+            with open(cfg_path, 'r+') as file:
+                content = json.load(file)
                 # save new values
                 content['aimbot']['switch'] = dpg.get_value('c_aimbot')
                 content['aimbot']['key'] = dpg.get_value('k_aimbot')
@@ -243,71 +244,67 @@ class GUI(Config):
                 
                 content['other']['safe_mode'] = dpg.get_value('c_safe_mode')
                 
-                with open(f'{path_to_config}', 'w') as f:
+                with open(cfg_path, 'w') as f:
                     json.dump(content, f)
 
-    # TO:DO Clean up
     def load_config(self) -> None:
-        config = f"{dpg.get_value('c_config_list')}.json"
-        path_to_config = (f'{self.config.get_cfg_dir}\\'+ f'{config}')
-        config_name = dpg.get_value('c_config_list')
-        # print(path_to_config)
-        if dpg.get_value('c_config_list') == '.json':
-            ctypes.windll.user32.MessageBoxW(0, 'Could not load given config!', 'Config Error', 0)
-        else:
-            dpg.set_value('c_aimbot', self.config.read_value(config_name, 'aimbot','switch'))
-            dpg.set_value('k_aimbot', self.config.read_value(config_name, 'aimbot','key'))
-            dpg.set_value('s_aimbot_fov', self.config.read_value(config_name, 'aimbot','fov'))
-            dpg.set_value('s_aimbot_smooth', self.config.read_value(config_name, 'aimbot','smooth'))
-            dpg.set_value('c_aimbot_bone', self.config.read_value(config_name, 'aimbot','bone'))
-            dpg.set_value('c_aimbot_vis', self.config.read_value(config_name, 'aimbot','visible_only'))
-            dpg.set_value('c_aimbot_team', self.config.read_value(config_name, 'aimbot','attack_team'))
-
-            dpg.set_value('c_rcs', self.config.read_value(config_name, 'standalone_rcs','switch'))
-            if self.config.read_value(config_name, 'standalone_rcs','strength') <= dpg.get_item_configuration('s_rcs_str')['max_value']: dpg.set_value('s_rcs_str', self.config.read_value(config_name, 'standalone_rcs','strength'))
-            if self.config.read_value(config_name, 'standalone_rcs','min_bullets') <= dpg.get_item_configuration('s_rcs_min_bullets')['max_value']: dpg.set_value('s_rcs_min_bullets', self.config.read_value(config_name, 'standalone_rcs','min_bullets'))
-
-            dpg.set_value('c_tbot', self.config.read_value(config_name, 'triggerbot','switch'))
-            dpg.set_value('k_tbot', self.config.read_value(config_name, 'triggerbot','key'))
-            dpg.set_value('c_tbot_legit', self.config.read_value(config_name, 'triggerbot','humanization'))
-            dpg.set_value('s_tbot_delay', self.config.read_value(config_name, 'triggerbot','delay')) if self.config.read_value(config_name, 'triggerbot','delay') <= dpg.get_item_configuration('s_tbot_delay')['max_value'] else None
-
-            dpg.set_value('c_glow_esp', self.config.read_value(config_name, 'visuals','player_esp'))
-            dpg.set_value('c_glow_esp_team', self.config.read_value(config_name, 'visuals','glow_team'))
-            dpg.set_value('c_glow_esp_health', self.config.read_value(config_name, 'visuals','health_mode'))
-            dpg.set_value('c_glow_esp_items', self.config.read_value(config_name, 'visuals','item_esp'))
-            dpg.set_value('c_night', self.config.read_value(config_name, 'visuals','night_mode'))
-            if self.config.read_value(config_name, 'visuals','night_mode_strength') <= dpg.get_item_configuration('s_night_str')['max_value']: dpg.set_value('s_night_str', self.config.read_value(config_name, 'visuals','night_mode_strength'))
-            dpg.set_value('c_noflash', self.config.read_value(config_name, 'visuals','noflash'))
-            if self.config.read_value(config_name, 'visuals','noflash_strength') <= dpg.get_item_configuration('s_noflash_str')['max_value']: dpg.set_value('s_noflash_str', self.config.read_value(config_name, 'visuals','noflash_strength'))
-            dpg.set_value('s_fov', self.config.read_value(config_name, 'visuals','player_fov')) if self.config.read_value(config_name, 'visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value'] else None
-            if self.config.read_value(config_name, 'visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value']: dpg.set_value('s_fov', self.config.read_value(config_name, 'visuals','player_fov'))
-
-            dpg.set_value('c_box_esp', self.config.read_value(config_name, 'overlay','box_esp'))
-            dpg.set_value('c_snaplines', self.config.read_value(config_name, 'overlay','snap_lines'))
-            dpg.set_value('c_distance', self.config.read_value(config_name, 'overlay', 'distance'))
-            dpg.set_value('c_head_indicator', self.config.read_value(config_name, 'overlay','head_indicator'))
-            dpg.set_value('c_bomb_indicator', self.config.read_value(config_name, 'overlay','bomb_indicator'))
-            dpg.set_value('c_gre_line', self.config.read_value(config_name, 'overlay','grenade_traces'))
-            dpg.set_value('c_sniper_crosshair', self.config.read_value(config_name, 'overlay','sniper_crosshair'))
-            dpg.set_value('c_recoil_crosshair', self.config.read_value(config_name, 'overlay','recoil_crosshair'))
-            dpg.set_value('c_recoil_crosshair_mode', self.config.read_value(config_name, 'overlay','crosshair_style'))
-
-            dpg.set_value('c_autopistol', self.config.read_value(config_name, 'misc','auto_pistol'))
-            dpg.set_value('k_autopistol', self.config.read_value(config_name, 'misc','auto_pistol_key'))
-            dpg.set_value('c_radar', self.config.read_value(config_name, 'misc','radar_hack'))
-            dpg.set_value('c_hitsound', self.config.read_value(config_name, 'misc','hit_sound'))
-            dpg.set_value('c_bh', self.config.read_value(config_name, 'misc','bunny_hop'))
-            dpg.set_value('c_strafer', self.config.read_value(config_name, 'misc','auto_strafe'))
-            dpg.set_value('c_zeus', self.config.read_value(config_name, 'misc','auto_zeus'))
-            dpg.set_value('c_knifebot', self.config.read_value(config_name, 'misc','knife_bot'))
-            dpg.set_value('c_spec_alert', self.config.read_value(config_name, 'misc', 'spec_alert'))
-            dpg.set_value('c_nosmoke', self.config.read_value(config_name, 'misc','no_smoke'))
-            dpg.set_value('c_fps', self.config.read_value(config_name, 'misc','show_fps'))
-            dpg.set_value('c_fakelag', self.config.read_value(config_name, 'misc','fake_lag'))
-            if self.config.read_value(config_name, 'misc','lag_strength') <= dpg.get_item_configuration('s_fakelag_str')['max_value']: dpg.set_value('s_fakelag_str',self.config.read_value(config_name, 'misc','lag_strength'))
+        current_cfg = dpg.get_value('c_config_list')
+        if current_cfg != '':
+            cfg = Config(current_cfg)
             
-            dpg.set_value('c_safe_mode', self.config.read_value(config_name, 'other','safe_mode'))
+            dpg.set_value('c_aimbot', cfg.read_value('aimbot','switch'))
+            dpg.set_value('k_aimbot', cfg.read_value('aimbot','key'))
+            dpg.set_value('s_aimbot_fov', cfg.read_value('aimbot','fov'))
+            dpg.set_value('s_aimbot_smooth', cfg.read_value('aimbot','smooth'))
+            dpg.set_value('c_aimbot_bone', cfg.read_value('aimbot','bone'))
+            dpg.set_value('c_aimbot_vis', cfg.read_value('aimbot','visible_only'))
+            dpg.set_value('c_aimbot_team', cfg.read_value('aimbot','attack_team'))
+
+            dpg.set_value('c_rcs', cfg.read_value('standalone_rcs','switch'))
+            if cfg.read_value('standalone_rcs','strength') <= dpg.get_item_configuration('s_rcs_str')['max_value']: dpg.set_value('s_rcs_str', cfg.read_value('standalone_rcs','strength'))
+            if cfg.read_value('standalone_rcs','min_bullets') <= dpg.get_item_configuration('s_rcs_min_bullets')['max_value']: dpg.set_value('s_rcs_min_bullets', cfg.read_value('standalone_rcs','min_bullets'))
+
+            dpg.set_value('c_tbot', cfg.read_value('triggerbot','switch'))
+            dpg.set_value('k_tbot', cfg.read_value('triggerbot','key'))
+            dpg.set_value('c_tbot_legit', cfg.read_value('triggerbot','humanization'))
+            dpg.set_value('s_tbot_delay', cfg.read_value('triggerbot','delay')) if cfg.read_value('triggerbot','delay') <= dpg.get_item_configuration('s_tbot_delay')['max_value'] else None
+
+            dpg.set_value('c_glow_esp', cfg.read_value('visuals','player_esp'))
+            dpg.set_value('c_glow_esp_team', cfg.read_value('visuals','glow_team'))
+            dpg.set_value('c_glow_esp_health', cfg.read_value('visuals','health_mode'))
+            dpg.set_value('c_glow_esp_items', cfg.read_value('visuals','item_esp'))
+            dpg.set_value('c_night', cfg.read_value('visuals','night_mode'))
+            if cfg.read_value('visuals','night_mode_strength') <= dpg.get_item_configuration('s_night_str')['max_value']: dpg.set_value('s_night_str', cfg.read_value('visuals','night_mode_strength'))
+            dpg.set_value('c_noflash', cfg.read_value('visuals','noflash'))
+            if cfg.read_value('visuals','noflash_strength') <= dpg.get_item_configuration('s_noflash_str')['max_value']: dpg.set_value('s_noflash_str', cfg.read_value('visuals','noflash_strength'))
+            dpg.set_value('s_fov', cfg.read_value('visuals','player_fov')) if cfg.read_value('visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value'] else None
+            if cfg.read_value('visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value']: dpg.set_value('s_fov', cfg.read_value('visuals','player_fov'))
+
+            dpg.set_value('c_box_esp', cfg.read_value('overlay','box_esp'))
+            dpg.set_value('c_snaplines', cfg.read_value('overlay','snap_lines'))
+            dpg.set_value('c_distance', cfg.read_value('overlay', 'distance'))
+            dpg.set_value('c_head_indicator', cfg.read_value('overlay','head_indicator'))
+            dpg.set_value('c_bomb_indicator', cfg.read_value('overlay','bomb_indicator'))
+            dpg.set_value('c_gre_line', cfg.read_value('overlay','grenade_traces'))
+            dpg.set_value('c_sniper_crosshair', cfg.read_value('overlay','sniper_crosshair'))
+            dpg.set_value('c_recoil_crosshair', cfg.read_value('overlay','recoil_crosshair'))
+            dpg.set_value('c_recoil_crosshair_mode', cfg.read_value('overlay','crosshair_style'))
+
+            dpg.set_value('c_autopistol', cfg.read_value('misc','auto_pistol'))
+            dpg.set_value('k_autopistol', cfg.read_value('misc','auto_pistol_key'))
+            dpg.set_value('c_radar', cfg.read_value('misc','radar_hack'))
+            dpg.set_value('c_hitsound', cfg.read_value('misc','hit_sound'))
+            dpg.set_value('c_bh', cfg.read_value('misc','bunny_hop'))
+            dpg.set_value('c_strafer', cfg.read_value('misc','auto_strafe'))
+            dpg.set_value('c_zeus', cfg.read_value('misc','auto_zeus'))
+            dpg.set_value('c_knifebot', cfg.read_value('misc','knife_bot'))
+            dpg.set_value('c_spec_alert', cfg.read_value('misc', 'spec_alert'))
+            dpg.set_value('c_nosmoke', cfg.read_value('misc','no_smoke'))
+            dpg.set_value('c_fps', cfg.read_value('misc','show_fps'))
+            dpg.set_value('c_fakelag', cfg.read_value('misc','fake_lag'))
+            if cfg.read_value('misc','lag_strength') <= dpg.get_item_configuration('s_fakelag_str')['max_value']: dpg.set_value('s_fakelag_str',cfg.read_value('misc','lag_strength'))
+            
+            dpg.set_value('c_safe_mode', cfg.read_value('other','safe_mode'))
 
     def key_handler(self, key: str) -> int:
         return helper.gui_keys_list.get(dpg.get_value(key))
