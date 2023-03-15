@@ -17,11 +17,6 @@ Supported OS: Windows
 ## In game
 ![This is an image](https://i.imgur.com/VlAsuOp.png)
 
-## Instruction
-- Please read video description
-
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/bwnokvZOPxo/0.jpg)](https://www.youtube.com/watch?v=bwnokvZOPxo)
-
 ## Contributors
 - [boris768](https://github.com/boris768/)
 - [AlexanderQueen](https://github.com/AlexanderQueen) - Tester
@@ -32,12 +27,13 @@ Supported OS: Windows
 ## F.A.Q:
 <details close>
 <summary>How do I use this?</summary>
-Follow all the steps from that <a href="https://youtu.be/bwnokvZOPxo">VIDEO</a>.
+1. Please read video description.<br>
+2. Follow all the steps from that <a href="https://youtu.be/bwnokvZOPxo">VIDEO</a>.
 </details>
 <details close>
 <summary>Application crashed/ not working</summary>
 1. Check what python versions are installed on your PC and make sure you using at least python 3.8+ (3.11 is recommended).<br>
-2. Go to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopengl">website</a>.<br>
+2. Go to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopengl">WEBSITE</a>.<br>
 3. Download PyOpenGL_accelerate‑3.1.6‑cp311‑cp311‑win_amd64.whl and PyOpenGL‑3.1.6‑cp311‑cp311‑win_amd64.whl<br>
 4. Go to CMD and run this commands:<br>
 pip install PyOpenGL-3.1.6-cp311-cp311-win_amd64.whl --force-reinstall<br>
@@ -54,7 +50,7 @@ Make sure you have glfw.dll in the same folder where cheat is located.
 </details>
 <details close>
 <summary>How do I compile* it?</summary>
-1. Install <a href="https://github.com/pyinstaller/pyinstaller">Pyinstaller</a>.<br>
+1. Install <a href="https://github.com/pyinstaller/pyinstaller">PYINSTALLER</a>.<br>
 2. Open CMD and type this commands:<br>
 cd PATH_TO_FOLDER_WITH_SOFTWARE<br>
 pyinstaller --onefile app.py --clean --windowed<br>
