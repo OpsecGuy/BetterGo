@@ -379,12 +379,14 @@ def spectator_list():
                     if player_name == None or player_name == 'GOTV':
                         continue
 
-                    if ent.get_team(entity[1]) == ent.get_team(local_player):
-                        observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
-                        spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
-                        
-                        if spectated == local_player:
-                            spectators.append(player_name)
+                    observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
+                    spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
+                    
+                    if spectated == 0:
+                        continue
+
+                    if spectated == local_player:
+                        spectators.append(player_name)
             
             if len(spectators) > 0:
                 return 'You are spectated'
