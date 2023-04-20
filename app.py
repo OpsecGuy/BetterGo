@@ -379,12 +379,14 @@ def spectator_list():
                     if player_name == None or player_name == 'GOTV':
                         continue
 
-                    if ent.get_team(entity[1]) == ent.get_team(local_player):
-                        observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
-                        spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
-                        
-                        if spectated == local_player:
-                            spectators.append(player_name)
+                    if  ent.get_dormant(entity[1]) == True or ent.get_life_state(entity[1]) == 0: #check if we have updated info on them (not dormant) and if we do, make sure they're dead (life state != 0)
+                        continue
+
+                    observed_target_handle = game_handle.read_uint(entity[1] + offsets.m_hObserverTarget) & 0xFFF
+                    spectated = game_handle.read_uint(mem.client_dll + offsets.dwEntityList + (observed_target_handle - 1) * 0x10)
+                    
+                    if spectated == local_player:
+                        spectators.append(player_name)
             
             if len(spectators) > 0:
                 return 'You are spectated'
