@@ -543,10 +543,10 @@ def opengl_overlay():
 
     while True:
         try:
-            ov.draw_text(f'github.com/OpsecGuy', 420, 20)
+            ov.draw_text(f'github.com/OpsecGuy', 420, 20, (0.0, 1.0, 0.0))
             if ent.in_game():
                 if dpg.get_value('c_spec_alert'):
-                    ov.draw_text(f'{spectator_list()}', center_x - 75, center_y + 200)
+                    ov.draw_text(f'{spectator_list()}', center_x - 75, center_y + 200, (0.0, 1.0, 0.0))
 
                 local_player = lp.local_player()
                 view_matrix = ent.view_matrix()
@@ -566,19 +566,42 @@ def opengl_overlay():
                             continue
 
                         if dpg.get_value('c_snaplines'):
-                            ov.draw_line(center_x, 0, w2s_position[0], w2s_position[1], 1, (0.0, 1.0, 0.0))
+                            ov.draw_line(center_x, 0, w2s_position[0], w2s_position[1], 1)
 
                         if dpg.get_value('c_box_esp'):
                             head = bone_head[1] - w2s_position[1]
                             width = head / 2
                             center = width / -2
-                            ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
-                            ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 1.0, 0.0))
+                            ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2)
+
+                        if dpg.get_value('c_hp_text'):
+                            if 100 >= ent.get_health(entity[1]) >= 70:
+                                ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15, (0.0, 0.95, 0.0))
+                            elif 69 >= ent.get_health(entity[1]) >= 35:
+                                ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15, (1.0, 0.85, 0.0))
+                            elif 34 >= ent.get_health(entity[1]) >= 1:
+                                ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15, (1.0, 0.0, 0.0))
+
+                        if dpg.get_value('c_flags'):
+                            if dpg.get_value('c_distance') == False:
+                                if ent.is_defusing(entity[1]) == True:
+                                    ov.draw_text('Defusing', w2s_position[0], w2s_position[1] - 30, (0.0, 0.5, 1.0))
+                                if ent.is_scoping(entity[1]) == True:
+                                    ov.draw_text('Scoping', w2s_position[0], w2s_position[1] - 30, (1.0, 0.0, 0.0))
+                                if ent.is_flashed(entity[1]) > 75:
+                                    ov.draw_text('Flashed', w2s_position[0], w2s_position[1] - 30, (1.0, 1.0, 0.0))
+                            else:
+                                if ent.is_defusing(entity[1]) == True:
+                                    ov.draw_text('Defusing', w2s_position[0], w2s_position[1] - 45, (0.0, 0.45, 1.0))
+                                if ent.is_scoping(entity[1]) == True:  
+                                    ov.draw_text('Scoping', w2s_position[0], w2s_position[1] - 45, (1.0, 0.0, 0.0))
+                                if ent.is_flashed(entity[1]) > 75:
+                                    ov.draw_text('Flashed', w2s_position[0], w2s_position[1] - 45, (1.0, 1.0, 0.0))
 
                         if dpg.get_value('c_distance'):
                             dist = distance(ent.get_position(local_player), entity_position)
-                            ov.draw_text(f'{str(dist / 32):.4}m', w2s_position[0], w2s_position[1] - 30)
-
+                            ov.draw_text(f'{str(dist / 32):.4}m', w2s_position[0], w2s_position[1] - 30, (0.0, 1.0, 0.0))                        
+                        
                         if dpg.get_value('c_head_indicator'):
                             ov.draw_empty_circle(bone_head[0], bone_head[1], 4.0, 10, (0.0, 1.0, 0.0))
 

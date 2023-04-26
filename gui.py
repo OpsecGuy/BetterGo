@@ -55,8 +55,14 @@ class GUI(Config):
                     dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, clamped=True, width=215, tag='s_fov')
                     dpg.add_combo(label='Sky', items=list(helper.sky_list), default_value='', width=215, tag='d_sky')
                 with dpg.tab(label='Overlay'):
-                    dpg.add_checkbox(label='Box ESP + HP Text', tag='c_box_esp')
-                    dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
+                    with dpg.group(horizontal=True):
+                        dpg.add_checkbox(label='Box ESP', tag='c_box_esp')
+                        dpg.add_color_edit(default_value=[0, 255, 0, 255], tag='c_box_color', no_inputs=True)
+                    dpg.add_checkbox(label='HP text', tag='c_hp_text')
+                    with dpg.group(horizontal=True):
+                        dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
+                        dpg.add_color_edit(default_value=[0, 255, 0, 255], tag='c_snaplines_color', no_inputs=True)
+                    dpg.add_checkbox(label='Flags', tag='c_flags')
                     dpg.add_checkbox(label='Distance', tag='c_distance')
                     dpg.add_checkbox(label='Head Indicator', tag='c_head_indicator')
                     dpg.add_checkbox(label='Bomb Indicator', tag='c_bomb_indicator')
@@ -95,6 +101,9 @@ class GUI(Config):
                 dpg.add_text('', tag='buffer_name')
                 dpg.add_text('', tag='buffer_wins')
                 dpg.add_text('', tag='buffer_rank')
+
+        with dpg.tooltip(parent='c_flags'):
+            dpg.add_text('Shows if the enemy is defusing, scoping or flashed')
 
         with dpg.tooltip(parent='c_safe_mode'):
             dpg.add_text('Disables features that can cause red trust factor.')
@@ -219,7 +228,9 @@ class GUI(Config):
                 content['visuals']['player_fov'] = dpg.get_value('s_fov')
 
                 content['overlay']['box_esp'] = dpg.get_value('c_box_esp')
+                content['overlay']['hp_text'] = dpg.get_value('c_hp_text')
                 content['overlay']['snap_lines'] = dpg.get_value('c_snaplines')
+                content['overlay']['flags'] = dpg.get_value('c_flags')
                 content['overlay']['distance'] = dpg.get_value('c_distance')
                 content['overlay']['head_indicator'] = dpg.get_value('c_head_indicator')
                 content['overlay']['bomb_indicator'] = dpg.get_value('c_bomb_indicator')
@@ -281,7 +292,9 @@ class GUI(Config):
             if cfg.read_value('visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value']: dpg.set_value('s_fov', cfg.read_value('visuals','player_fov'))
 
             dpg.set_value('c_box_esp', cfg.read_value('overlay','box_esp'))
+            dpg.set_value('c_hp_text', cfg.read_value('overlay','c_hp_text'))
             dpg.set_value('c_snaplines', cfg.read_value('overlay','snap_lines'))
+            dpg.set_value('c_flags', cfg.read_value('overlay', 'flags'))
             dpg.set_value('c_distance', cfg.read_value('overlay', 'distance'))
             dpg.set_value('c_head_indicator', cfg.read_value('overlay','head_indicator'))
             dpg.set_value('c_bomb_indicator', cfg.read_value('overlay','bomb_indicator'))

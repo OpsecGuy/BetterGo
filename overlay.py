@@ -3,6 +3,7 @@ from math import tan, cos, pi
 from memory import kernel32
 from win32gui import *
 from win32con import *
+import dearpygui.dearpygui as dpg
 import OpenGL.GLUT as glut
 import OpenGL.GL as gl
 import glfw
@@ -96,10 +97,11 @@ class Overlay():
         gl.glVertex2f(start_point_x, start_point_y)
         gl.glEnd()
 
-    def draw_line(self, start_point_x: float, start_point_y: float, end_point_x: float, end_point_y: float, line_width: float, color: Vector3) -> None:
+    def draw_line(self, start_point_x: float, start_point_y: float, end_point_x: float, end_point_y: float, line_width: float) -> None:
+        snaplines_color = dpg.get_value('c_snaplines_color')        
         gl.glLineWidth(line_width)
         gl.glBegin(gl.GL_LINES)
-        gl.glColor4f(*color, 1.0)
+        gl.glColor4f(snaplines_color[0], snaplines_color[1], snaplines_color[2], snaplines_color[3])
         gl.glVertex2f(start_point_x, start_point_y)
         gl.glVertex2f(end_point_x, end_point_y)
         gl.glEnd()
@@ -114,18 +116,19 @@ class Overlay():
         gl.glVertex2f(start_point_x + 5, start_point_y)
         gl.glEnd()
 
-    def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float, color: Vector3) -> None:
+    def draw_full_box(self, start_point_x: float, start_point_y: float, width, height, line_width: float) -> None:
+        box_color = dpg.get_value('c_box_color')
         gl.glLineWidth(line_width)
         gl.glBegin(gl.GL_LINE_LOOP)
-        gl.glColor4f(*color, 1.0)
+        gl.glColor4f(box_color[0], box_color[1], box_color[2], box_color[3])
         gl.glVertex2f(start_point_x, start_point_y)
         gl.glVertex2f(start_point_x + width, start_point_y)
         gl.glVertex2f(start_point_x + width, start_point_y + height)
         gl.glVertex2f(start_point_x, start_point_y + height)
         gl.glEnd()
 
-    def draw_text(self, text: str, x: int | float, y: int | float, font=glut.GLUT_BITMAP_9_BY_15) -> None:
-        gl.glColor4f(0.0, 1.0, 0.0, 1.0)
+    def draw_text(self, text: str, x: int | float, y: int | float, color: Vector3, font=glut.GLUT_BITMAP_9_BY_15) -> None:
+        gl.glColor4f(*color, 1.0)
         gl.glRasterPos2i(int(x), int(y))
         lines = text.split("\n")
         line_height = 24

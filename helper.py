@@ -40,7 +40,9 @@ config_example = {
     },
     "overlay": {
         "box_esp": True,
+        "hp_text": True,
         "snap_lines": True,
+        "flags": False,
         "distance": False,
         "head_indicator": False,
         "bomb_indicator": False,

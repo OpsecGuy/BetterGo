@@ -70,6 +70,9 @@ class Entity(LocalPlayer):
 
     def set_spotted_by_mask(self, entity: int, value: bool) -> None:
         return self.mem.game_handle.write_bool(entity + offsets.m_bSpottedByMask, value)
+    
+    def is_flashed(self, entity: int) -> float:
+        return self.mem.game_handle.read_float(entity + offsets.m_flFlashMaxAlpha - 8)
 
     def is_defusing(self, entity: int) -> bool:
         return self.mem.game_handle.read_bool(entity + offsets.m_bIsDefusing)
