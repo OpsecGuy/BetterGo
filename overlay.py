@@ -24,7 +24,7 @@ class Overlay():
         # Don't touch this. Without anti-aliasing all the drawings looks terrible.
         glfw.window_hint(glfw.SAMPLES, 2)
 
-        self.window = glfw.create_window(ScreenSize.x - 1, ScreenSize.y - 1, title:=f'{self.random_string}', None, None)
+        self.window = glfw.create_window(ScreenSize.x, ScreenSize.y, title:=f'{self.random_string}', None, None)
         if not self.window:
             return
         # Get handle to the created window
@@ -37,7 +37,7 @@ class Overlay():
         gl.glPushAttrib(gl.GL_ALL_ATTRIB_BITS)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        gl.glOrtho(0, ScreenSize.x - 1, 0, ScreenSize.y - 1, -1, 1)
+        gl.glOrtho(0, ScreenSize.x, 0, ScreenSize.y, -1, 1)
         gl.glDisable(gl.GL_DEPTH_TEST)
         gl.glDisable(gl.GL_TEXTURE_2D)
         gl.glEnable(gl.GL_BLEND)

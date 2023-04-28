@@ -39,14 +39,15 @@ config_example = {
         "player_fov": 90,
     },
     "overlay": {
-        "box_esp": True,
-        "snap_lines": True,
+        "box_esp": False,
+        "hp_text": False,
+        "snap_lines": False,
         "distance": False,
         "head_indicator": False,
         "bomb_indicator": False,
         "grenade_traces": False,
         "sniper_crosshair": True,
-        "recoil_crosshair": True,
+        "recoil_crosshair": False,
         "crosshair_style": 'Crosshair',
     },
     "misc":{
@@ -65,7 +66,7 @@ config_example = {
         "lag_strength": 0.001,
     },
     "other":{
-        "safe_mode": False,
+        "safe_mode": True,
     },
 }
 
@@ -93,8 +94,8 @@ class GlowObjectDefinition_t(ctypes.Structure):
 
 @dataclass
 class ScreenSize:
-    x = ctypes.windll.user32.GetSystemMetrics(0)
-    y = ctypes.windll.user32.GetSystemMetrics(1)
+    x = ctypes.windll.user32.GetSystemMetrics(0) - 1
+    y = ctypes.windll.user32.GetSystemMetrics(1) - 1
 
 @dataclass
 class Vector3:

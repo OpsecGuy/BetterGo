@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-import webbrowser, time, ctypes, helper
+import webbrowser, time, helper
 from config import *
 
 class GUI(Config):
@@ -55,7 +55,8 @@ class GUI(Config):
                     dpg.add_slider_int(label='FOV', default_value=90, min_value=60, max_value=160, clamped=True, width=215, tag='s_fov')
                     dpg.add_combo(label='Sky', items=list(helper.sky_list), default_value='', width=215, tag='d_sky')
                 with dpg.tab(label='Overlay'):
-                    dpg.add_checkbox(label='Box ESP + HP Text', tag='c_box_esp')
+                    dpg.add_checkbox(label='Box ESP', tag='c_box_esp')
+                    dpg.add_checkbox(label='HP Text', tag='c_hp_text')
                     dpg.add_checkbox(label='Snaplines', tag='c_snaplines')
                     dpg.add_checkbox(label='Distance', tag='c_distance')
                     dpg.add_checkbox(label='Head Indicator', tag='c_head_indicator')
@@ -77,12 +78,12 @@ class GUI(Config):
                     dpg.add_checkbox(label='No Smoke', tag='c_nosmoke')
                     dpg.add_checkbox(label='Show FPS', tag='c_fps')
                     dpg.add_checkbox(label='Chat Spam (?)', tag='c_chat')
-                    dpg.add_input_text(label='Command', width=215, tag='i_chat')
+                    dpg.add_input_text(label='Say', width=215, tag='i_chat')
                     dpg.add_checkbox(label='Fake Lag', tag='c_fakelag')
                     dpg.add_slider_float(label='Fake Lag Strength', default_value=0.001, min_value=0.001, max_value=0.016, clamped=True, width=215, tag='s_fakelag_str')
                     dpg.add_button(label='Players Info', width=160, height=25, tag='b_pinfo', callback=lambda: dpg.show_item('w_players_dump'))
                 with dpg.tab(label='Config'):
-                    dpg.add_input_text(label='Config name', width=140, tag='i_config_name')
+                    dpg.add_input_text(label='Config Name', width=140, tag='i_config_name')
                     dpg.add_button(label='Create', width=160, height=25, callback=lambda: self.create_config(), tag='b_create_config')
                     dpg.add_combo(label='Select Config', items=self.config.get_config_list(), default_value=self.config.get_config_list()[0], width=215, tag='c_config_list')
                     with dpg.group(horizontal=True):
@@ -130,26 +131,13 @@ class GUI(Config):
                 dpg.hide_item('s_fakelag_str') if dpg.get_value('c_fakelag') == False else dpg.show_item('s_fakelag_str')
                 dpg.hide_item('s_night_str') if dpg.get_value('c_night') == False else dpg.show_item('s_night_str')
                 
-                if dpg.get_value('c_safe_mode'):
-                    dpg.disable_item('c_aimbot')
-                    dpg.set_value('c_aimbot', False)
-                    dpg.disable_item('c_aimbot_vis')
-                    dpg.set_value('c_aimbot_vis', False)
-                    dpg.disable_item('c_glow_esp')
-                    dpg.set_value('c_glow_esp', False)
-                    dpg.disable_item('c_glow_esp_items')
-                    dpg.set_value('c_glow_esp_items', False)
-                    dpg.disable_item('c_radar')
-                    dpg.set_value('c_radar', False)
-                    dpg.disable_item('c_chat')
-                    dpg.set_value('c_chat', False)
-                else:
-                    dpg.enable_item('c_aimbot')
-                    dpg.enable_item('c_aimbot_vis')
-                    dpg.enable_item('c_glow_esp')
-                    dpg.enable_item('c_glow_esp_items')
-                    dpg.enable_item('c_radar')
-                    dpg.enable_item('c_chat')
+                risky = ['c_aimbot', 'c_aimbot_vis', 'c_glow_esp', 'c_glow_esp_items', 'c_radar', 'c_chat']
+                for item in risky:
+                    if dpg.get_value('c_safe_mode'):
+                        dpg.disable_item(item)
+                        dpg.set_value(item, False)
+                    else:
+                        dpg.enable_item(item)
                 
                 dpg.configure_item('c_config_list', items=tuple(self.config.get_config_list()))
             except Exception as err:
@@ -219,6 +207,7 @@ class GUI(Config):
                 content['visuals']['player_fov'] = dpg.get_value('s_fov')
 
                 content['overlay']['box_esp'] = dpg.get_value('c_box_esp')
+                content['overlay']['hp_text'] = dpg.get_value('c_hp_text')
                 content['overlay']['snap_lines'] = dpg.get_value('c_snaplines')
                 content['overlay']['distance'] = dpg.get_value('c_distance')
                 content['overlay']['head_indicator'] = dpg.get_value('c_head_indicator')
@@ -281,6 +270,7 @@ class GUI(Config):
             if cfg.read_value('visuals','player_fov') <= dpg.get_item_configuration('s_fov')['max_value']: dpg.set_value('s_fov', cfg.read_value('visuals','player_fov'))
 
             dpg.set_value('c_box_esp', cfg.read_value('overlay','box_esp'))
+            dpg.set_value('c_hp_text', cfg.read_value('overlay','hp_text'))
             dpg.set_value('c_snaplines', cfg.read_value('overlay','snap_lines'))
             dpg.set_value('c_distance', cfg.read_value('overlay', 'distance'))
             dpg.set_value('c_head_indicator', cfg.read_value('overlay','head_indicator'))

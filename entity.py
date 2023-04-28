@@ -1,8 +1,7 @@
-from local import LocalPlayer
-from helper import *
 import offsets, struct
+from helper import *
 
-class Entity(LocalPlayer):
+class Entity():
     def __init__(self, mem) -> None:
         self.mem = mem
         self.entity_list = []
@@ -173,6 +172,5 @@ class Entity(LocalPlayer):
                                               + offsets.m_iCompetitiveWins + (entity + 1) * 0x4)
 
     def view_matrix(self) -> Vector3:
-        view = self.mem.game_handle.read_bytes(self.mem.client_dll + offsets.dwViewMatrix, 64)
-        matrix = struct.unpack("16f", view)
-        return matrix
+        view_matrix = self.mem.game_handle.read_bytes(self.mem.client_dll + offsets.dwViewMatrix, 64)
+        return struct.unpack("16f", view_matrix)

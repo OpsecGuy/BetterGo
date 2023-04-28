@@ -217,7 +217,7 @@ def trigger_bot():
                 entity_team_crosshair = lp.get_team_by_crosshair(entity)
                 local_team = ent.get_team(lp.local_player())
                 if ctypes.windll.user32.GetAsyncKeyState(gui.key_handler('k_tbot')) and dpg.get_value('c_tbot'):
-                    if entity_team_crosshair != local_team and entity_hp_crosshair >= 1:
+                    if entity_team_crosshair != local_team and entity_hp_crosshair > 0:
                         if dpg.get_value('c_tbot_legit') == True:
                             v2_delay = round(random.uniform(0.001, 0.01), 3)
                             time.sleep(dpg.get_value('s_tbot_delay') + v2_delay)
@@ -572,8 +572,10 @@ def opengl_overlay():
                             head = bone_head[1] - w2s_position[1]
                             width = head / 2
                             center = width / -2
-                            ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
                             ov.draw_full_box(w2s_position[0] + center, w2s_position[1], width, head + 5, 2, (0.0, 1.0, 0.0))
+                            
+                        if dpg.get_value('c_hp_text'):
+                            ov.draw_text(f'{ent.get_health(entity[1])}', w2s_position[0], w2s_position[1] - 15)
 
                         if dpg.get_value('c_distance'):
                             dist = distance(ent.get_position(local_player), entity_position)
@@ -595,7 +597,7 @@ def opengl_overlay():
                         ov.draw_crosshair(center_x, center_y, 1, (1.0, 0.0, 0.0))
 
                 if dpg.get_value('c_recoil_crosshair'):
-                    punch_angle = ent.aim_punch_angle()
+                    punch_angle = lp.aim_punch_angle()
                     if punch_angle.x != 0.0 and lp.get_shots_fired() > 1:
                         fov = lp.get_fov()
                         dx = (ov_rect[2] + 1) / fov
@@ -654,7 +656,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        print(f'Debug: {DEBUG_MODE}')
+        print(f'{DEBUG_MODE=}')
         mem = Memory(game_handle, client_dll, engine_dll)
         lp = LocalPlayer(mem)
         ent = Entity(mem)
