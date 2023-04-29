@@ -28,7 +28,7 @@ while True:
         game_handle = Pymem('csgo.exe')
         client_dll = process.module_from_name(game_handle.process_handle, 'client.dll').lpBaseOfDll
         engine_dll = process.module_from_name(game_handle.process_handle, 'engine.dll').lpBaseOfDll
-        print(f'Game Handle: {hex(game_handle.base_address)}\nClient.dll: {hex(client_dll)}\nEngine.dll: {hex(engine_dll)}')
+        print(f'{game_handle.base_address=:#0x}\n{client_dll=:#0x}\n{engine_dll=:#0x}')
         break
     except (exception.ProcessNotFound, AttributeError) as err:
         os.system('cls')

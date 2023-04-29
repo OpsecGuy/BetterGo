@@ -67,7 +67,7 @@ config_example = {
         "lag_strength": 0.001,
     },
     "other":{
-        "safe_mode": False,
+        "safe_mode": True,
     },
 }
 
@@ -95,8 +95,8 @@ class GlowObjectDefinition_t(ctypes.Structure):
 
 @dataclass
 class ScreenSize:
-    x = ctypes.windll.user32.GetSystemMetrics(0)
-    y = ctypes.windll.user32.GetSystemMetrics(1)
+    x = ctypes.windll.user32.GetSystemMetrics(0) - 1
+    y = ctypes.windll.user32.GetSystemMetrics(1) - 1
 
 @dataclass
 class Vector3:
