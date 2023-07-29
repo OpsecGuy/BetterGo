@@ -19,7 +19,7 @@ class GUI(Config):
         with dpg.window(tag='w_main'):
             with dpg.tab_bar():
                 with dpg.tab(label='News'):
-                    dpg.add_text('Version: 1.6.4.3')
+                    dpg.add_text('Version: 1.6.5')
                     dpg.add_text('Functions marked by (?)\nmay lower your trust factor.\nSafe Mode disables them.', color=(255, 0, 0, 255))
                     dpg.add_checkbox(label='Safe Mode', default_value=True, tag='c_safe_mode')
                     dpg.add_button(label='Github', width=160, height=25, callback=lambda: webbrowser.open('https://github.com/OpsecGuy/BetterGo'))
@@ -29,10 +29,10 @@ class GUI(Config):
                     dpg.add_slider_float(label='Aimbot FOV', default_value=5.0, min_value=1.0, max_value=359.9, clamped=True, width=215, format='%.3f', tag='s_aimbot_fov')
                     dpg.add_slider_float(label='Aimbot Smooth', default_value=3.0, min_value=1.0, max_value=30.0, clamped=True, width=215, format='%.3f', tag='s_aimbot_smooth')
                     dpg.add_combo(label='Bone', items=tuple(helper.bone_ids.keys()), default_value='HEAD', width=215, tag='c_aimbot_bone')
-                    dpg.add_checkbox(label='Visible Only (?)', tag='c_aimbot_vis')
+                    dpg.add_checkbox(label='Visible Only', tag='c_aimbot_vis')
                     dpg.add_checkbox(label='Attack Team', tag='c_aimbot_team')
                     dpg.add_separator()
-                    dpg.add_checkbox(label='Standalone RCS', tag='c_rcs')
+                    dpg.add_checkbox(label='Standalone RCS (?)', tag='c_rcs')
                     dpg.add_slider_float(label='RCS Strength', default_value=0.0, min_value=0.0, max_value=2.0, clamped=True, width=215, format='%.3f', tag='s_rcs_str')
                     dpg.add_slider_int(label='Shot After x Bullets', default_value=1, min_value=0, max_value=30, clamped=True, width=215, tag='s_rcs_min_bullets')
                     dpg.add_separator()
@@ -61,7 +61,7 @@ class GUI(Config):
                     dpg.add_checkbox(label='Distance', tag='c_distance')
                     dpg.add_checkbox(label='Head Indicator', tag='c_head_indicator')
                     dpg.add_checkbox(label='Bomb Indicator', tag='c_bomb_indicator')
-                    dpg.add_checkbox(label='Grenade Trajectory', tag='c_gre_line')
+                    dpg.add_checkbox(label='Grenade Trajectory (?)', tag='c_gre_line')
                     dpg.add_checkbox(label='Sniper Crosshair', tag='c_sniper_crosshair')
                     dpg.add_checkbox(label='Recoil Crosshair', tag='c_recoil_crosshair')
                     dpg.add_combo(label='Crosshair Style', items=['Crosshair', 'Circle'], default_value='Crosshair', width=215, tag='c_recoil_crosshair_mode')
@@ -71,11 +71,11 @@ class GUI(Config):
                     dpg.add_checkbox(label='Radar Hack (?)', tag='c_radar')
                     dpg.add_checkbox(label='Hit Sound', tag='c_hitsound')
                     dpg.add_checkbox(label='BunnyHop', tag='c_bh')
-                    dpg.add_checkbox(label='Auto Strafer', tag='c_strafer')
+                    dpg.add_checkbox(label='Auto Strafer (?)', tag='c_strafer')
                     dpg.add_checkbox(label='Auto Zeus', tag='c_zeus')
                     dpg.add_checkbox(label='Knife Bot', tag='c_knifebot')
                     dpg.add_checkbox(label='Spectator Alert', tag='c_spec_alert')
-                    dpg.add_checkbox(label='No Smoke', tag='c_nosmoke')
+                    dpg.add_checkbox(label='No Smoke (?)', tag='c_nosmoke')
                     dpg.add_checkbox(label='Show FPS', tag='c_fps')
                     dpg.add_checkbox(label='Chat Spam (?)', tag='c_chat')
                     dpg.add_input_text(label='Say', width=215, tag='i_chat')
@@ -131,7 +131,7 @@ class GUI(Config):
                 dpg.hide_item('s_fakelag_str') if dpg.get_value('c_fakelag') == False else dpg.show_item('s_fakelag_str')
                 dpg.hide_item('s_night_str') if dpg.get_value('c_night') == False else dpg.show_item('s_night_str')
                 
-                risky = ['c_aimbot', 'c_aimbot_vis', 'c_glow_esp', 'c_glow_esp_items', 'c_radar', 'c_chat']
+                risky = ['c_aimbot', 'c_rcs', 'c_glow_esp', 'c_glow_esp_items', 'c_gre_line', 'c_noflash', 'c_radar', 'c_strafer', 'c_nosmoke','c_chat']
                 for item in risky:
                     if dpg.get_value('c_safe_mode'):
                         dpg.disable_item(item)

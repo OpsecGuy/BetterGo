@@ -9,7 +9,7 @@ from overlay import *
 import threading
 import winsound
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 def entity_loop():
     while True:
@@ -165,7 +165,7 @@ def rcs():
     while (True):
         try:
             if dpg.get_value('c_rcs') and ent.in_game() and ent.get_health(lp.local_player()) > 0:
-                if ctypes.windll.user32.GetAsyncKeyState(0x01) and ent.get_shots_fired() > dpg.get_value('s_rcs_min_bullets'):
+                if ctypes.windll.user32.GetAsyncKeyState(0x01) and lp.get_shots_fired() > dpg.get_value('s_rcs_min_bullets'):
                     if weapon_rifle(lp.active_weapon()) or weapon_smg(lp.active_weapon()) or weapon_heavy(lp.active_weapon()):
                         view_angle = ent.get_view_angle()
                         punch_angle = lp.aim_punch_angle()
